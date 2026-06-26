@@ -7,4 +7,11 @@
         <BlazorDisableThrowNavigationException>true</BlazorDisableThrowNavigationException>
     </PropertyGroup>
 
+    <ItemGroup>
+      <PackageReference Include="MudBlazor" Version="9.5.0" />
+      <PackageReference Include="Refit" Version="12.0.0" />
+      <PackageReference Include="Refit.HttpClientFactory" Version="12.0.0" />
+      <PackageReference Include="Refit.Newtonsoft.Json" Version="12.0.0" />
+    </ItemGroup>
+
 </Project>
