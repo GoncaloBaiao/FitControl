@@ -1,0 +1,72 @@
+﻿@using FitControl.WebClient.Components.Layout
+@implements IDisposable
+
+<nav class="@NavbarClass">
+    <div class="navbar-container">
+        <div class="navbar-logo">
+            <div class="navbar-logo-icon">
+                <span style="font-size: 1.2rem;">💪</span>
+            </div>
+            <span class="navbar-brand">FITCONTROL</span>
+        </div>
+
+        <div class="navbar-links">
+            <a href="#funcionalidades">Funcionalidades</a>
+            <a href="#precos">Preços</a>
+            <a href="#sobre">Sobre Nós</a>
+            <a href="#contacto">Contacto</a>
+        </div>
+
+        <div style="display: flex; align-items: center; gap: 0.75rem;">
+            <a href="#" class="navbar-cta">
+                ENTRAR NA PLATAFORMA →
+            </a>
+            <button class="hamburger" @onclick="ToggleMobileMenu">
+                @if (mobileMenuOpen)
+                {
+                    <span>✕</span>
+                }
+                else
+                {
+                    <span>☰</span>
+                }
+            </button>
+        </div>
+    </div>
+
+    @if (mobileMenuOpen)
+    {
+        <div class="mobile-menu active">
+            <a href="#funcionalidades" @onclick="() => mobileMenuOpen = false">Funcionalidades</a>
+            <a href="#precos" @onclick="() => mobileMenuOpen = false">Preços</a>
+            <a href="#sobre" @onclick="() => mobileMenuOpen = false">Sobre Nós</a>
+            <a href="#contacto" @onclick="() => mobileMenuOpen = false">Contacto</a>
+            <a href="#" class="navbar-cta" style="margin-top: 0.5rem;">ENTRAR NA PLATAFORMA →</a>
+        </div>
+    }
+</nav>
+
+@code {
+    private bool mobileMenuOpen = false;
+    private bool isScrolled = false;
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (firstRender)
+        {
+            // JS interop para scroll listener
+        }
+    }
+
+    private string NavbarClass => isScrolled ? "scrolled" : "";
+
+    private void ToggleMobileMenu()
+    {
+        mobileMenuOpen = !mobileMenuOpen;
+    }
+
+    void IDisposable.Dispose()
+    {
+        // Cleanup
+    }
+}
