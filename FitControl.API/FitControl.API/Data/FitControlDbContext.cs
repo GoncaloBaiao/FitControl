@@ -17,6 +17,6 @@ public class FitControlDbContext : DbContext, IFitControlDbContext
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
         base.OnConfiguring(optionsBuilder);
-        optionsBuilder.UseSqlite("Data Source=app.db");
+        optionsBuilder.UseSqlServer("Data Source=SQL6034.site4now.net;Initial Catalog=db_acb568_fitcontrol;User Id=db_acb568_fitcontrol_admin;Password=db_acb568_fitcontrol;Encrypt=True;TrustServerCertificate=True;");
     }
 }
