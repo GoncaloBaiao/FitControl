@@ -13,6 +13,7 @@ public class FitControlDbContext : DbContext, IFitControlDbContext
     public DbSet<Sala>? Salas { get; set; }
     public DbSet<Socio>? Socios { get; set; }
     public DbSet<TipoPlano>? TipoPlanos { get; set; }
+    public DbSet<User>? Users { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {

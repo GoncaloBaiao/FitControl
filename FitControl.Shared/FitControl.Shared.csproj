@@ -6,4 +6,10 @@
         <Nullable>enable</Nullable>
     </PropertyGroup>
 
+    <ItemGroup>
+      <PackageReference Include="Refit" Version="12.1.0" />
+      <PackageReference Include="Refit.HttpClientFactory" Version="12.1.0" />
+      <PackageReference Include="Refit.Newtonsoft.Json" Version="12.1.0" />
+    </ItemGroup>
+
 </Project>
