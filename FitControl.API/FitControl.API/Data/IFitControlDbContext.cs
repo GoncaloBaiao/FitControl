@@ -13,6 +13,7 @@ public interface IFitControlDbContext
     public DbSet<Sala>? Salas { get; set; }
     public DbSet<Socio>? Socios { get; set; }
     public DbSet<TipoPlano>? TipoPlanos { get; set; }
+    public DbSet<User>? Users { get; set; }
     
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }
