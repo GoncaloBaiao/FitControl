@@ -147,7 +147,7 @@ namespace FitControl.API.Migrations
                     b.ToTable("Instrutors");
                 });
 
-            modelBuilder.Entity("FitControl.API.Entities.InstrutorModalidade", b =>
+            modelBuilder.Entity("FitControl.API.Entities.InstrutorModalidadeDto", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -419,7 +419,7 @@ namespace FitControl.API.Migrations
                     b.Navigation("Socio");
                 });
 
-            modelBuilder.Entity("FitControl.API.Entities.InstrutorModalidade", b =>
+            modelBuilder.Entity("FitControl.API.Entities.InstrutorModalidadeDto", b =>
                 {
                     b.HasOne("FitControl.API.Entities.Instrutor", "Instrutor")
                         .WithMany("IntrutorModalidades")
