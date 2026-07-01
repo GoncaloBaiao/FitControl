@@ -104,7 +104,7 @@ public class InstrutorController : ControllerBase
         }
 
         return Ok(instrutorDto);
-    }
+    } 
     
     [HttpDelete("/instrutor/softdelete/{id}")]
     public async Task<IResult> SoftDeleteInstrutors(int id)
