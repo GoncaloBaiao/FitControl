@@ -1,4 +1,4 @@
-@page "/Aulas"
+@page "/Instrutores"
 @using FitControl.Shared.Services
 @using FitControl.Shared.Models
 @using Refit
@@ -10,32 +10,26 @@
 
 <PageTitle>Home</PageTitle>
 
-@if(_aulas is not null)
+@if(_instrutores is not null)
 {
-    if(_aulas.HasContent)
+    if(_instrutores.HasContent)
     {
-        <MudTable Items="@_aulas.Content" Hover="true" Breakpoint="Breakpoint.Sm" Loading="@_loading" LoadingProgressColor="Color.Info">
+        <MudTable Items="@_instrutores.Content" Hover="true" Breakpoint="Breakpoint.Sm" Loading="@_loading" LoadingProgressColor="Color.Info">
             <HeaderContent>
                 <MudTh>Nome</MudTh>
-                <MudTh>Modalidade</MudTh>
-                <MudTh>Instrutor</MudTh>
-                <MudTh>Sala</MudTh>
-                <MudTh>Hora de Início</MudTh>
-                <MudTh>Hora de Fim</MudTh>
-                <MudTh>Capacidade</MudTh>
+                <MudTh>Data de Nascimento</MudTh>
+                <MudTh>Email</MudTh>
+                <MudTh>Contacto Telefónico</MudTh>
             </HeaderContent>
             <RowTemplate>
                 <MudTd DataLabel="Nome">@context.Nome</MudTd>
-                <MudTd DataLabel="Modalidade">@context.Modalidade.Nome</MudTd>
-                <MudTd DataLabel="Instrutor">@context.Instrutor.Nome</MudTd>
-                <MudTd DataLabel="Sala">@context.Sala.Nome</MudTd>
-                <MudTd DataLabel="Hora de Início">@context.HoraInicio</MudTd>
-                <MudTd DataLabel="Hora de Fim">@context.HoraFim</MudTd>
-                <MudTd DataLabel="Capacidade">@context.Capacidade</MudTd>
+                <MudTd DataLabel="Data de Nascimento">@context.DataNascimento</MudTd>
+                <MudTd DataLabel="Email">@context.Email</MudTd>
+                <MudTd DataLabel="Contacto Telefónico">@context.ContactoTelefonico</MudTd>
                 <!--<MudCheckBox @bind-Value="" Disabled="true"></MudCheckBox>-->
                 <MudTd DataLabel="Actions">
                     <MudIconButton Icon="@Icons.Material.Filled.RemoveRedEye" aria-label="detail" OnClick="() => OnPageNavigate(context.Id)"/>
-                    <MudIconButton Icon="@Icons.Material.Filled.Delete" Color='Color.Error' aria-label="delete" OnClick="()=> OnAulaDelete(context.Id)"/>
+                    <MudIconButton Icon="@Icons.Material.Filled.Delete" Color='Color.Error' aria-label="delete" OnClick="()=> OnInstrutorDelete(context.Id)"/>
                 </MudTd>
             </RowTemplate>
         </MudTable>
@@ -44,7 +38,7 @@
 
 @code {
 
-    private ApiResponse<List<Aula>>? _aulas;
+    private ApiResponse<List<Instrutor>>? _instrutores;
     
     private bool _loading;
 
@@ -52,17 +46,17 @@
     {
         _loading = true;
         await base.OnInitializedAsync();
-        _aulas = await FitControlApi.GetAulas();
+        _instrutores = await FitControlApi.GetInstrutors();
         StateHasChanged();
         _loading = false;
     }
 
     private void OnPageNavigate(int id)
     {
-         NavigationManager.NavigateTo($"addAula/{id}");
+         NavigationManager.NavigateTo($"addInstrutor/{id}");
     }
 
-    private async Task OnAulaDelete(int id)
+    private async Task OnInstrutorDelete(int id)
     {
         var parameters = new DialogParameters<Dialog>
         {
@@ -84,19 +78,19 @@
         
         try
         {
-            var apiResponse = await FitControlApi.DeleteAula(id);
+            var apiResponse = await FitControlApi.DeleteInstrutor(id);
             if (apiResponse.IsSuccessStatusCode)
             {
                 Snackbar.Clear();
                 Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopRight;
-                Snackbar.Add("Aula apagada com sucesso", Severity.Success);
-                _aulas = await FitControlApi.GetAulas();
+                Snackbar.Add("Instrutor apagado com sucesso", Severity.Success);
+                _instrutores = await FitControlApi.GetInstrutors();
             }
             else
             {
                 Snackbar.Clear();
                 Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopRight;
-                Snackbar.Add("Falhou o delete da Aula", Severity.Error);
+                Snackbar.Add("Falhou o delete do Instrutor", Severity.Error);
             }
             
                     }
@@ -104,7 +98,7 @@
         {
             Snackbar.Clear();
             Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopRight;
-            Snackbar.Add("Erro a apagar Aula", Severity.Error);
+            Snackbar.Add("Erro a apagar Instrutor", Severity.Error);
         }
         StateHasChanged();
     }
