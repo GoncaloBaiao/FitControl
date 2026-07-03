@@ -12,7 +12,7 @@ builder.Services.AddRazorComponents()
 builder.Services
     .AddRefitClient<IFitControlApi>()
     .AddRefitClient<IAuthApi>()
-    .ConfigureHttpClient(c => c.BaseAddress = new Uri("https://localhost:7056"));
+    .ConfigureHttpClient(c => c.BaseAddress = new Uri("https://localhost:7111"));
 
 builder.Services.AddMudServices();
 

@@ -20,7 +20,7 @@ public class ModalidadeController : ControllerBase
     }
     
     [HttpGet("/modalidades")]
-    public async Task<List<Modalidade>> GetModalidades()
+    public async Task<IResult> GetModalidades()
     {
         if (_fitControlDbContext.Modalidades is not null)
         {
@@ -30,15 +30,15 @@ public class ModalidadeController : ControllerBase
             
             if (modalidades.Any())
             {
-                return await modalidades.ToListAsync();
+                return Results.Ok(await modalidades.ToListAsync());
             }
         }
 
-        return new List<Modalidade>();
+        return Results.Ok(new List<Modalidade>());
     }
     
     [HttpGet("/modalidade/{id}")]
-    public async Task<Modalidade> GetModalidade(int id)
+    public async Task<IResult> GetModalidade(int id)
     {
         if (_fitControlDbContext.Modalidades is not null)
         {
@@ -48,10 +48,10 @@ public class ModalidadeController : ControllerBase
             
             if (modalidade is not null)
             {
-                return modalidade;
+                return Results.Ok(modalidade);
             }
         }
-        return new Modalidade();
+        return Results.Ok(new Modalidade());
     }
     
     [HttpPost("modalidade")]
@@ -81,25 +81,25 @@ public class ModalidadeController : ControllerBase
     }
     
     [HttpPut("/modalidade")]
-    public async Task<IActionResult> UpdateModalidade ([FromBody] ModalidadeDto? modalidadeDto)
+    public async Task<IResult> UpdateModalidade ([FromBody] ModalidadeDto? modalidadeDto)
     {
         if (modalidadeDto is null)
         {
-            return BadRequest();
+            return Results.BadRequest();
         }
         
         modalidadeDto.NivelDificuldade = null;
 
         if (_fitControlDbContext.Modalidades is null)
         {
-            return NotFound();
+            return Results.NotFound();
         }
         
         var oldModalidade = await _fitControlDbContext.Modalidades.FirstOrDefaultAsync(m => m.Id == modalidadeDto.Id);
 
         if (oldModalidade is null)
         {
-            return NotFound("Modalidade não foi encontrada!");
+            return Results.NotFound("Modalidade não foi encontrada!");
         }
 
         modalidadeDto.Adapt(oldModalidade);
@@ -110,15 +110,15 @@ public class ModalidadeController : ControllerBase
 
             if (result <= 0)
             {
-                return NotFound("Não foi possível guardar os dados");
+                return Results.NotFound("Não foi possível guardar os dados");
             }
         }
         catch (Exception e)
         {
-            return NotFound(e.Message);
+            return Results.NotFound(e.Message);
         }
 
-        return Ok(modalidadeDto);
+        return Results.Ok(modalidadeDto);
     }
     
     [HttpDelete("/modalidade/softdelete/{id}")]

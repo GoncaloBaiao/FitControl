@@ -10,45 +10,51 @@ namespace FitControl.API.Controllers;
 
 public class InstrutorModalidadeController : ControllerBase
 {
-    private readonly IFitControlDbContext _fitcontrolDbContext;
+    private readonly IFitControlDbContext _fitControlDbContext;
     private readonly IMapper _mapper;
 
-    [HttpGet("/instrutormodalidade")]
-    public async Task<List<InstrutorModalidade>> GetInstrutorModalidade()
+    public InstrutorModalidadeController(IFitControlDbContext fitControlAppDbContext, IMapper mapper)
     {
-        if (_fitcontrolDbContext is not null)
+        _fitControlDbContext = fitControlAppDbContext;
+        _mapper = mapper;
+    }
+    
+    [HttpGet("/instrutormodalidades")]
+    public async Task<IResult> GetInstrutorModalidades()
+    {
+        if (_fitControlDbContext is not null)
         {
-            var instrutormodalidade=_fitcontrolDbContext.InstrutorModalidades
+            var instrutormodalidade=_fitControlDbContext.InstrutorModalidades
                 .Include(x=>x.Instrutor)
                 .Include(x=>x.Modalidade)
                 .Where(i=>i.IsDeleted ==  false || i.Instrutor.IsDeleted == false || i.Modalidade.IsDeleted == false);
             if (instrutormodalidade.Any())
             {
-                return await instrutormodalidade.ToListAsync();
+                return Results.Ok(await instrutormodalidade.ToListAsync());
             }
         }
 
-        return new List<InstrutorModalidade>();
+        return Results.Ok(new List<InstrutorModalidade>());
     }
 
-    [HttpGet("/instrutormodalidades/{id}")]
-    public async Task<InstrutorModalidade> GetInstrutorModalidade(int id)
+    [HttpGet("/instrutormodalidade/{id}")]
+    public async Task<IResult> GetInstrutorModalidade(int id)
     {
-        if (_fitcontrolDbContext is not null)
+        if (_fitControlDbContext is not null)
         {
-            var instrutormodalidade= await _fitcontrolDbContext.InstrutorModalidades
+            var instrutormodalidade= await _fitControlDbContext.InstrutorModalidades
                 .Include(x=>x.Instrutor)
                 .Include(x=>x.Modalidade)
                 .FirstOrDefaultAsync(i => (i.IsDeleted == false || i.Instrutor.IsDeleted == false || i.Modalidade.IsDeleted == false) && i.Id == id);
             if (instrutormodalidade is not null)
             {
-                return instrutormodalidade;
+                return Results.Ok(instrutormodalidade);
             }
         }
-        return new InstrutorModalidade();
+        return Results.Ok(new InstrutorModalidade());
     }
 
-    [HttpPost("/instrutormodalidades")]
+    [HttpPost("/instrutormodalidade")]
     public async Task<IResult> AddInscricao([FromBody] InstrutorModalidadeDto instrutormodalidade)
     {
         if (instrutormodalidade is null)
@@ -64,64 +70,65 @@ public class InstrutorModalidadeController : ControllerBase
         mapper.CreatedAt = DateTime.Now;
         mapper.UpdatedAt = DateTime.Now;
         
-        var instrutormodalidades = _fitcontrolDbContext.InstrutorModalidades;
+        var instrutormodalidades = _fitControlDbContext.InstrutorModalidades;
 
         if (instrutormodalidades is not null)
         {
             instrutormodalidades.Add(mapper);
-            await _fitcontrolDbContext.SaveChangesAsync();
+            await _fitControlDbContext.SaveChangesAsync();
             return Results.Ok("Modalidade do instrutor adicionado com sucesso!");
         }
         return Results.Empty;
     }
+    
     [HttpPut("/instrutormodalidade")]
-    public async Task<IActionResult> UpdateInstrutorModalidade ([FromBody] InstrutorModalidadeDto? instrutormodalidadeDto)
+    public async Task<IResult> UpdateInstrutorModalidade ([FromBody] InstrutorModalidadeDto? instrutormodalidadeDto)
     {
         if (instrutormodalidadeDto is null)
         {
-            return BadRequest();
+            return Results.BadRequest();
         }
         
         instrutormodalidadeDto.Instrutor = null;
         instrutormodalidadeDto.Modalidade = null;
 
-        if (_fitcontrolDbContext.InstrutorModalidades is null)
+        if (_fitControlDbContext.InstrutorModalidades is null)
         {
-            return NotFound();
+            return Results.NotFound();
         }
         
-        var oldInstrutormodalidade = await _fitcontrolDbContext.InstrutorModalidades.FirstOrDefaultAsync(p => p.Id == instrutormodalidadeDto.Id);
+        var oldInstrutormodalidade = await _fitControlDbContext.InstrutorModalidades.FirstOrDefaultAsync(p => p.Id == instrutormodalidadeDto.Id);
 
         if (oldInstrutormodalidade is null)
         {
-            return NotFound("Modalidade do instrutor não foi encontrado!");
+            return Results.NotFound("Modalidade do instrutor não foi encontrado!");
         }
 
         instrutormodalidadeDto.Adapt(oldInstrutormodalidade);
         
         try
         {
-            var result = await _fitcontrolDbContext.SaveChangesAsync();
+            var result = await _fitControlDbContext.SaveChangesAsync();
 
             if (result <= 0)
             {
-                return NotFound("Não foi possível guardar os dados");
+                return Results.NotFound("Não foi possível guardar os dados");
             }
         }
         catch (Exception e)
         {
-            return NotFound(e.Message);
+            return Results.NotFound(e.Message);
         }
 
-        return Ok(instrutormodalidadeDto);
+        return Results.Ok(instrutormodalidadeDto);
     }
     
     [HttpDelete("/instrutormodalidade/softdelete/{id}")]
     public async Task<IResult> SoftDeleteInstrutorModalidade(int id)
     {
-        if (_fitcontrolDbContext.InstrutorModalidades is not null)
+        if (_fitControlDbContext.InstrutorModalidades is not null)
         {
-            var instrutormodalidade = await _fitcontrolDbContext.InstrutorModalidades.FirstOrDefaultAsync(i => i.Id == id);
+            var instrutormodalidade = await _fitControlDbContext.InstrutorModalidades.FirstOrDefaultAsync(i => i.Id == id);
             if (instrutormodalidade is null)
             {
                 return Results.NotFound("Modalidade do instrutor não encontrado");
@@ -130,40 +137,40 @@ public class InstrutorModalidadeController : ControllerBase
             instrutormodalidade.IsDeleted = true;
             instrutormodalidade.UpdatedAt = DateTime.Now;
             
-            await _fitcontrolDbContext.SaveChangesAsync();
+            await _fitControlDbContext.SaveChangesAsync();
             return Results.Ok("Modalidade do instrutor apagado com sucesso!");
         }
         return Results.Empty; 
     }
     
-    [HttpGet("/instrutormodalidade")]
-    public async Task<IActionResult> GetInstrutor()
-    {
-        if (_fitcontrolDbContext.Instrutors is not null)
-        {
-            var instrutors = await _fitcontrolDbContext.Instrutors.ToListAsync();
-
-            if (instrutors.Any())
-            {
-                return Ok(instrutors);
-            }
-        }
-        return NotFound();
-    }
-    [HttpGet("/modalidade")]
-    public async Task<IActionResult> GetModalidade()
-    {
-        if (_fitcontrolDbContext.Modalidades is not null)
-        {
-            var modalidades = await _fitcontrolDbContext.Modalidades.ToListAsync();
-
-            if (modalidades.Any())
-            {
-                return Ok(modalidades);
-            }
-        }
-        return NotFound();
-    }
+    // [HttpGet("/instrutormodalidade")]
+    // public async Task<IActionResult> GetInstrutor()
+    // {
+    //     if (_fitControlDbContext.Instrutors is not null)
+    //     {
+    //         var instrutors = await _fitControlDbContext.Instrutors.ToListAsync();
+    //
+    //         if (instrutors.Any())
+    //         {
+    //             return Ok(instrutors);
+    //         }
+    //     }
+    //     return NotFound();
+    // }
+    // [HttpGet("/modalidade")]
+    // public async Task<IActionResult> GetModalidade()
+    // {
+    //     if (_fitControlDbContext.Modalidades is not null)
+    //     {
+    //         var modalidades = await _fitControlDbContext.Modalidades.ToListAsync();
+    //
+    //         if (modalidades.Any())
+    //         {
+    //             return Ok(modalidades);
+    //         }
+    //     }
+    //     return NotFound();
+    // }
 
 }
 

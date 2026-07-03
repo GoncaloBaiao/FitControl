@@ -20,7 +20,7 @@ public class UserController : ControllerBase
     }
     
     [HttpGet("/users")]
-    public async Task<List<User>> GetUsers()
+    public async Task<IResult> GetUsers()
     {
         if (_fitControlDbContext.Users is not null)
         {
@@ -29,15 +29,15 @@ public class UserController : ControllerBase
             
             if (users.Any())
             {
-                return await users.ToListAsync();
+                return Results.Ok(await users.ToListAsync());
             }
         }
 
-        return new List<User>();
+        return Results.Ok(new List<User>());
     }
     
     [HttpGet("/user")]
-    public async Task<IActionResult> GetUser([FromBody] UserDto userDto)
+    public async Task<IResult> GetUser([FromBody] UserDto userDto)
     {
         if (_fitControlDbContext.Users != null)
         {
@@ -45,10 +45,10 @@ public class UserController : ControllerBase
 
             if (checkUser)
             {
-                return Ok(checkUser);
+                return Results.Ok(checkUser);
             }
         }
-        return NotFound("Username or password is incorrect");
+        return Results.NotFound("Username or password is incorrect");
     }
     
     [HttpPost("user")]
@@ -76,23 +76,23 @@ public class UserController : ControllerBase
     }
     
     [HttpPut("/user")]
-    public async Task<IActionResult> UpdateUser ([FromBody] UserDto? userDto)
+    public async Task<IResult> UpdateUser ([FromBody] UserDto? userDto)
     {
         if (userDto is null)
         {
-            return BadRequest();
+            return Results.BadRequest();
         }
 
         if (_fitControlDbContext.Users is null)
         {
-            return NotFound();
+            return Results.NotFound();
         }
         
         var oldUser = await _fitControlDbContext.Users.FirstOrDefaultAsync(u => u.Id == userDto.Id);
 
         if (oldUser is null)
         {
-            return NotFound("User não foi encontrado!");
+            return Results.NotFound("User não foi encontrado!");
         }
 
         userDto.Adapt(oldUser);
@@ -103,15 +103,15 @@ public class UserController : ControllerBase
 
             if (result <= 0)
             {
-                return NotFound("Não foi possível guardar os dados");
+                return Results.NotFound("Não foi possível guardar os dados");
             }
         }
         catch (Exception e)
         {
-            return NotFound(e.Message);
+            return Results.NotFound(e.Message);
         }
 
-        return Ok(userDto);
+        return Results.Ok(userDto);
     }
     
     [HttpDelete("/user/softdelete/{id}")]
