@@ -10,5 +10,5 @@ public class Socio : BaseEntity
     public string ContactoTelefonico { get; set; }
     public DateOnly InicioSubscricao { get; set; }
     public DateOnly FimSubscricao { get; set; }
-    public ICollection<Inscricao> Inscricaos {get; set; } = [];
+    //public ICollection<Inscricao> Inscricaos {get; set; } = [];
 }

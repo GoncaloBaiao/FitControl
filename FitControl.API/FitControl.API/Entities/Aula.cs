@@ -12,5 +12,5 @@ public class Aula : BaseEntity
     public DateTime HoraInicio  {get; set;}
     public DateTime HoraFim {get; set;}
     public int Capacidade {get; set;}
-    public ICollection<Inscricao> Inscricaos {get; set; } = [];
+    //public ICollection<Inscricao> Inscricaos {get; set; } = [];
 }
