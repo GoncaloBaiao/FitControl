@@ -28,7 +28,7 @@ public class AulaController : ControllerBase
                 .Include(x=>x.Sala)
                 .Include(x=>x.Instrutor)
                 .Include(x=>x.Modalidade)
-                .Where(a=>a.IsDeleted ==  false || a.Sala.IsDeleted == false || a.Instrutor.IsDeleted == false || a.Modalidade.IsDeleted == false);
+                .Where(a=>a.IsDeleted ==  false && a.Sala.IsDeleted == false && a.Instrutor.IsDeleted == false && a.Modalidade.IsDeleted == false);
             if (aulas.Any())
             {
                 return Results.Ok(await aulas.ToListAsync());

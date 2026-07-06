@@ -6,6 +6,6 @@ public class Instrutor : BaseEntity
     public DateOnly DataNascimento { get; set; }
     public string Email { get; set; }
     public string ContactoTelefonico { get; set; }
-    public ICollection<Aula> Aulas {get; set; } = new List<Aula>();
-    public ICollection<InstrutorModalidade> IntrutorModalidades {get; set; } = [];
+    //public ICollection<Aula> Aulas {get; set; } = new List<Aula>();
+    //public ICollection<InstrutorModalidade> IntrutorModalidades {get; set; } = [];
 }
