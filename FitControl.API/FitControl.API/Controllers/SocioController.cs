@@ -22,17 +22,16 @@ public class SocioController : ControllerBase
     [HttpGet("/socios")]
     public async Task<IResult> GetSocios()
     {
-        if (_fitControlAppDbContext.Socios is not null)
+        if (_fitControlAppDbContext.Socios is null)
         {
-            var socios = _fitControlAppDbContext.Socios
-                .Where(s => s.IsDeleted == false);
-
-            if (socios.Any())
-            {
-                return Results.Ok(await socios.ToListAsync());
-            }
+            return Results.Ok(new List<Socio>());
         }
-        return Results.NotFound();
+
+        var socios = await _fitControlAppDbContext.Socios
+            .Where(s => s.IsDeleted == false)
+            .ToListAsync();
+
+        return Results.Ok(socios);
     }
     
     [HttpGet("/socio/{id}")]
