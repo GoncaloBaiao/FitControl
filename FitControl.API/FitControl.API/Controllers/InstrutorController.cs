@@ -10,41 +10,47 @@ namespace FitControl.API.Controllers;
 
 public class InstrutorController : ControllerBase
 {
-    private readonly IFitControlDbContext _fitcontrolDbContext;
+    private readonly IFitControlDbContext _fitControlDbContext;
     private readonly IMapper _mapper;
 
-    [HttpGet("/instrutor")]
-    public async Task<List<Instrutor>> GetInstrutors()
+    public InstrutorController(IFitControlDbContext fitControlAppDbContext, IMapper mapper)
     {
-        if (_fitcontrolDbContext is not null)
+        _fitControlDbContext = fitControlAppDbContext;
+        _mapper = mapper;
+    }
+    
+    [HttpGet("/instrutors")]
+    public async Task<IResult> GetInstrutors()
+    {
+        if (_fitControlDbContext is not null)
         {
-            var instrutor=_fitcontrolDbContext.Instrutors
+            var instrutor=_fitControlDbContext.Instrutors
                 .Where(i=>i.IsDeleted ==  false);
             if (instrutor.Any())
             {
-                return await instrutor.ToListAsync();
+                return Results.Ok(await instrutor.ToListAsync());
             }
         }
 
-        return new List<Instrutor>();
+        return Results.Ok(new List<Instrutor>());
     }
 
-    [HttpGet("/instrutors/{id}")]
-    public async Task<Instrutor> GetInstrutor(int id)
+    [HttpGet("/instrutor/{id}")]
+    public async Task<IResult> GetInstrutor(int id)
     {
-        if (_fitcontrolDbContext is not null)
+        if (_fitControlDbContext is not null)
         {
-            var instrutor=_fitcontrolDbContext.Instrutors
+            var instrutor=_fitControlDbContext.Instrutors
                 .FirstOrDefaultAsync(i => i.IsDeleted == false && i.Id == id);
             if (instrutor is not null)
             {
-                return await instrutor;
+                return Results.Ok(await instrutor);
             }
         }
-        return new Instrutor();
+        return Results.Ok(new Instrutor());
     }
 
-    [HttpPost("/instrutors")]
+    [HttpPost("/instrutor")]
     public async Task<IResult> AddInstrutor([FromBody] InstrutorDto instrutor)
     {
         if (instrutor is null)
@@ -57,61 +63,62 @@ public class InstrutorController : ControllerBase
         mapper.CreatedAt = DateTime.Now;
         mapper.UpdatedAt = DateTime.Now;
         
-        var instrutors = _fitcontrolDbContext.Instrutors;
+        var instrutors = _fitControlDbContext.Instrutors;
 
         if (instrutors is not null)
         {
             instrutors.Add(mapper);
-            await _fitcontrolDbContext.SaveChangesAsync();
+            await _fitControlDbContext.SaveChangesAsync();
             return Results.Ok("Instrutor adicionado com sucesso!");
         }
         return Results.Empty;
     }
+    
     [HttpPut("/instrutor")]
-    public async Task<IActionResult> UpdateInstrutor ([FromBody] InstrutorDto? instrutorDto)
+    public async Task<IResult> UpdateInstrutor ([FromBody] InstrutorDto? instrutorDto)
     {
         if (instrutorDto is null)
         {
-            return BadRequest();
+            return Results.BadRequest();
         }
 
-        if (_fitcontrolDbContext.Instrutors is null)
+        if (_fitControlDbContext.Instrutors is null)
         {
-            return NotFound();
+            return Results.NotFound();
         }
         
-        var oldInstutor = await _fitcontrolDbContext.Instrutors.FirstOrDefaultAsync(p => p.Id == instrutorDto.Id);
+        var oldInstutor = await _fitControlDbContext.Instrutors.FirstOrDefaultAsync(p => p.Id == instrutorDto.Id);
 
         if (oldInstutor is null)
         {
-            return NotFound("Instrutor não foi encontrado!");
+            return Results.NotFound("Instrutor não foi encontrado!");
         }
 
         instrutorDto.Adapt(oldInstutor);
         
         try
         {
-            var result = await _fitcontrolDbContext.SaveChangesAsync();
+            var result = await _fitControlDbContext.SaveChangesAsync();
 
             if (result <= 0)
             {
-                return NotFound("Não foi possível guardar os dados");
+                return Results.NotFound("Não foi possível guardar os dados");
             }
         }
         catch (Exception e)
         {
-            return NotFound(e.Message);
+            return Results.NotFound(e.Message);
         }
 
-        return Ok(instrutorDto);
+        return Results.Ok(instrutorDto);
     } 
     
     [HttpDelete("/instrutor/softdelete/{id}")]
     public async Task<IResult> SoftDeleteInstrutors(int id)
     {
-        if (_fitcontrolDbContext.Instrutors is not null)
+        if (_fitControlDbContext.Instrutors is not null)
         {
-            var instrutor = await _fitcontrolDbContext.Instrutors.FirstOrDefaultAsync(i => i.Id == id);
+            var instrutor = await _fitControlDbContext.Instrutors.FirstOrDefaultAsync(i => i.Id == id);
             if (instrutor is null)
             {
                 return Results.NotFound("Instrutor não encontrado");
@@ -120,7 +127,7 @@ public class InstrutorController : ControllerBase
             instrutor.IsDeleted = true;
             instrutor.UpdatedAt = DateTime.Now;
             
-            await _fitcontrolDbContext.SaveChangesAsync();
+            await _fitControlDbContext.SaveChangesAsync();
             return Results.Ok("Instrutor apagado com sucesso!");
         }
         return Results.Empty; 

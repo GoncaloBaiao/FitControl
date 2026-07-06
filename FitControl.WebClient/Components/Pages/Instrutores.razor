@@ -1,0 +1,106 @@
+@page "/Instrutores"
+@using FitControl.Shared.Services
+@using FitControl.Shared.Models
+@using Refit
+@inject IFitControlApi FitControlApi
+@rendermode InteractiveServer
+@inject NavigationManager NavigationManager
+@inject ISnackbar Snackbar
+@inject IDialogService DialogService
+
+<PageTitle>Home</PageTitle>
+
+@if(_instrutores is not null)
+{
+    if(_instrutores.HasContent)
+    {
+        <MudTable Items="@_instrutores.Content" Hover="true" Breakpoint="Breakpoint.Sm" Loading="@_loading" LoadingProgressColor="Color.Info">
+            <HeaderContent>
+                <MudTh>Nome</MudTh>
+                <MudTh>Data de Nascimento</MudTh>
+                <MudTh>Email</MudTh>
+                <MudTh>Contacto Telefónico</MudTh>
+            </HeaderContent>
+            <RowTemplate>
+                <MudTd DataLabel="Nome">@context.Nome</MudTd>
+                <MudTd DataLabel="Data de Nascimento">@context.DataNascimento</MudTd>
+                <MudTd DataLabel="Email">@context.Email</MudTd>
+                <MudTd DataLabel="Contacto Telefónico">@context.ContactoTelefonico</MudTd>
+                <!--<MudCheckBox @bind-Value="" Disabled="true"></MudCheckBox>-->
+                <MudTd DataLabel="Actions">
+                    <MudIconButton Icon="@Icons.Material.Filled.RemoveRedEye" aria-label="detail" OnClick="() => OnPageNavigate(context.Id)"/>
+                    <MudIconButton Icon="@Icons.Material.Filled.Delete" Color='Color.Error' aria-label="delete" OnClick="()=> OnInstrutorDelete(context.Id)"/>
+                </MudTd>
+            </RowTemplate>
+        </MudTable>
+    }
+}
+
+@code {
+
+    private ApiResponse<List<Instrutor>>? _instrutores;
+    
+    private bool _loading;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _loading = true;
+        await base.OnInitializedAsync();
+        _instrutores = await FitControlApi.GetInstrutors();
+        StateHasChanged();
+        _loading = false;
+    }
+
+    private void OnPageNavigate(int id)
+    {
+         NavigationManager.NavigateTo($"addInstrutor/{id}");
+    }
+
+    private async Task OnInstrutorDelete(int id)
+    {
+        var parameters = new DialogParameters<Dialog>
+        {
+            { x => x.ContentText, "Do you really want to delete these records? This process cannot be undone." },
+            { x => x.ButtonOkText, "Delete" },
+            { x => x.Color, Color.Error }
+        };
+
+        var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall };
+
+        var result = await DialogService.ShowAsync<Dialog>("Delete", parameters, options);
+        
+        var res = await result.Result;
+
+        if (res != null && res.Canceled)
+        {
+            return;
+        }
+        
+        try
+        {
+            var apiResponse = await FitControlApi.DeleteInstrutor(id);
+            if (apiResponse.IsSuccessStatusCode)
+            {
+                Snackbar.Clear();
+                Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopRight;
+                Snackbar.Add("Instrutor apagado com sucesso", Severity.Success);
+                _instrutores = await FitControlApi.GetInstrutors();
+            }
+            else
+            {
+                Snackbar.Clear();
+                Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopRight;
+                Snackbar.Add("Falhou o delete do Instrutor", Severity.Error);
+            }
+            
+                    }
+        catch (Exception e)
+        {
+            Snackbar.Clear();
+            Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopRight;
+            Snackbar.Add("Erro a apagar Instrutor", Severity.Error);
+        }
+        StateHasChanged();
+    }
+
+}

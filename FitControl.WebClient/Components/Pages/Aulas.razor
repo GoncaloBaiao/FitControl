@@ -1,0 +1,112 @@
+@page "/Aulas"
+@using FitControl.Shared.Services
+@using FitControl.Shared.Models
+@using Refit
+@inject IFitControlApi FitControlApi
+@rendermode InteractiveServer
+@inject NavigationManager NavigationManager
+@inject ISnackbar Snackbar
+@inject IDialogService DialogService
+
+<PageTitle>Home</PageTitle>
+
+@if(_aulas is not null)
+{
+    if(_aulas.HasContent)
+    {
+        <MudTable Items="@_aulas.Content" Hover="true" Breakpoint="Breakpoint.Sm" Loading="@_loading" LoadingProgressColor="Color.Info">
+            <HeaderContent>
+                <MudTh>Nome</MudTh>
+                <MudTh>Modalidade</MudTh>
+                <MudTh>Instrutor</MudTh>
+                <MudTh>Sala</MudTh>
+                <MudTh>Hora de Início</MudTh>
+                <MudTh>Hora de Fim</MudTh>
+                <MudTh>Capacidade</MudTh>
+            </HeaderContent>
+            <RowTemplate>
+                <MudTd DataLabel="Nome">@context.Nome</MudTd>
+                <MudTd DataLabel="Modalidade">@context.Modalidade.Nome</MudTd>
+                <MudTd DataLabel="Instrutor">@context.Instrutor.Nome</MudTd>
+                <MudTd DataLabel="Sala">@context.Sala.Nome</MudTd>
+                <MudTd DataLabel="Hora de Início">@context.HoraInicio</MudTd>
+                <MudTd DataLabel="Hora de Fim">@context.HoraFim</MudTd>
+                <MudTd DataLabel="Capacidade">@context.Capacidade</MudTd>
+                <!--<MudCheckBox @bind-Value="" Disabled="true"></MudCheckBox>-->
+                <MudTd DataLabel="Actions">
+                    <MudIconButton Icon="@Icons.Material.Filled.RemoveRedEye" aria-label="detail" OnClick="() => OnPageNavigate(context.Id)"/>
+                    <MudIconButton Icon="@Icons.Material.Filled.Delete" Color='Color.Error' aria-label="delete" OnClick="()=> OnAulaDelete(context.Id)"/>
+                </MudTd>
+            </RowTemplate>
+        </MudTable>
+    }
+}
+
+@code {
+
+    private ApiResponse<List<Aula>>? _aulas;
+    
+    private bool _loading;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _loading = true;
+        await base.OnInitializedAsync();
+        _aulas = await FitControlApi.GetAulas();
+        StateHasChanged();
+        _loading = false;
+    }
+
+    private void OnPageNavigate(int id)
+    {
+         NavigationManager.NavigateTo($"addAula/{id}");
+    }
+
+    private async Task OnAulaDelete(int id)
+    {
+        var parameters = new DialogParameters<Dialog>
+        {
+            { x => x.ContentText, "Do you really want to delete these records? This process cannot be undone." },
+            { x => x.ButtonOkText, "Delete" },
+            { x => x.Color, Color.Error }
+        };
+
+        var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall };
+
+        var result = await DialogService.ShowAsync<Dialog>("Delete", parameters, options);
+        
+        var res = await result.Result;
+
+        if (res != null && res.Canceled)
+        {
+            return;
+        }
+        
+        try
+        {
+            var apiResponse = await FitControlApi.DeleteAula(id);
+            if (apiResponse.IsSuccessStatusCode)
+            {
+                Snackbar.Clear();
+                Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopRight;
+                Snackbar.Add("Aula apagada com sucesso", Severity.Success);
+                _aulas = await FitControlApi.GetAulas();
+            }
+            else
+            {
+                Snackbar.Clear();
+                Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopRight;
+                Snackbar.Add("Falhou o delete da Aula", Severity.Error);
+            }
+            
+                    }
+        catch (Exception e)
+        {
+            Snackbar.Clear();
+            Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopRight;
+            Snackbar.Add("Erro a apagar Aula", Severity.Error);
+        }
+        StateHasChanged();
+    }
+
+}

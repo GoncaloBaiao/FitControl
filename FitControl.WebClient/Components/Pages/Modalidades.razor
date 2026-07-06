@@ -1,0 +1,104 @@
+@page "/Modalidades"
+@using FitControl.Shared.Services
+@using FitControl.Shared.Models
+@using Refit
+@inject IFitControlApi FitControlApi
+@rendermode InteractiveServer
+@inject NavigationManager NavigationManager
+@inject ISnackbar Snackbar
+@inject IDialogService DialogService
+
+<PageTitle>Home</PageTitle>
+
+@if(_modalidades is not null)
+{
+    if(_modalidades.HasContent)
+    {
+        <MudTable Items="@_modalidades.Content" Hover="true" Breakpoint="Breakpoint.Sm" Loading="@_loading" LoadingProgressColor="Color.Info">
+            <HeaderContent>
+                <MudTh>Nome</MudTh>
+                <MudTh>Descrição</MudTh>
+                <MudTh>Nível de dificuldade</MudTh>
+            </HeaderContent>
+            <RowTemplate>
+                <MudTd DataLabel="Nome">@context.Nome</MudTd>
+                <MudTd DataLabel="Descrição">@context.Descricao</MudTd>
+                <MudTd DataLabel="Nível de dificuldade">@context.NivelDificuldade.Nivel</MudTd>
+                <!--<MudCheckBox @bind-Value="" Disabled="true"></MudCheckBox>-->
+                <MudTd DataLabel="Actions">
+                    <MudIconButton Icon="@Icons.Material.Filled.RemoveRedEye" aria-label="detail" OnClick="() => OnPageNavigate(context.Id)"/>
+                    <MudIconButton Icon="@Icons.Material.Filled.Delete" Color='Color.Error' aria-label="delete" OnClick="()=> OnModalidadeDelete(context.Id)"/>
+                </MudTd>
+            </RowTemplate>
+        </MudTable>
+    }
+}
+
+@code {
+
+    private ApiResponse<List<Modalidade>>? _modalidades;
+    
+    private bool _loading;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _loading = true;
+        await base.OnInitializedAsync();
+        _modalidades = await FitControlApi.GetModalidades();
+        StateHasChanged();
+        _loading = false;
+    }
+
+    private void OnPageNavigate(int id)
+    {
+         NavigationManager.NavigateTo($"addModalidade/{id}");
+    }
+
+    private async Task OnModalidadeDelete(int id)
+    {
+        var parameters = new DialogParameters<Dialog>
+        {
+            { x => x.ContentText, "Do you really want to delete these records? This process cannot be undone." },
+            { x => x.ButtonOkText, "Delete" },
+            { x => x.Color, Color.Error }
+        };
+
+        var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall };
+
+        var result = await DialogService.ShowAsync<Dialog>("Delete", parameters, options);
+        
+        var res = await result.Result;
+
+        if (res != null && res.Canceled)
+        {
+            return;
+        }
+        
+        try
+        {
+            var apiResponse = await FitControlApi.DeleteModalidade(id);
+            if (apiResponse.IsSuccessStatusCode)
+            {
+                Snackbar.Clear();
+                Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopRight;
+                Snackbar.Add("Modalidade apagada com sucesso", Severity.Success);
+                _modalidades = await FitControlApi.GetModalidades();
+            }
+            else
+            {
+                Snackbar.Clear();
+                Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopRight;
+                Snackbar.Add("Falhou o delete da Modalidade", Severity.Error);
+            }
+            
+                    }
+        catch (Exception e)
+        {
+            Snackbar.Clear();
+            Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopRight;
+            Snackbar.Add("Erro a apagar Modalidade", Severity.Error);
+        }
+        StateHasChanged();
+    }
+
+}
