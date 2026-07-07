@@ -32,7 +32,7 @@ public class Aula
     public DateTime HoraInicio  {get; set;}
     
     [JsonPropertyName("horaFim")]
-    public DateTime HoraFim {get; set;}
+    public DateTime? HoraFim {get; set;}
     
     [JsonPropertyName("capacidade")]
     public int Capacidade {get; set;}

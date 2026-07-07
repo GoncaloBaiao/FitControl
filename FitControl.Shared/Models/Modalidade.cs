@@ -2,7 +2,7 @@
 
 namespace FitControl.Shared.Models;
 
-public class Modalidade
+public class Modalidade 
 {
     [JsonPropertyName("id")]
     public int Id { get; set; }

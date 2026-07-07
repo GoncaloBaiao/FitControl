@@ -1,0 +1,138 @@
+@page "/AddAula"
+@page "/AddAula/{Id:int}"
+@using FitControl.Shared.Models
+@using FitControl.Shared.Services
+@using Refit
+@rendermode InteractiveServer
+@inject IFitControlApi FitControlApi
+@inject ISnackbar Snackback
+@inject NavigationManager NavigationManager
+@inject IDialogService DialogService
+
+<link rel="stylesheet" href="_content/MudBlazor/MudBlazor.min.css" />
+
+<h3>@( Id.HasValue ? "Edit Aula" : "Add Aula")</h3>
+
+<MudPopoverProvider />
+
+@if (_aulaModel is not null)
+{
+    if (_aulaModel.HasContent)
+    {
+        <EditForm FormName="AddAulaForm" Model="_aulaModel.Content" OnValidSubmit="OnAddAula">
+            <div class="mb-3">
+                <label for="exampleFormControlInput1" class="form-label">Title</label>
+                <InputText class="form-control" id="exampleFormControlInput1" @bind-Value="@_aulaModel.Content.Nome"/>
+            </div>
+            <div class="mb-3">
+                <label for="exampleFormControlInput2" class="form-label">Description</label>
+                <InputNumber class="form-control" id="exampleFormControlInput2"
+                             @bind-Value="_aulaModel.Content.Capacidade"/>
+            </div>
+            <MudDatePicker @bind-Date="_aulaModel.Content.HoraFim"
+                           Label="Select Date"
+                           DateFormat="dd/MM/yyyy"/>
+            <MudDatePicker @bind-Date="_aulaModel.Content.HoraFim"
+                           Label="Select Date"
+                           DateFormat="dd/MM/yyyy"/>
+            <MudSelect T="int" Label="Modalidade" @bind-Value="_selectedValue">
+                @if (_modalidades.Content != null)
+                {
+                    foreach (Modalidade modalidade in _modalidades.Content)
+                    {
+                        <MudSelectItem Value="modalidade.Id">@modalidade.Descricao</MudSelectItem>
+                    }
+                }
+            </MudSelect>
+            @* @if (Id.HasValue) *@
+            @* { *@
+            @*     <div class="mb-3"> *@
+            @*         <label for="exampleFormControlInput3" class="form-label">Is Completed</label> *@
+            @*         <InputCheckbox id="exampleFormControlInput3" @bind-Value="_aulaModel.IsCompleted"/> *@
+            @*     </div> *@
+            @* } *@
+            <button class="btn btn-primary" type="submit">@(Id.HasValue ? "Save" : "Add")</button>
+        </EditForm>
+    }
+}
+
+@code {
+    [Parameter]
+    public int? Id { get; set; }
+    
+    private ApiResponse<Aula>? _aulaModel;
+    private ApiResponse<List<Modalidade>>? _modalidades;
+    private int _selectedValue;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+
+        if (Id.HasValue)
+            _aulaModel = await FitControlApi.GetAula(Id.Value);
+            
+        _modalidades = await FitControlApi.GetModalidades();
+        
+        if (Id.HasValue && _modalidades.Content != null && _aulaModel != null)
+            _selectedValue = _modalidades.Content.FirstOrDefault(x => x.Id == _aulaModel.Content.Id).Id;
+    }
+
+    private async Task OnAddAula()
+    {
+        if (Id.HasValue)
+        {
+            var response = await FitControlApi.UpdateAula(_aulaModel.Content);
+
+            if (response.IsSuccessStatusCode)
+            {
+                Snackback.Clear();
+                Snackback.Add("Aula editada com sucesso", Severity.Success);
+                
+                var parameters = new DialogParameters<Dialog>
+                {
+                    { x => x.ContentText, "Do you want to leave this page?" },
+                    { x => x.ButtonOkText, "Yes" },
+                    { x => x.ButtonCancelText, "No" },
+                    { x => x.Color, Color.Error }
+                };
+
+                var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall };
+
+                var result = await DialogService.ShowAsync<Dialog>("Leave page", parameters, options);
+        
+                var res = await result.Result;
+
+                if (res.Canceled)
+                {
+                    return;
+                }
+                
+                NavigationManager.NavigateTo("/Aulas");
+            }
+            else
+            {
+                Snackback.Clear();
+                Snackback.Add("Erro a editar Aula", Severity.Error);
+            }
+        }
+        else
+        {
+            var response = await FitControlApi.AddAula(_aulaModel.Content);
+            
+            if (response.IsSuccessStatusCode)
+            {
+                Snackback.Clear();
+                Snackback.Add("Aula adicionada com sucesso", Severity.Success);
+                NavigationManager.NavigateTo("/");
+            }
+            else
+            {
+                Snackback.Clear();
+                Snackback.Add("Erro a adicionar Aula", Severity.Error);
+            }
+        }
+            
+        
+    }
+
+}
