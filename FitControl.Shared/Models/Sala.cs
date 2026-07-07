@@ -10,6 +10,9 @@ public class Sala
     [JsonPropertyName("nome")]
     public string Nome { get; set; }
     
+    [JsonPropertyName("descricao")]
+    public string Descricao { get; set; }
+    
     [JsonPropertyName("isDeleted")]
     public bool IsDeleted { get; set; }
 }

@@ -17,7 +17,7 @@ public class Socio
     public string Nome { get; set; }
     
     [JsonPropertyName("dataNascimento")]
-    public DateOnly DataNascimento { get; set; }
+    public DateTime DataNascimento { get; set; }
     
     [JsonPropertyName("email")]
     public string Email { get; set; }
@@ -26,10 +26,10 @@ public class Socio
     public string ContactoTelefonico { get; set; }
     
     [JsonPropertyName("inicioSubscricao")]
-    public DateOnly InicioSubscricao { get; set; }
+    public DateTime InicioSubscricao { get; set; }
     
     [JsonPropertyName("fimSubscricao")]
-    public DateOnly FimSubscricao { get; set; }
+    public DateTime FimSubscricao { get; set; }
     
     [JsonPropertyName("isDeleted")]
     public bool IsDeleted { get; set; }

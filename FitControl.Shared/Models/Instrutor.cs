@@ -11,7 +11,7 @@ public class Instrutor
     public string Nome { get; set; }
     
     [JsonPropertyName("dataNascimento")]
-    public DateOnly DataNascimento { get; set; }
+    public DateTime DataNascimento { get; set; }
     
     [JsonPropertyName("email")]
     public string Email { get; set; }
