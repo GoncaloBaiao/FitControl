@@ -11,11 +11,12 @@
 .navbar {
     background: transparent;
     transition: all 0.3s ease;
-    position: sticky;
+    position: static; 
     top: 0;
-    z-index: 1000;
+    z-index: 1; 
     padding: 1rem 0;
 }
+
 
 .navbar.scrolled {
     background: rgba(26, 26, 26, 0.95);

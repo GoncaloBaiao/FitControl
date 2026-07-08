@@ -115,7 +115,7 @@ public class SocioController : ControllerBase
     }
     
     [HttpDelete("/socio/softdelete/{id}")]
-    public async Task<IResult> SoftDeleteSocio(int id)
+    public async Task<IResult> DeleteSocio(int id)
     {
         if (_fitControlAppDbContext.Socios is not null)
         {
