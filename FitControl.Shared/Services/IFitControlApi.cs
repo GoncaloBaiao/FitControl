@@ -121,7 +121,7 @@ public interface IFitControlApi
     [Put("/socio")]
     Task<ApiResponse<Socio>> UpdateSocio([Body] Socio socio);
 
-    [Delete("/socio/{id}")]
+    [Delete("/socio/softdelete/{id}")]
     Task<ApiResponse<string>> DeleteSocio(int id);
 
     [Get("/tipoplanos")]

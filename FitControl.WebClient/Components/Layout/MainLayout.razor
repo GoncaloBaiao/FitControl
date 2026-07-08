@@ -1,4 +1,19 @@
 ﻿@inherits LayoutComponentBase
+<div class="page">
+   <NavBar></NavBar>
+   <main>
+
+       <article class="content px-4">
+           @Body
+       </article>
+   </main>
+   <footer></footer>
+</div>
+<div id="blazor-error-ui" data-nosnippet>
+    An unhandled error has occurred.
+    <a href="." class="reload">Reload</a>
+    <span class="dismiss">🗙</span>
+</div>
 
 
 <div class="page">
@@ -37,3 +52,5 @@
     [Parameter]
     public RenderFragment? ChildContent { get; set; }
 }
+@* Needed for snackbars *@
+<MudSnackbarProvider />
