@@ -8,18 +8,6 @@
 @inject NavigationManager NavigationManager
 @inject IDialogService DialogService
 
-
-@* Required *@
-<MudThemeProvider />
-<MudPopoverProvider />
-
-@* Needed for dialogs *@
-<MudDialogProvider />
-
-@* Needed for snackbars *@
-<MudSnackbarProvider />
-
-
 <h3>@( Id.HasValue ? "Edit Aula" : "Add Aula")</h3>
 
 @if (_aulaModel is not null)
@@ -174,7 +162,7 @@
             {
                 Snackback.Clear();
                 Snackback.Add("Aula adicionada com sucesso", Severity.Success);
-                NavigationManager.NavigateTo("/");
+                NavigationManager.NavigateTo("/Aulas");
             }
             else
             {
