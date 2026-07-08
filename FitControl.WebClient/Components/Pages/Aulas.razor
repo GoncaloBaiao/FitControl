@@ -8,22 +8,33 @@
 @inject ISnackbar Snackbar
 @inject IDialogService DialogService
 
+
+@* Required *@
+<MudThemeProvider />
+<MudPopoverProvider />
+
+@* Needed for dialogs *@
+<MudDialogProvider />
+
+@* Needed for snackbars *@
+<MudSnackbarProvider />
+
+
 <PageTitle>Home</PageTitle>
 
 @if(_aulas is not null)
 {
-    if(_aulas.HasContent)
-    {
-        <MudTable Items="@_aulas.Content" Hover="true" Breakpoint="Breakpoint.Sm" Loading="@_loading" LoadingProgressColor="Color.Info">
-            <HeaderContent>
-                <MudTh>Nome</MudTh>
-                <MudTh>Modalidade</MudTh>
-                <MudTh>Instrutor</MudTh>
-                <MudTh>Sala</MudTh>
-                <MudTh>Hora de Início</MudTh>
-                <MudTh>Hora de Fim</MudTh>
-                <MudTh>Capacidade</MudTh>
-            </HeaderContent>
+    <MudTable Items="@_aulas" Hover="true" Breakpoint="Breakpoint.Sm" Loading="@_loading" LoadingProgressColor="Color.Info">
+        <HeaderContent>
+            <MudTh>Nome</MudTh>
+            <MudTh>Modalidade</MudTh>
+            <MudTh>Instrutor</MudTh>
+            <MudTh>Sala</MudTh>
+            <MudTh>Hora de Início</MudTh>
+            <MudTh>Hora de Fim</MudTh>
+            <MudTh>Capacidade</MudTh>
+            <MudTh>Ações</MudTh>
+        </HeaderContent>
             <RowTemplate>
                 <MudTd DataLabel="Nome">@context.Nome</MudTd>
                 <MudTd DataLabel="Modalidade">@context.Modalidade.Nome</MudTd>
@@ -38,13 +49,14 @@
                     <MudIconButton Icon="@Icons.Material.Filled.Delete" Color='Color.Error' aria-label="delete" OnClick="()=> OnAulaDelete(context.Id)"/>
                 </MudTd>
             </RowTemplate>
-        </MudTable>
+    </MudTable>
+    <MudIconButton Icon="@Icons.Material.Filled.Add" aria-label="detail" OnClick="OnAddNavigate"/>
     }
-}
+
 
 @code {
 
-    private ApiResponse<List<Aula>>? _aulas;
+    private List<Aula> _aulas;
     
     private bool _loading;
 
@@ -52,14 +64,15 @@
     {
         _loading = true;
         await base.OnInitializedAsync();
-        _aulas = await FitControlApi.GetAulas();
+        var reponse = await FitControlApi.GetAulas();
+        _aulas = reponse.Content;
         StateHasChanged();
         _loading = false;
     }
 
     private void OnPageNavigate(int id)
     {
-         NavigationManager.NavigateTo($"addAula/{id}");
+         NavigationManager.NavigateTo($"/addAula/{id}");
     }
 
     private async Task OnAulaDelete(int id)
@@ -90,7 +103,8 @@
                 Snackbar.Clear();
                 Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopRight;
                 Snackbar.Add("Aula apagada com sucesso", Severity.Success);
-                _aulas = await FitControlApi.GetAulas();
+                var response = await FitControlApi.GetAulas();
+                _aulas = response.Content;
             }
             else
             {
@@ -107,6 +121,11 @@
             Snackbar.Add("Erro a apagar Aula", Severity.Error);
         }
         StateHasChanged();
+    }
+
+    private void OnAddNavigate()
+    {
+        NavigationManager.NavigateTo($"/addAula");
     }
 
 }

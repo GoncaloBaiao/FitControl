@@ -29,7 +29,7 @@ public class Aula
     public string Nome {get; set;}
     
     [JsonPropertyName("horaInicio")]
-    public DateTime HoraInicio  {get; set;}
+    public DateTime? HoraInicio  {get; set;}
     
     [JsonPropertyName("horaFim")]
     public DateTime? HoraFim {get; set;}

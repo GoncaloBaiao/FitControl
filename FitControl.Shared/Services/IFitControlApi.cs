@@ -16,7 +16,7 @@ public interface IFitControlApi
     [Put("/aula")]
     Task<ApiResponse<Aula>> UpdateAula([Body] Aula? aula);
 
-    [Delete("/aula/{id}")]
+    [Delete("/aula/softdelete/{id}")]
     Task<ApiResponse<string>> DeleteAula(int id);
 
     [Get("/inscricaos")]
