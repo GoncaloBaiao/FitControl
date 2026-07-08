@@ -1,0 +1,141 @@
+﻿@page "/socios/add"
+@layout FitControl.WebClient.Components.Layout.MainLayout
+@using FitControl.Shared.Models
+@using FitControl.Shared.Services
+@using Socio = FitControl.Shared.Models.Socio
+@using Refit
+@inject IFitControlApi FitControlApi
+@inject NavigationManager NavigationManager
+<link rel="stylesheet" href="_content/MudBlazor/MudBlazor.min.css" />
+<link href="home.css" rel="stylesheet" />
+
+
+
+<PageTitle>Adicionar Sócio</PageTitle>
+
+<MudStack Spacing="3">
+    <MudText Typo="Typo.h4">Adicionar Sócio</MudText>
+
+    @if (!string.IsNullOrWhiteSpace(_errorMessage))
+    {
+        <MudAlert Severity="Severity.Error" Variant="Variant.Filled">@_errorMessage</MudAlert>
+    }
+
+    <MudPaper Class="pa-4" Elevation="1">
+        <MudForm @ref="_form">
+            <MudStack Spacing="3">
+                <MudTextField @bind-Value="_socio.Nome" Label="Nome" Required="true" RequiredError="Nome é obrigatório" />
+                <MudTextField @bind-Value="_socio.Email" Label="Email" Required="true" RequiredError="Email é obrigatório" />
+                <MudTextField @bind-Value="_socio.ContactoTelefonico" Label="Contacto Telefónico" />
+
+                <MudGrid>
+                    <MudItem xs="12" sm="4">
+                        <MudDatePicker @bind-Date="_dataNascimento" Label="Data de Nascimento" Required="true" RequiredError="Data de nascimento é obrigatória" DateFormat="dd/MM/yyyy" />
+                    </MudItem>
+                    <MudItem xs="12" sm="4">
+                        <MudDatePicker @bind-Date="_inicioSubscricao" Label="Início Subscrição" Required="true" RequiredError="Data de início é obrigatória" />
+                    </MudItem>
+                    <MudItem xs="12" sm="4">
+                        <MudDatePicker @bind-Date="_fimSubscricao" Label="Fim Subscrição" Required="true" RequiredError="Data de fim é obrigatória" />
+                    </MudItem>
+                </MudGrid>
+
+                <MudSelect Label="Tipo de Plano" @bind-Value="_tipoPlanoId" Required="true" RequiredError="Tipo de plano é obrigatório">
+                    @foreach (var plano in _tiposPlano)
+                    {
+                        <MudSelectItem Value="@plano.Id">@plano.Designacao</MudSelectItem>
+                    }
+                </MudSelect>
+
+                <MudStack Row="true" Justify="Justify.FlexEnd" Spacing="2">
+                    <MudButton Href="/socios" Variant="Variant.Text">Cancelar</MudButton>
+                    <MudButton Variant="Variant.Filled" Color="Color.Primary" Disabled="@_saving" OnClick="SaveSocio">
+                        Guardar
+                    </MudButton>
+                </MudStack>
+            </MudStack>
+        </MudForm>
+    </MudPaper>
+</MudStack>
+
+
+@code {
+    private MudForm? _form;
+    private bool _saving;
+    private string? _errorMessage;
+    private Shared.Models.Socio _socio = new();
+    private List<TipoPlano> _tiposPlano = new();
+    private int _tipoPlanoId;
+
+    private DateTime? _dataNascimento = DateTime.Today;
+    private DateTime? _inicioSubscricao = DateTime.Today;
+    private DateTime? _fimSubscricao = DateTime.Today;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var response = await FitControlApi.GetTipoPlanos();
+            if (response.IsSuccessStatusCode && response.Content is not null)
+            {
+                _tiposPlano = response.Content;
+            }
+        }
+        catch (Exception ex)
+        {
+            _errorMessage = $"Não foi possível carregar os tipos de plano. {ex.Message}";
+        }
+    }
+
+    private async Task SaveSocio()
+    {
+        if (_form is null)
+            return;
+
+        await _form.ValidateAsync();
+        if (!_form.IsValid)
+            return;
+
+        if (_dataNascimento is null || _inicioSubscricao is null || _fimSubscricao is null)
+        {
+            _errorMessage = "Todas as datas são obrigatórias.";
+            return;
+        }
+
+        _saving = true;
+        _errorMessage = null;
+
+        try
+        {
+            _socio.DataNascimento = _dataNascimento.Value;
+            _socio.InicioSubscricao = _inicioSubscricao.Value;
+            _socio.FimSubscricao = _fimSubscricao.Value;
+            _socio.TipoPlanoId = _tipoPlanoId;
+            /*_socio.CreatedAt = DateTime.Now;
+            _socio.UpdatedAt = DateTime.Now;*/
+
+            var response = await FitControlApi.AddSocio(_socio);
+
+            if (response.IsSuccessStatusCode)
+            {
+                NavigationManager.NavigateTo("/socios");
+            }
+            else
+            {
+                _errorMessage = $"Não foi possível adicionar o sócio. API devolveu {response.StatusCode}.";
+            }
+        }
+        catch (ApiException ex)
+        {
+            _errorMessage = $"Não foi possível adicionar o sócio. API devolveu {(int)ex.StatusCode}: {ex.ReasonPhrase}";
+        }
+        catch (Exception ex)
+        {
+            _errorMessage = $"Não foi possível adicionar o sócio. {ex.Message}";
+        }
+        finally
+        {
+            _saving = false;
+        }
+    }
+}
