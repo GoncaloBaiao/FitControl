@@ -1,9 +1,8 @@
 ﻿@page "/"
-@using FitControl.WebClient.Components.Layout
+@layout FitControl.WebClient.Components.Layout.MainLayout
 
 <link href="home.css" rel="stylesheet" />
 
-<NavBar/>
     
     <!-- HERO SECTION -->
     <section class="hero">
@@ -120,9 +119,7 @@
             <a href="#" class="btn-cta">COMEÇAR AGORA →</a>
         </div>
     </section>
-
-    <Footer />
-
+    
 @code {
     protected override void OnInitialized()
     {

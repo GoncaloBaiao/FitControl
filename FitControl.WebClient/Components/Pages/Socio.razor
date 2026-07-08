@@ -1,10 +1,13 @@
 ﻿@page "/socios"
-@rendermode InteractiveServer
 @using Socio = FitControl.Shared.Models.Socio
 @using FitControl.Shared.Services
 @using MudBlazor
 @using Refit
 @inject IFitControlApi FitControlApi
+@layout FitControl.WebClient.Components.Layout.MainLayout
+<link href="home.css" rel="stylesheet" />
+<link rel="stylesheet" href="_content/MudBlazor/MudBlazor.min.css" />
+
 
 <PageTitle>Sócios</PageTitle>
 
@@ -48,7 +51,7 @@
                             <MudTd>@FormatDate(socio.DataNascimento)</MudTd>
                             <MudTd>@FormatDate(socio.InicioSubscricao)</MudTd>
                             <MudTd>@FormatDate(socio.FimSubscricao)</MudTd>
-                            <MudTd>@(socio.TipoPlano?.Designacao ?? "N/A")</MudTd>
+                            <MudTd>@(socio.TipoPlano?.Designacao ?? "aa")</MudTd>
                             <MudTd DataLabel="Ações">
                                 <MudStack Row="true" Spacing="1">
                                     <MudIconButton Href="@($"/socios/edit/{socio.Id}")" Icon="@Icons.Material.Filled.Edit" Color="Color.Primary" Size="Size.Small" Title="Editar" />
