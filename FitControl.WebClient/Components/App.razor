@@ -1,56 +1,26 @@
 ﻿<!DOCTYPE html>
-<html lang="pt">
+<html lang="en">
 
 <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
-    <base href="/" />
-
-    <ResourcePreloader />
-
-    <!-- Bootstrap -->
-    <link rel="stylesheet" href="lib/bootstrap/dist/css/bootstrap.min.css" />
-
-    <!-- CSS Custom -->
-    <link rel="stylesheet" href="app.css" />
-
-    <!-- CSS gerado pelo Blazor -->
-    <link rel="stylesheet" href="FitControl.WebClient.styles.css" />
-    
-    <link rel="stylesheet" href="_content/MudBlazor/MudBlazor.min.css" />
-
-
-    <ImportMap />
-    <HeadOutlet @rendermode="InteractiveServer" />
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <base href="/"/>
+    <ResourcePreloader/>
+    <link rel="stylesheet" href="@Assets["lib/bootstrap/dist/css/bootstrap.min.css"]"/>
+    <link rel="stylesheet" href="@Assets["_content/MudBlazor/MudBlazor.min.css"]"/>
+    <link rel="stylesheet" href="@Assets["app.css"]"/>
+    <link rel="stylesheet" href="@Assets["ProductApplication.WebClient.styles.css"]"/>
+    <ImportMap/>
+    <link rel="icon" type="image/png" href="favicon.png"/>
+    <HeadOutlet/>
 </head>
 
 <body>
-<InteractiveMudRoot @rendermode="InteractiveServer" />
+<Routes @rendermode="InteractiveServer"/>
 
-<ReconnectModal />
-
-<script src="_framework/blazor.web.js"></script>
-<script src="_content/MudBlazor/MudBlazor.min.js"></script>
+<ReconnectModal/>
+<script src="@Assets["_framework/blazor.web.js"]"></script>
+<script src="@Assets["_content/MudBlazor/MudBlazor.min.js"]"></script>
 </body>
 
 </html>
-
-@code {
-    public sealed class InteractiveMudRoot : Microsoft.AspNetCore.Components.ComponentBase
-    {
-        protected override void BuildRenderTree(Microsoft.AspNetCore.Components.Rendering.RenderTreeBuilder builder)
-        {
-            builder.OpenComponent<MudBlazor.MudThemeProvider>(0);
-            builder.CloseComponent();
-            builder.OpenComponent<MudBlazor.MudPopoverProvider>(1);
-            builder.CloseComponent();
-            builder.OpenComponent<MudBlazor.MudDialogProvider>(2);
-            builder.CloseComponent();
-            builder.OpenComponent<MudBlazor.MudSnackbarProvider>(3);
-            builder.CloseComponent();
-            builder.OpenComponent<FitControl.WebClient.Components.Routes>(4);
-            builder.CloseComponent();
-        }
-    }
-}
