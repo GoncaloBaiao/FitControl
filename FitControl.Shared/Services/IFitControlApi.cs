@@ -11,12 +11,12 @@ public interface IFitControlApi
     Task<ApiResponse<Aula>> AddAula([Body] Aula aula);
 
     [Get("/aula/{id}")]
-    Task<Aula> GetAula(int id);
+    Task<ApiResponse<Aula>> GetAula(int id);
 
     [Put("/aula")]
-    Task<ApiResponse<Aula>> UpdateAula([Body] Aula aula);
+    Task<ApiResponse<Aula>> UpdateAula([Body] Aula? aula);
 
-    [Delete("/aula/{id}")]
+    [Delete("/aula/softdelete/{id}")]
     Task<ApiResponse<string>> DeleteAula(int id);
 
     [Get("/inscricaos")]
