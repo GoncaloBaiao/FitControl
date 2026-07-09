@@ -1,14 +1,18 @@
 ﻿@inherits LayoutComponentBase
+<link rel="stylesheet" href="_content/MudBlazor/MudBlazor.min.css" />
+<link href="home.css" rel="stylesheet" />
+<NavBar/>
 <div class="page">
-   <NavBar></NavBar>
-   <main>
+    
+    <main>
 
-       <article class="content px-4">
-           @Body
-       </article>
-   </main>
-   <footer></footer>
+        <article class="content px-4">
+            @Body
+        </article>
+    </main>
+    
 </div>
+<Footer/>
 <div id="blazor-error-ui" data-nosnippet>
     An unhandled error has occurred.
     <a href="." class="reload">Reload</a>
