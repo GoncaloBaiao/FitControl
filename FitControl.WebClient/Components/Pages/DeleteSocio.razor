@@ -76,7 +76,9 @@
     {
         try
         {
-            _socio = await FitControlApi.GetSocio(Id);
+            var response = await FitControlApi.GetSocio(Id);
+            if (response.Content != null) 
+                _socio = response.Content;
             if (_socio.Id == 0)
                 _errorMessage = "Socio not found.";
         }
