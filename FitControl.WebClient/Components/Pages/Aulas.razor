@@ -7,7 +7,7 @@
 @inject ISnackbar Snackbar
 @inject IDialogService DialogService
 
-<PageTitle>Home</PageTitle>
+<PageTitle>Aulas</PageTitle>
 
 <MudTable Items="@_aulas" Hover="true" Breakpoint="Breakpoint.Sm" Loading="@_loading" LoadingProgressColor="Color.Info">
     <HeaderContent>
@@ -73,14 +73,14 @@
         {
             var parameters = new DialogParameters<Dialog>
             {
-                { x => x.ContentText, "Do you really want to delete these records? This process cannot be undone." },
-                { x => x.ButtonOkText, "Delete" },
+                { x => x.ContentText, "Tem a certeza que quer apagar este registo? Este processo não pode ser desfeito." },
+                { x => x.ButtonOkText, "Apagar" },
                 { x => x.Color, Color.Error }
             };
 
             var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall };
 
-            var result = await DialogService.ShowAsync<Dialog>("Delete", parameters, options);
+            var result = await DialogService.ShowAsync<Dialog>("Apagar", parameters, options);
 
             var res = await result.Result;
 

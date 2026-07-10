@@ -1,5 +1,5 @@
-@page "/AddInstrutor"
-@page "/AddInstrutor/{Id:int}"
+@page "/AddTipoPlano"
+@page "/AddTipoPlano/{Id:int}"
 @using FitControl.Shared.Models
 @using FitControl.Shared.Services
 @rendermode InteractiveServer
@@ -8,102 +8,99 @@
 @inject NavigationManager NavigationManager
 @inject IDialogService DialogService
 
-<h3>@( Id.HasValue ? "Editar Instrutor" : "Adicionar Instrutor")</h3>
+<h3>@( Id.HasValue ? "Edit Tipo de Plano" : "Add Tipo de Plano")</h3>
 
-<EditForm FormName="AddAulaForm" Model="_instrutorModel" OnValidSubmit="OnAddInstrutor">
+<EditForm FormName="AddTipoPlanoForm" Model="_tipoPlanoModel" OnValidSubmit="OnAddTipoPlano">
     <div class="mb-3">
-        <label for="aulaNome" class="form-label">Nome</label>
-        <InputText class="form-control" id="aulaNome" @bind-Value="@_instrutorModel.Nome"/>
-    </div>
-    <MudDatePicker @bind-Date="_instrutorModel.DataNascimento" Label="Hora de Início" DateFormat="dd/MM/yyyy"/>
-    <div class="mb-3">
-        <label for="aulaEmail" class="form-label">Email</label>
-        <InputText class="form-control" id="aulaEmail" @bind-Value="_instrutorModel.Email"/>
+        <label for="nomeTipoPlano" class="form-label">Nome</label>
+        <InputText class="form-control" id="nomeTipoPlano" @bind-Value="@_tipoPlanoModel.Designacao"/>
     </div>
     <div class="mb-3">
-        <label for="aulaContacto" class="form-label">Contacto</label>
-        <InputText class="form-control" id="aulaContacto" @bind-Value="_instrutorModel.ContactoTelefonico"/>
+        <label for="precoTipoPlano" class="form-label">Preço</label>
+        <InputNumber class="form-control" id="precoTipoPlano" @bind-Value="_tipoPlanoModel.Preco"/>
     </div>
-    <button class="btn btn-primary" type="submit">@(Id.HasValue ? "Gravar" : "Adicionar")</button>
+    <button class="btn btn-primary" type="submit">@(Id.HasValue ? "Save" : "Add")</button>
 </EditForm>
 
 @code {
-    [Parameter] public int? Id { get; set; }
-
-    private Instrutor _instrutorModel = new();
+    [Parameter]
+    public int? Id { get; set; }
+    
+    private Shared.Models.TipoPlano _tipoPlanoModel = new();
 
     protected override async Task OnInitializedAsync()
     {
         await base.OnInitializedAsync();
+
         try
         {
             if (Id.HasValue)
             {
-                var instrutorResponse = await FitControlApi.GetInstrutor(Id.Value);
-                if (instrutorResponse.Content != null) 
-                    _instrutorModel = instrutorResponse.Content;
+                var response = await FitControlApi.GetTipoPlano(Id.Value);
+                if (response.Content != null)
+                    _tipoPlanoModel = response.Content;
             }
         }
         catch (Exception)
         {
             Snackbar.Clear();
             Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopRight;
-            Snackbar.Add("Erro a extrair a lista de Instrutores", Severity.Error);
+            Snackbar.Add("Erro a extrair a lista de Tipos de Plano", Severity.Error);
         }
     }
 
-    private async Task OnAddInstrutor()
+    private async Task OnAddTipoPlano()
     {
         if (Id.HasValue)
         {
             try
             {
-                var response = await FitControlApi.UpdateInstrutor(_instrutorModel);
+                var response = await FitControlApi.UpdateTipoPlano(_tipoPlanoModel);
 
                 if (response.IsSuccessStatusCode && response.Content != null)
                 {
                     Snackbar.Clear();
                     Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopRight;
-                    Snackbar.Add("Instrutor editado com sucesso", Severity.Success);
+                    Snackbar.Add("Tipo de Plano editado com sucesso", Severity.Success);
                 }
                 else
                 {
                     Snackbar.Clear();
                     Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopRight;
-                    Snackbar.Add("Náo foi possível editar o Instrutor", Severity.Error);
+                    Snackbar.Add("Não foi possível editar o Tipo de Plano", Severity.Error);
                 }
             }
             catch (Exception)
             {
                 Snackbar.Clear();
                 Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopRight;
-                Snackbar.Add("Erro a apagar Instrutor", Severity.Error);
+                Snackbar.Add("Erro a editar Tipo de Plano", Severity.Error);
             }
         }
         else
         {
             try
             {
-                var response = await FitControlApi.AddInstrutor(_instrutorModel); 
-                
+                var response = await FitControlApi.AddTipoPlano(_tipoPlanoModel);
+            
                 if (response.IsSuccessStatusCode)
                 {
                     Snackbar.Clear();
                     Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopRight;
-                    Snackbar.Add("Instrutor adicionado com sucesso", Severity.Success);
+                    Snackbar.Add("Tipo de Plano adicionado com sucesso", Severity.Success);
                 }
                 else
                 {
                     Snackbar.Clear();
                     Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopRight;
-                    Snackbar.Add("Não foi possível adicionar o Instrutor", Severity.Error);
+                    Snackbar.Add("Não foi possível adicionar o Tipo de Plano", Severity.Error);
                 }
             }
             catch (Exception)
             {
                 Snackbar.Clear();
                 Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopRight;
-                Snackbar.Add("Erro a adicionar o Instrutor", Severity.Error);
+                Snackbar.Add("Erro a adicionar Tipo de Plano", Severity.Error);
             }
         }
         
@@ -113,15 +110,15 @@
             var parameters = new DialogParameters<Dialog>
             {
                 { x => x.ContentText, "Deseja sair da página?" },
-                { x => x.ButtonOkText, "Sim" },
-                { x => x.ButtonCancelText, "Não" },
+                { x => x.ButtonOkText, "Yes" },
+                { x => x.ButtonCancelText, "No" },
                 { x => x.Color, Color.Error }
             };
 
             var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall };
 
-            var result = await DialogService.ShowAsync<Dialog>("Sair da página", parameters, options);
-
+            var result = await DialogService.ShowAsync<Dialog>("Leave page", parameters, options);
+        
             var res = await result.Result;
 
             if (res != null && res.Canceled)
@@ -136,7 +133,6 @@
             Snackbar.Add("Erro a criar popup de confirmação de saída", Severity.Error);
         }
         
-        NavigationManager.NavigateTo("/Instrutores");
+        NavigationManager.NavigateTo("/TipoPlanos");
     }
 }
-

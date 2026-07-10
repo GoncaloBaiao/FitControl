@@ -1,31 +1,26 @@
-@page "/Instrutores"
+@page "/TipoPlanos"
 @using FitControl.Shared.Services
 @using FitControl.Shared.Models
-@using Refit
 @inject IFitControlApi FitControlApi
 @rendermode InteractiveServer
 @inject NavigationManager NavigationManager
 @inject ISnackbar Snackbar
 @inject IDialogService DialogService
 
-<PageTitle>Instrutores</PageTitle>
+<PageTitle>Home</PageTitle>
 
-<MudTable Items="@_instrutores" Hover="true" Breakpoint="Breakpoint.Sm" Loading="@_loading" LoadingProgressColor="Color.Info">
+<MudTable Items="@_tipoPlanos" Hover="true" Breakpoint="Breakpoint.Sm" Loading="@_loading" LoadingProgressColor="Color.Info">
     <HeaderContent>
-        <MudTh>Nome</MudTh>
-        <MudTh>Data de Nascimento</MudTh>
-        <MudTh>Email</MudTh>
-        <MudTh>Contacto Telefónico</MudTh>
+        <MudTh>Designação</MudTh>
+        <MudTh>Preço</MudTh>
+        <MudTh>Ações</MudTh>
     </HeaderContent>
     <RowTemplate>
-        <MudTd DataLabel="Nome">@context.Nome</MudTd>
-        <MudTd DataLabel="Data de Nascimento">@context.DataNascimento</MudTd>
-        <MudTd DataLabel="Email">@context.Email</MudTd>
-        <MudTd DataLabel="Contacto Telefónico">@context.ContactoTelefonico</MudTd>
-        <!--<MudCheckBox @bind-Value="" Disabled="true"></MudCheckBox>-->
+        <MudTd DataLabel="Designacao">@context.Designacao</MudTd>
+        <MudTd DataLabel="Preco">@context.Preco</MudTd>
         <MudTd DataLabel="Actions">
             <MudIconButton Icon="@Icons.Material.Filled.RemoveRedEye" aria-label="detail" OnClick="() => OnEditNavigate(context.Id)"/>
-            <MudIconButton Icon="@Icons.Material.Filled.Delete" Color='Color.Error' aria-label="delete" OnClick="()=> OnInstrutorDelete(context.Id)"/>
+            <MudIconButton Icon="@Icons.Material.Filled.Delete" Color='Color.Error' aria-label="delete" OnClick="()=> OnTipoPlanoDelete(context.Id)"/>
         </MudTd>
     </RowTemplate>
 </MudTable>
@@ -33,7 +28,7 @@
 
 @code {
 
-    private List<Instrutor> _instrutores = new();
+    private List<Shared.Models.TipoPlano> _tipoPlanos = new ();
     
     private bool _loading;
 
@@ -45,23 +40,23 @@
         
         try
         {
-            var response = await FitControlApi.GetInstrutors();
-            if (response.Content != null) 
-                _instrutores = response.Content;
+            var response = await FitControlApi.GetTipoPlanos();
+            if (response.Content != null)
+                _tipoPlanos = response.Content;
         }
         catch (Exception)
         {
             Snackbar.Clear();
             Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopRight;
-            Snackbar.Add("Erro a extrair a lista de Instrutores", Severity.Error);
+            Snackbar.Add("Erro a extrair a lista de Tipos de Plano", Severity.Error);
         }
         
         StateHasChanged();
         
         _loading = false;
     }
-
-    private async Task OnInstrutorDelete(int id)
+    
+    private async Task OnTipoPlanoDelete(int id)
     {
         //POPUP
         try
@@ -69,14 +64,14 @@
             var parameters = new DialogParameters<Dialog>
             {
                 { x => x.ContentText, "Tem a certeza que quer apagar este registo? Este processo não pode ser desfeito." },
-                { x => x.ButtonOkText, "Apagar" },
+                { x => x.ButtonOkText, "Delete" },
                 { x => x.Color, Color.Error }
             };
 
             var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall };
 
-            var result = await DialogService.ShowAsync<Dialog>("Apagar", parameters, options);
-        
+            var result = await DialogService.ShowAsync<Dialog>("Delete", parameters, options);
+
             var res = await result.Result;
 
             if (res != null && res.Canceled)
@@ -84,60 +79,60 @@
                 return;
             }
         }
-        catch (Exception )
+        catch (Exception)
         {
             Snackbar.Clear();
             Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopRight;
-            Snackbar.Add("Erro a criar popup de confirmação de apagar", Severity.Error);
+            Snackbar.Add("Erro a criar popup de confirmação da ação de apagar", Severity.Error);
         }
         
         try
         {
-            var apiResponse = await FitControlApi.DeleteInstrutor(id);
+            var apiResponse = await FitControlApi.DeleteTipoPlano(id);
             
             if (apiResponse.IsSuccessStatusCode)
             {
                 Snackbar.Clear();
                 Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopRight;
-                Snackbar.Add("Instrutor apagado com sucesso", Severity.Success);
+                Snackbar.Add("Tipo de Plano apagado com sucesso", Severity.Success);
                 
                 try
                 {
-                    var response = await FitControlApi.GetInstrutors();
-                    if (response.Content != null) 
-                        _instrutores = response.Content;
+                    var response = await FitControlApi.GetTipoPlanos();
+                    if (response.Content != null)
+                        _tipoPlanos = response.Content;
                 }
                 catch (Exception )
                 {
                     Snackbar.Clear();
                     Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopRight;
-                    Snackbar.Add("Erro a atualizar a lista de Instrutores", Severity.Error);
+                    Snackbar.Add("Erro a atualizar a lista de Tipos de Plano", Severity.Error);
                 }
             }
             else
             {
                 Snackbar.Clear();
                 Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopRight;
-                Snackbar.Add("Não foi possível apagar o Instrutor", Severity.Error);
+                Snackbar.Add("Não foi possível apagar o Tipo de Plano", Severity.Error);
             }
         }
         catch (Exception)
         {
             Snackbar.Clear();
             Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopRight;
-            Snackbar.Add("Erro a apagar Instrutor", Severity.Error);
+            Snackbar.Add("Erro a apagar Tipo de Plano", Severity.Error);
         }
-        
-        StateHasChanged();
-    }
 
-    private void OnAddNavigate()
-    {
-        NavigationManager.NavigateTo($"/addInstrutor");
+        StateHasChanged();
     }
     
     private void OnEditNavigate(int id)
     {
-        NavigationManager.NavigateTo($"addInstrutor/{id}");
+        NavigationManager.NavigateTo($"/addTipoPlano/{id}");
+    }
+    
+    private void OnAddNavigate()
+    {
+        NavigationManager.NavigateTo($"/addTipoPlano");
     }
 }
