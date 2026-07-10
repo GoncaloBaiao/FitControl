@@ -8,16 +8,16 @@
 @inject NavigationManager NavigationManager
 @inject IDialogService DialogService
 
-<h3>@( Id.HasValue ? "Edit Aula" : "Add Aula")</h3>
+<h3>@( Id.HasValue ? "Editar Aula" : "Adicionar Aula")</h3>
 
 <EditForm FormName="AddAulaForm" Model="_aulaModel" OnValidSubmit="OnAddAula">
     <div class="mb-3">
-        <label for="exampleFormControlInput1" class="form-label">Nome</label>
-        <InputText class="form-control" id="exampleFormControlInput1" @bind-Value="@_aulaModel.Nome"/>
+        <label for="nomeAula" class="form-label">Nome</label>
+        <InputText class="form-control" id="nomeAula" @bind-Value="@_aulaModel.Nome"/>
     </div>
     <div class="mb-3">
-        <label for="exampleFormControlInput2" class="form-label">Capacidade</label>
-        <InputNumber class="form-control" id="exampleFormControlInput2" @bind-Value="_aulaModel.Capacidade"/>
+        <label for="capacidadeAula" class="form-label">Capacidade</label>
+        <InputNumber class="form-control" id="capacidadeAula" @bind-Value="_aulaModel.Capacidade"/>
     </div>
     <MudDatePicker @bind-Date="_aulaModel.HoraInicio" Label="Hora de Início" DateFormat="dd/MM/yyyy"/>
     <MudDatePicker @bind-Date="_aulaModel.HoraFim" Label="Hora de Fim" DateFormat="dd/MM/yyyy"/>
@@ -39,7 +39,7 @@
             <MudSelectItem Value="sala.Id">@sala.Nome</MudSelectItem>
         }
     </MudSelect>
-    <button class="btn btn-primary" type="submit">@(Id.HasValue ? "Save" : "Add")</button>
+    <button class="btn btn-primary" type="submit">@(Id.HasValue ? "Gravar" : "Adicionar")</button>
 </EditForm>
 
 @code {
@@ -159,15 +159,15 @@
         {
             var parameters = new DialogParameters<Dialog>
             {
-                { x => x.ContentText, "Do you want to leave this page?" },
-                { x => x.ButtonOkText, "Yes" },
-                { x => x.ButtonCancelText, "No" },
+                { x => x.ContentText, "Deseja sair da página?" },
+                { x => x.ButtonOkText, "Sim" },
+                { x => x.ButtonCancelText, "Não" },
                 { x => x.Color, Color.Error }
             };
 
             var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall };
 
-            var result = await DialogService.ShowAsync<Dialog>("Leave page", parameters, options);
+            var result = await DialogService.ShowAsync<Dialog>("Sair da página", parameters, options);
         
             var res = await result.Result;
 

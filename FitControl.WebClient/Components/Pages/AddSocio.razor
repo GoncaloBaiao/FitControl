@@ -3,6 +3,7 @@
 @using FitControl.Shared.Models
 @using FitControl.Shared.Services
 @using Socio = FitControl.Shared.Models.Socio
+@using TipoPlano = FitControl.Shared.Models.TipoPlano
 @using Refit
 @inject IFitControlApi FitControlApi
 @inject NavigationManager NavigationManager
@@ -64,7 +65,7 @@
     private bool _saving;
     private string? _errorMessage;
     private Shared.Models.Socio _socio = new();
-    private List<TipoPlano> _tiposPlano = new();
+    private List<Shared.Models.TipoPlano> _tiposPlano = new();
     private int _tipoPlanoId;
 
     private DateTime? _dataNascimento = DateTime.Today;
