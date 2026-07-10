@@ -122,7 +122,7 @@ public class ModalidadeController : ControllerBase
     }
     
     [HttpDelete("/modalidade/softdelete/{id}")]
-    public async Task<IResult> SoftDeleteModalidade(int id)
+    public async Task<IResult> DeleteModalidade(int id)
     {
         if (_fitControlDbContext.Modalidades is not null)
         {

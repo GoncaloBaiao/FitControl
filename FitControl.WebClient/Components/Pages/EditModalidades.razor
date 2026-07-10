@@ -1,0 +1,135 @@
+﻿@page "/modalidade/edit/{Id:int}"
+@layout FitControl.WebClient.Components.Layout.MainLayout
+@using FitControl.Shared.Models
+@using FitControl.Shared.Services
+@using Modalidade = FitControl.Shared.Models.Modalidade
+@using Refit
+@inject IFitControlApi FitControlApi
+@inject NavigationManager NavigationManager
+
+
+<PageTitle>Editar Modalidade</PageTitle>
+
+<MudStack Spacing="3">
+    <MudText Typo="Typo.h4">Editar Modalidade</MudText>
+
+    @if (!string.IsNullOrWhiteSpace(_errorMessage))
+    {
+        <MudAlert Severity="Severity.Error" Variant="Variant.Filled">@_errorMessage</MudAlert>
+    }
+
+    <MudPaper Class="pa-4" Elevation="1">
+        <MudForm @ref="_form">
+            <MudStack Spacing="3">
+                <MudTextField @bind-Value="_modalidade.Nome" Label="Nome" Required="true" RequiredError="Nome é obrigatório" />
+                <MudTextField @bind-Value="_modalidade.Descricao" Label="Descrição" RequiredError="Descrição é obrigatória" />
+                <MudSelect Label="Nivel de Dificuldade" @bind-Value="_nivelDificuldadeId" Required="true" RequiredError="Nivel de Dificuldade é obrigatório">
+                    @foreach (var nivel in _nivelDificuldade)
+                    {
+                        <MudSelectItem Value="@nivel.Id">@nivel.Nivel</MudSelectItem>
+                    }
+                </MudSelect>
+
+                <MudStack Row="true" Justify="Justify.FlexEnd" Spacing="2">
+                    <MudButton Href="/modalidades" Variant="Variant.Text">Cancelar</MudButton>
+                    <MudButton Variant="Variant.Filled" Color="Color.Primary" Disabled="@_saving" OnClick="SaveModalidade">
+                        Guardar
+                    </MudButton>
+                </MudStack>
+            </MudStack>
+        </MudForm>
+    </MudPaper>
+</MudStack>
+
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+    private MudForm? _form;
+    private bool _loading = true;
+    private bool _saving;
+    private string? _errorMessage;
+    private Shared.Models.Modalidade _modalidade = new();
+    private List<NivelDificuldade> _nivelDificuldade = new();
+    private int _nivelDificuldadeId;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var modalidadeResponse = await FitControlApi.GetNivelDificuldades();
+            if (modalidadeResponse.IsSuccessStatusCode && modalidadeResponse.Content is not null)
+            {
+                _nivelDificuldade = modalidadeResponse.Content;
+            }
+
+            var response = await FitControlApi.GetModalidade(Id);
+
+            if (response.IsSuccessStatusCode && response.Content is not null)
+            {
+                _modalidade = response.Content;
+                _nivelDificuldadeId = _modalidade.NivelDificuldadeId;
+            }
+            else
+            {
+                _errorMessage = "Modalidade não encontrada.";
+            }
+        }
+        catch (Exception ex)
+        {
+            _errorMessage = $"Não foi possível carregar o sócio. Verifica se a API está a correr. Erro: {ex.Message}";
+        }
+        finally
+        {
+            _loading = false;
+        }
+    }
+
+    private async Task SaveModalidade()
+    {
+        if (_form is null)
+            return;
+
+        await _form.ValidateAsync();
+
+        if (!_form.IsValid)
+            return;
+
+        if (_nivelDificuldadeId == 0)
+        {
+            _errorMessage = "Nível de dificuldade obrigatório.";
+            return;
+        }
+
+        _saving = true;
+        _errorMessage = null;
+
+        try
+        {
+            _modalidade.NivelDificuldadeId = _nivelDificuldadeId;
+
+            var response = await FitControlApi.UpdateModalidade(_modalidade);
+
+            if (response.IsSuccessStatusCode)
+            {
+                NavigationManager.NavigateTo("/modalidades");
+            }
+            else
+            {
+                _errorMessage = $"Não foi possível atualizar a modalidade. API devolveu {response.StatusCode}.";
+            }
+        }
+        catch (ApiException ex)
+        {
+            _errorMessage = $"Não foi possível atualizar a modalidade. API devolveu {(int)ex.StatusCode}: {ex.ReasonPhrase}";
+        }
+        catch (Exception ex)
+        {
+            _errorMessage = $"Não foi possível atualizar a modalidade. {ex.Message}";
+        }
+        finally
+        {
+            _saving = false;
+        }
+    }
+}
