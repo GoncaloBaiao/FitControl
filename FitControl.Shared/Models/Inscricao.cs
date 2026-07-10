@@ -4,6 +4,9 @@ namespace FitControl.Shared.Models;
 
 public class Inscricao
 {
+    [JsonPropertyName("id")]
+    public int Id { get; set; }
+    
     [JsonPropertyName("aulaId")]
     public int AulaId { get; set; }
     
@@ -17,10 +20,10 @@ public class Inscricao
     public Socio Socio { get; set; }
     
     [JsonPropertyName("dataInscricao")]
-    public DateTime DataInscricao { get; set; }
+    public DateTime? DataInscricao { get; set; }
     
     [JsonPropertyName("dataCancelamento")]
-    public DateTime DataCancelamento { get; set; }
+    public DateTime? DataCancelamento { get; set; }
     
     [JsonPropertyName("isDeleted")]
     public bool IsDeleted { get; set; }

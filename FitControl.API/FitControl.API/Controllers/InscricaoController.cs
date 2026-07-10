@@ -27,7 +27,7 @@ public class InscricaoController : ControllerBase
             var inscricao=_fitControlDbContext.Inscricaos
                 .Include(x=>x.Aula)
                 .Include(x=>x.Socio)
-                .Where(i=>i.IsDeleted ==  false || i.Aula.IsDeleted == false || i.Socio.IsDeleted == false);
+                .Where(i=>i.IsDeleted ==  false && i.Aula.IsDeleted == false && i.Socio.IsDeleted == false);
             if (inscricao.Any())
             {
                 return Results.Ok(await inscricao.ToListAsync());
