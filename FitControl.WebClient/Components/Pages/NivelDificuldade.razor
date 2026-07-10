@@ -1,0 +1,99 @@
+﻿@page "/niveldificuldades"
+@using NivelDificuldade = FitControl.Shared.Models.NivelDificuldade
+@using FitControl.Shared.Services
+@using MudBlazor
+@using Refit
+@inject IFitControlApi FitControlApi
+@layout MainLayout
+
+
+
+<PageTitle>Nivel de Dificulade</PageTitle>
+
+<ErrorBoundary>
+    <ChildContent>
+        <MudStack Spacing="3">
+            <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween">
+                <MudText Typo="Typo.h4">Niveis de Dificuldade</MudText>
+                <MudButton Href="/niveldificuldades/add" Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add">
+                    Adicionar nivel de dificuldade
+                </MudButton>
+            </MudStack>
+
+            @if (!string.IsNullOrWhiteSpace(_errorMessage))
+            {
+                <MudAlert Severity="Severity.Error" Variant="Variant.Filled">@_errorMessage</MudAlert>
+            }
+
+            <MudPaper Class="pa-4" Elevation="1">
+                @if (_loading)
+                {
+                    <MudProgressLinear Indeterminate="true" />
+                }
+                else if (_nivelDificuldade.Count > 0)
+                {
+                    <MudTable Items="@_nivelDificuldade" Hover="true" Dense="true" Breakpoint="Breakpoint.Sm">
+                        <HeaderContent>
+                            <MudTh>Niveis</MudTh>
+                        </HeaderContent>
+                        <RowTemplate Context="nivelDificuldade">
+                            <MudTd>@nivelDificuldade.Nivel</MudTd>
+                            <MudTd DataLabel="Ações">
+                                <MudStack Row="true" Spacing="1">
+                                    <MudIconButton Href="@($"/nivelDificuldade/edit/{nivelDificuldade.Id}")" Icon="@Icons.Material.Filled.Edit" Color="Color.Primary" Size="Size.Small" Title="Editar" />
+                                    <MudIconButton Href="@($"/nivelDificuldade/softdelete/{nivelDificuldade.Id}")" Icon="@Icons.Material.Filled.Delete" Color="Color.Error" Size="Size.Small" Title="Eliminar" />
+                                </MudStack>
+                            </MudTd>
+                        </RowTemplate>
+                    </MudTable>
+                }
+                else
+                {
+                    <MudText>Nenhum sócio encontrado.</MudText>
+                }
+            </MudPaper>
+        </MudStack>
+    </ChildContent>
+    <ErrorContent Context="ex">
+        <MudAlert Severity="Severity.Error" Variant="Variant.Filled">
+            Erro ao apresentar os niveis de dificuldade: @ex.Message
+        </MudAlert>
+    </ErrorContent>
+</ErrorBoundary>
+
+@code {
+    private bool _loading = true;
+    private bool _hasLoaded;
+    private string? _errorMessage;
+    private List<Shared.Models.NivelDificuldade> _nivelDificuldade = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (_hasLoaded) return;
+        _hasLoaded = true;
+
+        try
+        {
+            var response = await FitControlApi.GetNivelDificuldades();
+
+            if (response.IsSuccessStatusCode && response.Content is not null)
+            {
+                _nivelDificuldade = response.Content;
+            }
+            else
+            {
+                _nivelDificuldade = new List<Shared.Models.NivelDificuldade>();
+                _errorMessage = $"API devolveu {response.StatusCode}.";
+            }
+        }
+        catch (Exception ex)
+        {
+            _errorMessage = $"Não foi possível carregar sócios. Verifica se a API está a correr. Erro: {ex.Message}";
+            _nivelDificuldade = new List<Shared.Models.NivelDificuldade>();
+        }
+        finally
+        {
+            _loading = false;
+        }
+    }
+}
