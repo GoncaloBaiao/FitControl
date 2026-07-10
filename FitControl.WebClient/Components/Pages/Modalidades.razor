@@ -1,104 +1,106 @@
-@page "/Modalidades"
+@page "/modalidades"
+@using Modalidade = FitControl.Shared.Models.Modalidade
 @using FitControl.Shared.Services
-@using FitControl.Shared.Models
+@using MudBlazor
 @using Refit
 @inject IFitControlApi FitControlApi
-@rendermode InteractiveServer
-@inject NavigationManager NavigationManager
-@inject ISnackbar Snackbar
-@inject IDialogService DialogService
+@layout FitControl.WebClient.Components.Layout.MainLayout
 
-<PageTitle>Home</PageTitle>
 
-@if(_modalidades is not null)
-{
-    if(_modalidades.HasContent)
-    {
-        <MudTable Items="@_modalidades.Content" Hover="true" Breakpoint="Breakpoint.Sm" Loading="@_loading" LoadingProgressColor="Color.Info">
-            <HeaderContent>
-                <MudTh>Nome</MudTh>
-                <MudTh>Descrição</MudTh>
-                <MudTh>Nível de dificuldade</MudTh>
-            </HeaderContent>
-            <RowTemplate>
-                <MudTd DataLabel="Nome">@context.Nome</MudTd>
-                <MudTd DataLabel="Descrição">@context.Descricao</MudTd>
-                <MudTd DataLabel="Nível de dificuldade">@context.NivelDificuldade.Nivel</MudTd>
-                <!--<MudCheckBox @bind-Value="" Disabled="true"></MudCheckBox>-->
-                <MudTd DataLabel="Actions">
-                    <MudIconButton Icon="@Icons.Material.Filled.RemoveRedEye" aria-label="detail" OnClick="() => OnPageNavigate(context.Id)"/>
-                    <MudIconButton Icon="@Icons.Material.Filled.Delete" Color='Color.Error' aria-label="delete" OnClick="()=> OnModalidadeDelete(context.Id)"/>
-                </MudTd>
-            </RowTemplate>
-        </MudTable>
-    }
-}
+
+<PageTitle>Modalidades</PageTitle>
+
+<ErrorBoundary>
+    <ChildContent>
+        <MudStack Spacing="3">
+            <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween">
+                <MudText Typo="Typo.h4">Modalidades</MudText>
+                <MudButton Href="/modalidades/add" Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add">
+                    Adicionar Modalidade
+                </MudButton>
+            </MudStack>
+
+            @if (!string.IsNullOrWhiteSpace(_errorMessage))
+            {
+                <MudAlert Severity="Severity.Error" Variant="Variant.Filled">@_errorMessage</MudAlert>
+            }
+
+            <MudPaper Class="pa-4" Elevation="1">
+                @if (_loading)
+                {
+                    <MudProgressLinear Indeterminate="true" />
+                }
+                else if (_modalidades.Count > 0)
+                {
+                    <MudTable Items="@_modalidades" Hover="true" Dense="true" Breakpoint="Breakpoint.Sm">
+                        <HeaderContent>
+                            <MudTh>Nome</MudTh>
+                            <MudTh>Descricao</MudTh>
+                            <MudTh>Nivel de Dificuldade</MudTh>
+                            
+                        </HeaderContent>
+                        <RowTemplate Context="modalidade">
+                            <MudTd>@modalidade.Nome</MudTd>
+                            <MudTd>@modalidade.Descricao</MudTd>
+                            <MudTd>@(modalidade.NivelDificuldade.Nivel ?? "Iniciante")</MudTd>
+                            <MudTd DataLabel="Ações">
+                                <MudStack Row="true" Spacing="1">
+                                    <MudIconButton Href="@($"/modalidade/edit/{modalidade.Id}")" Icon="@Icons.Material.Filled.Edit" Color="Color.Primary" Size="Size.Small" Title="Editar" />
+                                    <MudIconButton Href="@($"/modalidade/softdelete/{modalidade.Id}")" Icon="@Icons.Material.Filled.Delete" Color="Color.Error" Size="Size.Small" Title="Eliminar" />
+                                </MudStack>
+                            </MudTd>
+                        </RowTemplate>
+                    </MudTable>
+                }
+                else
+                {
+                    <MudText>Nenhum sócio encontrado.</MudText>
+                }
+            </MudPaper>
+        </MudStack>
+    </ChildContent>
+    <ErrorContent Context="ex">
+        <MudAlert Severity="Severity.Error" Variant="Variant.Filled">
+            Erro ao apresentar modalidades: @ex.Message
+        </MudAlert>
+    </ErrorContent>
+</ErrorBoundary>
 
 @code {
-
-    private ApiResponse<List<Modalidade>>? _modalidades;
-    
-    private bool _loading;
+    private bool _loading = true;
+    private bool _hasLoaded;
+    private string? _errorMessage;
+    private List<Shared.Models.Modalidade> _modalidades = new();
 
     protected override async Task OnInitializedAsync()
     {
-        _loading = true;
-        await base.OnInitializedAsync();
-        _modalidades = await FitControlApi.GetModalidades();
-        StateHasChanged();
-        _loading = false;
-    }
+        if (_hasLoaded) return;
+        _hasLoaded = true;
 
-    private void OnPageNavigate(int id)
-    {
-         NavigationManager.NavigateTo($"addModalidade/{id}");
-    }
-
-    private async Task OnModalidadeDelete(int id)
-    {
-        var parameters = new DialogParameters<Dialog>
-        {
-            { x => x.ContentText, "Do you really want to delete these records? This process cannot be undone." },
-            { x => x.ButtonOkText, "Delete" },
-            { x => x.Color, Color.Error }
-        };
-
-        var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall };
-
-        var result = await DialogService.ShowAsync<Dialog>("Delete", parameters, options);
-        
-        var res = await result.Result;
-
-        if (res != null && res.Canceled)
-        {
-            return;
-        }
-        
         try
         {
-            var apiResponse = await FitControlApi.DeleteModalidade(id);
-            if (apiResponse.IsSuccessStatusCode)
+            var response = await FitControlApi.GetModalidades();
+
+            if (response.IsSuccessStatusCode && response.Content is not null)
             {
-                Snackbar.Clear();
-                Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopRight;
-                Snackbar.Add("Modalidade apagada com sucesso", Severity.Success);
-                _modalidades = await FitControlApi.GetModalidades();
+                _modalidades = response.Content;
             }
             else
             {
-                Snackbar.Clear();
-                Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopRight;
-                Snackbar.Add("Falhou o delete da Modalidade", Severity.Error);
+                _modalidades = new List<Shared.Models.Modalidade>();
+                _errorMessage = $"API devolveu {response.StatusCode}.";
             }
-            
-                    }
-        catch (Exception e)
-        {
-            Snackbar.Clear();
-            Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopRight;
-            Snackbar.Add("Erro a apagar Modalidade", Severity.Error);
         }
-        StateHasChanged();
+        catch (Exception ex)
+        {
+            _errorMessage = $"Não foi possível carregar sócios. Verifica se a API está a correr. Erro: {ex.Message}";
+            _modalidades = new List<Shared.Models.Modalidade>();
+        }
+        finally
+        {
+            _loading = false;
+        }
     }
 
+    private string FormatDate(DateTime date) => date.ToString("dd/MM/yyyy") ?? "N/A";
 }
