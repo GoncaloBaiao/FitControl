@@ -138,4 +138,19 @@ public interface IFitControlApi
 
     [Delete("/tipoplano/softdelete/{id}")]
     Task<ApiResponse<string>> DeleteTipoPlano(int id);
+    
+    [Get("/users")]
+    Task<ApiResponse<List<User>>> GetUsers();
+
+    [Post("/user")]
+    Task<ApiResponse<User>> AddUser([Body] User user);
+
+    [Get("/user/{id}")]
+    Task<ApiResponse<User>> GetUser(int id);
+
+    [Put("/user")]
+    Task<ApiResponse<User>> UpdateUser([Body] User user);
+
+    [Delete("/user/softdelete/{id}")]
+    Task<ApiResponse<string>> DeleteUser(int id);
 }
