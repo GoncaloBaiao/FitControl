@@ -36,19 +36,20 @@ public class UserController : ControllerBase
         return Results.Ok(new List<User>());
     }
     
-    [HttpGet("/user")]
-    public async Task<IResult> GetUser([FromBody] UserDto userDto)
+    [HttpGet("/user/{id}")]
+    public async Task<IResult> GetUser(int id)
     {
-        if (_fitControlDbContext.Users != null)
+        if (_fitControlDbContext != null)
         {
-            var checkUser = await _fitControlDbContext.Users.AnyAsync(x => x.Username.Equals(userDto.Username) && x.Password == userDto.Password);
+            var User = await _fitControlDbContext.Users
+                .FirstOrDefaultAsync(u => u.IsDeleted == false && u.Id == id);
 
-            if (checkUser)
+            if (User is not null)
             {
-                return Results.Ok(checkUser);
+                return Results.Ok(User);
             }
         }
-        return Results.NotFound("Username or password is incorrect");
+        return Results.Ok(new User());
     }
     
     [HttpPost("user")]
@@ -115,7 +116,7 @@ public class UserController : ControllerBase
     }
     
     [HttpDelete("/user/softdelete/{id}")]
-    public async Task<IResult> SoftDeleteUser(int id)
+    public async Task<IResult> DeleteUser(int id)
     {
         if (_fitControlDbContext.Users is not null)
         {
