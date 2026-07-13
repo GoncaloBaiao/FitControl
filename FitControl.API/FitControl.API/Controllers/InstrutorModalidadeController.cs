@@ -27,7 +27,7 @@ public class InstrutorModalidadeController : ControllerBase
             var instrutormodalidade=_fitControlDbContext.InstrutorModalidades
                 .Include(x=>x.Instrutor)
                 .Include(x=>x.Modalidade)
-                .Where(i=>i.IsDeleted ==  false || i.Instrutor.IsDeleted == false || i.Modalidade.IsDeleted == false);
+                .Where(i=>i.IsDeleted ==  false && i.Instrutor.IsDeleted == false && i.Modalidade.IsDeleted == false);
             if (instrutormodalidade.Any())
             {
                 return Results.Ok(await instrutormodalidade.ToListAsync());

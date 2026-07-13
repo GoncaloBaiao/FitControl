@@ -4,6 +4,9 @@ namespace FitControl.Shared.Models;
 
 public class InstrutorModalidade
 {
+    [JsonPropertyName("id")]
+    public int Id { get; set; }
+    
     [JsonPropertyName("instrutorId")]
     public int InstrutorId { get; set; }
     
