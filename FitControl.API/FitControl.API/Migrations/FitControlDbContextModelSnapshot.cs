@@ -278,6 +278,9 @@ namespace FitControl.API.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<float>("Altura")
+                        .HasColumnType("real");
+
                     b.Property<string>("ContactoTelefonico")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -295,6 +298,9 @@ namespace FitControl.API.Migrations
                     b.Property<DateTime>("FimSubscricao")
                         .HasColumnType("datetime2");
 
+                    b.Property<int>("Genero")
+                        .HasColumnType("int");
+
                     b.Property<DateTime>("InicioSubscricao")
                         .HasColumnType("datetime2");
 
@@ -304,6 +310,9 @@ namespace FitControl.API.Migrations
                     b.Property<string>("Nome")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<float>("Peso")
+                        .HasColumnType("real");
 
                     b.Property<int>("TipoPlanoId")
                         .HasColumnType("int");
