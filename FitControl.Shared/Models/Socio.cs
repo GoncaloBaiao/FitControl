@@ -19,6 +19,15 @@ public class Socio
     [JsonPropertyName("dataNascimento")]
     public DateTime DataNascimento { get; set; }
     
+    [JsonPropertyName("genero")]
+    public string Genero { get; set; }
+    
+    [JsonPropertyName("altura")]
+    public float Altura { get; set; }
+    
+    [JsonPropertyName("peso")]
+    public float Peso { get; set; }
+    
     [JsonPropertyName("email")]
     public string Email { get; set; }
     
