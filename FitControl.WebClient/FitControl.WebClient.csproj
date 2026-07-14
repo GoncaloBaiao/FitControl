@@ -14,4 +14,8 @@
       <PackageReference Include="Refit.Newtonsoft.Json" Version="12.0.0" />
     </ItemGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\FitControl.Shared\FitControl.Shared.csproj" />
+    </ItemGroup>
+
 </Project>

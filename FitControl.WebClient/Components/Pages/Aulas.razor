@@ -1,0 +1,148 @@
+@page "/Aulas"
+@using FitControl.Shared.Services
+@using FitControl.Shared.Models
+@inject IFitControlApi FitControlApi
+@rendermode InteractiveServer
+@inject NavigationManager NavigationManager
+@inject ISnackbar Snackbar
+@inject IDialogService DialogService
+
+<PageTitle>Aulas</PageTitle>
+
+<MudTable Items="@_aulas" Hover="true" Breakpoint="Breakpoint.Sm" Loading="@_loading" LoadingProgressColor="Color.Info">
+    <HeaderContent>
+        <MudTh>Nome</MudTh>
+        <MudTh>Modalidade</MudTh>
+        <MudTh>Instrutor</MudTh>
+        <MudTh>Sala</MudTh>
+        <MudTh>Hora de Início</MudTh>
+        <MudTh>Hora de Fim</MudTh>
+        <MudTh>Capacidade</MudTh>
+        <MudTh>Ações</MudTh>
+    </HeaderContent>
+    <RowTemplate>
+        <MudTd DataLabel="Nome">@context.Nome</MudTd>
+        <MudTd DataLabel="Modalidade">@context.Modalidade.Nome</MudTd>
+        <MudTd DataLabel="Instrutor">@context.Instrutor.Nome</MudTd>
+        <MudTd DataLabel="Sala">@context.Sala.Nome</MudTd>
+        <MudTd DataLabel="Hora de Início">@context.HoraInicio</MudTd>
+        <MudTd DataLabel="Hora de Fim">@context.HoraFim</MudTd>
+        <MudTd DataLabel="Capacidade">@context.Capacidade</MudTd>
+        <MudTd DataLabel="Actions">
+            <MudIconButton Icon="@Icons.Material.Filled.RemoveRedEye" aria-label="detail" OnClick="() => OnEditNavigate(context.Id)"/>
+            <MudIconButton Icon="@Icons.Material.Filled.Delete" Color='Color.Error' aria-label="delete" OnClick="()=> OnAulaDelete(context.Id)"/>
+        </MudTd>
+    </RowTemplate>
+</MudTable>
+<MudIconButton Icon="@Icons.Material.Filled.Add" aria-label="detail" OnClick="OnAddNavigate"/>
+
+@code {
+
+    private List<Aula> _aulas = new ();
+    
+    private bool _loading;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _loading = true;
+        
+        await base.OnInitializedAsync();
+        
+        try
+        {
+            var response = await FitControlApi.GetAulas();
+            if (response.Content != null) 
+                _aulas = response.Content;
+        }
+        catch (Exception)
+        {
+            Snackbar.Clear();
+            Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopRight;
+            Snackbar.Add("Erro a extrair a lista de Aulas", Severity.Error);
+        }
+        
+        StateHasChanged();
+        
+        _loading = false;
+    }
+    
+    private async Task OnAulaDelete(int id)
+    {
+        //POPUP
+        try
+        {
+            var parameters = new DialogParameters<Dialog>
+            {
+                { x => x.ContentText, "Tem a certeza que quer apagar este registo? Este processo não pode ser desfeito." },
+                { x => x.ButtonOkText, "Apagar" },
+                { x => x.Color, Color.Error }
+            };
+
+            var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall };
+
+            var result = await DialogService.ShowAsync<Dialog>("Apagar", parameters, options);
+
+            var res = await result.Result;
+
+            if (res != null && res.Canceled)
+            {
+                return;
+            }
+        }
+        catch (Exception)
+        {
+            Snackbar.Clear();
+            Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopRight;
+            Snackbar.Add("Erro a criar popup de confirmação da ação de apagar", Severity.Error);
+        }
+        
+        try
+        {
+            var apiResponse = await FitControlApi.DeleteAula(id);
+            
+            if (apiResponse.IsSuccessStatusCode)
+            {
+                Snackbar.Clear();
+                Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopRight;
+                Snackbar.Add("Aula apagada com sucesso", Severity.Success);
+                
+                try
+                {
+                    var response = await FitControlApi.GetAulas();
+                    if (response.Content != null)
+                        _aulas = response.Content;
+                }
+                catch (Exception )
+                {
+                    Snackbar.Clear();
+                    Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopRight;
+                    Snackbar.Add("Erro a atualizar a lista de Aulas", Severity.Error);
+                }
+            }
+            else
+            {
+                Snackbar.Clear();
+                Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopRight;
+                Snackbar.Add("Não foi possível apagar a Aula", Severity.Error);
+            }
+        }
+        catch (Exception)
+        {
+            Snackbar.Clear();
+            Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopRight;
+            Snackbar.Add("Erro a apagar Aula", Severity.Error);
+        }
+
+        StateHasChanged();
+    }
+    
+    private void OnEditNavigate(int id)
+    {
+        NavigationManager.NavigateTo($"/addAula/{id}");
+    }
+    
+    private void OnAddNavigate()
+    {
+        NavigationManager.NavigateTo($"/addAula");
+    }
+}

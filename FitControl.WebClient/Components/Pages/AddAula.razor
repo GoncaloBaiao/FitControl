@@ -1,0 +1,188 @@
+@page "/AddAula"
+@page "/AddAula/{Id:int}"
+@using FitControl.Shared.Models
+@using FitControl.Shared.Services
+@rendermode InteractiveServer
+@inject IFitControlApi FitControlApi
+@inject ISnackbar Snackbar
+@inject NavigationManager NavigationManager
+@inject IDialogService DialogService
+
+<h3>@( Id.HasValue ? "Editar Aula" : "Adicionar Aula")</h3>
+
+<EditForm FormName="AddAulaForm" Model="_aulaModel" OnValidSubmit="OnAddAula">
+    <div class="mb-3">
+        <label for="nomeAula" class="form-label">Nome</label>
+        <InputText class="form-control" id="nomeAula" @bind-Value="@_aulaModel.Nome"/>
+    </div>
+    <div class="mb-3">
+        <label for="capacidadeAula" class="form-label">Capacidade</label>
+        <InputNumber class="form-control" id="capacidadeAula" @bind-Value="_aulaModel.Capacidade"/>
+    </div>
+    <MudDatePicker @bind-Date="_aulaModel.HoraInicio" Label="Hora de Início" DateFormat="dd/MM/yyyy"/>
+    <MudDatePicker @bind-Date="_aulaModel.HoraFim" Label="Hora de Fim" DateFormat="dd/MM/yyyy"/>
+    <MudSelect Label="Modalidade" @bind-Value="_selectedModalidade" Placeholder="Selecione a modalidade">
+        @foreach (Modalidade modalidade in _modalidades)
+        {
+            <MudSelectItem Value="modalidade.Id">@modalidade.Nome</MudSelectItem>
+        }
+    </MudSelect>
+    <MudSelect Label="Instrutor" @bind-Value="_selectedInstrutor" Placeholder="Selecione o instrutor">
+        @foreach (Instrutor instrutor in _instrutores)
+        {
+            <MudSelectItem Value="instrutor.Id">@instrutor.Nome</MudSelectItem>
+        }
+    </MudSelect>
+    <MudSelect Label="Sala" @bind-Value="_selectedSala" Placeholder="Selecione a sala">
+        @foreach (Sala sala in _salas)
+        {
+            <MudSelectItem Value="sala.Id">@sala.Nome</MudSelectItem>
+        }
+    </MudSelect>
+    <button class="btn btn-primary" type="submit">@(Id.HasValue ? "Gravar" : "Adicionar")</button>
+</EditForm>
+
+@code {
+    [Parameter]
+    public int? Id { get; set; }
+    
+    private Aula _aulaModel = new();
+    private List<Modalidade> _modalidades = new ();
+    private List<Instrutor> _instrutores = new ();
+    private List<Sala> _salas = new ();
+    
+    private int _selectedModalidade;
+    private int _selectedInstrutor;
+    private int _selectedSala;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+
+        try
+        {
+            if (Id.HasValue)
+            {
+                var aulaResponse = await FitControlApi.GetAula(Id.Value);
+                if (aulaResponse.Content != null) 
+                    _aulaModel = aulaResponse.Content;
+            }
+        
+            var modalidadesResponse = await FitControlApi.GetModalidades();
+            if (modalidadesResponse.Content != null)
+                _modalidades = modalidadesResponse.Content;
+
+            var salasResponse = await FitControlApi.GetSalas();
+            if (salasResponse.Content != null)
+                _salas = salasResponse.Content;
+
+            var instrutorsResponse = await FitControlApi.GetInstrutors();
+            if (instrutorsResponse.Content != null) 
+                _instrutores = instrutorsResponse.Content;
+
+            if (_aulaModel != null)
+            {
+                _selectedModalidade = _aulaModel.ModalidadeId;
+                _selectedInstrutor = _aulaModel.InstrutorId;
+                _selectedSala = _aulaModel.SalaId;
+            }
+        }
+        catch (Exception)
+        {
+            Snackbar.Clear();
+            Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopRight;
+            Snackbar.Add("Erro a extrair a lista de Aulas", Severity.Error);
+        }
+    }
+
+    private async Task OnAddAula()
+    {
+        _aulaModel.ModalidadeId = _selectedModalidade;
+        _aulaModel.InstrutorId = _selectedInstrutor;
+        _aulaModel.SalaId = _selectedSala;
+        
+        if (Id.HasValue)
+        {
+            try
+            {
+                var response = await FitControlApi.UpdateAula(_aulaModel);
+
+                if (response.IsSuccessStatusCode && response.Content != null)
+                {
+                    Snackbar.Clear();
+                    Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopRight;
+                    Snackbar.Add("Aula editada com sucesso", Severity.Success);
+                }
+                else
+                {
+                    Snackbar.Clear();
+                    Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopRight;
+                    Snackbar.Add("Não foi possível editar a Aula", Severity.Error);
+                }
+            }
+            catch (Exception)
+            {
+                Snackbar.Clear();
+                Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopRight;
+                Snackbar.Add("Erro a editar Aula", Severity.Error);
+            }
+        }
+        else
+        {
+            try
+            {
+                var response = await FitControlApi.AddAula(_aulaModel);
+            
+                if (response.IsSuccessStatusCode)
+                {
+                    Snackbar.Clear();
+                    Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopRight;
+                    Snackbar.Add("Aula adicionada com sucesso", Severity.Success);
+                }
+                else
+                {
+                    Snackbar.Clear();
+                    Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopRight;
+                    Snackbar.Add("Não foi possível adicionar a Aula", Severity.Error);
+                }
+            }
+            catch (Exception)
+            {
+                Snackbar.Clear();
+                Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopRight;
+                Snackbar.Add("Erro a adicionar Aula", Severity.Error);
+            }
+        }
+        
+        //POPUP
+        try
+        {
+            var parameters = new DialogParameters<Dialog>
+            {
+                { x => x.ContentText, "Deseja sair da página?" },
+                { x => x.ButtonOkText, "Sim" },
+                { x => x.ButtonCancelText, "Não" },
+                { x => x.Color, Color.Error }
+            };
+
+            var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall };
+
+            var result = await DialogService.ShowAsync<Dialog>("Sair da página", parameters, options);
+        
+            var res = await result.Result;
+
+            if (res != null && res.Canceled)
+            {
+                return;
+            }
+        }
+        catch (Exception)
+        {
+            Snackbar.Clear();
+            Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopRight;
+            Snackbar.Add("Erro a criar popup de confirmação de saída", Severity.Error);
+        }
+        
+        NavigationManager.NavigateTo("/Aulas");
+    }
+}

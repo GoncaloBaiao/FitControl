@@ -1,0 +1,142 @@
+@page "/AddInstrutor"
+@page "/AddInstrutor/{Id:int}"
+@using FitControl.Shared.Models
+@using FitControl.Shared.Services
+@rendermode InteractiveServer
+@inject IFitControlApi FitControlApi
+@inject ISnackbar Snackbar
+@inject NavigationManager NavigationManager
+@inject IDialogService DialogService
+
+<h3>@( Id.HasValue ? "Editar Instrutor" : "Adicionar Instrutor")</h3>
+
+<EditForm FormName="AddAulaForm" Model="_instrutorModel" OnValidSubmit="OnAddInstrutor">
+    <div class="mb-3">
+        <label for="aulaNome" class="form-label">Nome</label>
+        <InputText class="form-control" id="aulaNome" @bind-Value="@_instrutorModel.Nome"/>
+    </div>
+    <MudDatePicker @bind-Date="_instrutorModel.DataNascimento" Label="Hora de Início" DateFormat="dd/MM/yyyy"/>
+    <div class="mb-3">
+        <label for="aulaEmail" class="form-label">Email</label>
+        <InputText class="form-control" id="aulaEmail" @bind-Value="_instrutorModel.Email"/>
+    </div>
+    <div class="mb-3">
+        <label for="aulaContacto" class="form-label">Contacto</label>
+        <InputText class="form-control" id="aulaContacto" @bind-Value="_instrutorModel.ContactoTelefonico"/>
+    </div>
+    <button class="btn btn-primary" type="submit">@(Id.HasValue ? "Gravar" : "Adicionar")</button>
+</EditForm>
+
+@code {
+    [Parameter] public int? Id { get; set; }
+
+    private Instrutor _instrutorModel = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+        try
+        {
+            if (Id.HasValue)
+            {
+                var instrutorResponse = await FitControlApi.GetInstrutor(Id.Value);
+                if (instrutorResponse.Content != null) 
+                    _instrutorModel = instrutorResponse.Content;
+            }
+        }
+        catch (Exception)
+        {
+            Snackbar.Clear();
+            Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopRight;
+            Snackbar.Add("Erro a extrair a lista de Instrutores", Severity.Error);
+        }
+    }
+
+    private async Task OnAddInstrutor()
+    {
+        if (Id.HasValue)
+        {
+            try
+            {
+                var response = await FitControlApi.UpdateInstrutor(_instrutorModel);
+
+                if (response.IsSuccessStatusCode && response.Content != null)
+                {
+                    Snackbar.Clear();
+                    Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopRight;
+                    Snackbar.Add("Instrutor editado com sucesso", Severity.Success);
+                }
+                else
+                {
+                    Snackbar.Clear();
+                    Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopRight;
+                    Snackbar.Add("Náo foi possível editar o Instrutor", Severity.Error);
+                }
+            }
+            catch (Exception)
+            {
+                Snackbar.Clear();
+                Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopRight;
+                Snackbar.Add("Erro a apagar Instrutor", Severity.Error);
+            }
+        }
+        else
+        {
+            try
+            {
+                var response = await FitControlApi.AddInstrutor(_instrutorModel); 
+                
+                if (response.IsSuccessStatusCode)
+                {
+                    Snackbar.Clear();
+                    Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopRight;
+                    Snackbar.Add("Instrutor adicionado com sucesso", Severity.Success);
+                }
+                else
+                {
+                    Snackbar.Clear();
+                    Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopRight;
+                    Snackbar.Add("Não foi possível adicionar o Instrutor", Severity.Error);
+                }
+            }
+            catch (Exception)
+            {
+                Snackbar.Clear();
+                Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopRight;
+                Snackbar.Add("Erro a adicionar o Instrutor", Severity.Error);
+            }
+        }
+        
+        //POPUP
+        try
+        {
+            var parameters = new DialogParameters<Dialog>
+            {
+                { x => x.ContentText, "Deseja sair da página?" },
+                { x => x.ButtonOkText, "Sim" },
+                { x => x.ButtonCancelText, "Não" },
+                { x => x.Color, Color.Error }
+            };
+
+            var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall };
+
+            var result = await DialogService.ShowAsync<Dialog>("Sair da página", parameters, options);
+
+            var res = await result.Result;
+
+            if (res != null && res.Canceled)
+            {
+                return;
+            }
+        }
+        catch (Exception)
+        {
+            Snackbar.Clear();
+            Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopRight;
+            Snackbar.Add("Erro a criar popup de confirmação de saída", Severity.Error);
+        }
+        
+        NavigationManager.NavigateTo("/Instrutores");
+    }
+}
+

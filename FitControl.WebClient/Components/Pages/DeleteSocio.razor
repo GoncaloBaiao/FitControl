@@ -1,0 +1,126 @@
+﻿@page "/socios/delete/{Id:int}"
+@layout FitControl.WebClient.Components.Layout.MainLayout
+@using FitControl.Shared.Models
+@using FitControl.Shared.Services
+@using Refit
+@using Product = FitControl.Shared.Models.Socio
+@inject IFitControlApi FitControlApi
+@inject NavigationManager NavigationManager
+<link href="home.css" rel="stylesheet" />
+<link rel="stylesheet" href="_content/MudBlazor/MudBlazor.min.css" />
+
+<PageTitle>Delete Socio</PageTitle>
+
+<MudStack Spacing="3">
+    <MudText Typo="Typo.h4">Delete Socio</MudText>
+
+    @if (!string.IsNullOrWhiteSpace(_errorMessage))
+    {
+        <MudAlert Severity="Severity.Error" Variant="Variant.Filled">@_errorMessage</MudAlert>
+    }
+
+    @if (_loading)
+    {
+        <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
+    }
+    else
+    {
+        <MudPaper Class="pa-4" Elevation="1">
+            <MudStack Spacing="2">
+
+                <MudAlert Severity="Severity.Warning" Variant="Variant.Outlined">
+                    Tem a certeza que pretende eliminar este sócio?
+                </MudAlert>
+
+                <MudText><b>Nome:</b> @_socio.Nome</MudText>
+                <MudText><b>Email:</b> @_socio.Email</MudText>
+                <MudText><b>Contacto:</b> @_socio.ContactoTelefonico</MudText>
+                <MudText><b>Data de Nascimento:</b> @_socio.DataNascimento.ToString("dd/MM/yyyy")</MudText>
+                <MudText><b>Início da Subscrição:</b> @_socio.InicioSubscricao.ToString("dd/MM/yyyy")</MudText>
+                <MudText><b>Fim da Subscrição:</b> @_socio.FimSubscricao.ToString("dd/MM/yyyy")</MudText>
+                <MudText><b>Plano:</b> @_socio.TipoPlano?.Designacao</MudText>
+
+                <MudStack Row="true" Justify="Justify.FlexEnd" Spacing="2">
+                    <MudButton Href="/socios" Variant="Variant.Text">
+                        Cancelar
+                    </MudButton>
+
+                    <MudButton Variant="Variant.Filled"
+                               Color="Color.Error"
+                               Disabled="_deleting"
+                               OnClick="DeleteSocioAsync">
+                        Eliminar
+                    </MudButton>
+                </MudStack>
+
+            </MudStack>
+        </MudPaper>
+    }
+</MudStack>
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+
+    private bool _loading = true;
+    private bool _deleting;
+    private string? _errorMessage;
+    private List<TipoPlano> _tiposPlano = new();
+    private Shared.Models.Socio _socio = new();
+    private int _tipoPlanoId;
+    private DateTime? _dataNascimento;
+    private DateTime? _inicioSubscricao;
+    private DateTime? _fimSubscricao;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var response = await FitControlApi.GetSocio(Id);
+            if (response.Content != null) 
+                _socio = response.Content;
+            if (_socio.Id == 0)
+                _errorMessage = "Socio not found.";
+        }
+        catch
+        {
+            _errorMessage = "Could not load the product. Check if the API is running.";
+        }
+        finally
+        {
+            _loading = false;
+        }
+    }
+
+    private async Task DeleteSocioAsync()
+    {
+        _deleting = true;
+        _errorMessage = null;
+
+        try
+        {
+            var response = await FitControlApi.DeleteSocio(Id);
+
+            if (response.IsSuccessStatusCode)
+            {
+                NavigationManager.NavigateTo("/socios", true);
+            }
+            else
+            {
+                _errorMessage = $"Erro: {response.StatusCode}";
+            }
+        }
+        catch (ApiException ex)
+        {
+            _errorMessage = ex.Content;
+        }
+        catch (Exception ex)
+        {
+            _errorMessage = ex.Message;
+        }
+        finally
+        {
+            _deleting = false;
+        }
+    }
+}

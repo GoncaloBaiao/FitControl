@@ -1,0 +1,119 @@
+﻿@page "/niveldificuldade/softdelete/{Id:int}"
+@layout FitControl.WebClient.Components.Layout.MainLayout
+@using FitControl.Shared.Models
+@using FitControl.Shared.Services
+@using Refit
+@using NivelDificuldade = FitControl.Shared.Models.Sala
+@inject IFitControlApi FitControlApi
+@inject NavigationManager NavigationManager
+
+
+<PageTitle>Delete nivel de dificuldade</PageTitle>
+
+<MudStack Spacing="3">
+    <MudText Typo="Typo.h4">Delete nivel de dificuldade</MudText>
+
+    @if (!string.IsNullOrWhiteSpace(_errorMessage))
+    {
+        <MudAlert Severity="Severity.Error" Variant="Variant.Filled">@_errorMessage</MudAlert>
+    }
+
+    @if (_loading)
+    {
+        <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
+    }
+    else
+    {
+        <MudPaper Class="pa-4" Elevation="1">
+            <MudStack Spacing="2">
+
+                <MudAlert Severity="Severity.Warning" Variant="Variant.Outlined">
+                    Tem a certeza que pretende eliminar este nivel de dificuldade?
+                </MudAlert>
+
+                <MudText><b>Nivel:</b> @_nivelDificuldade.Nivel</MudText>
+                
+                <MudStack Row="true" Justify="Justify.FlexEnd" Spacing="2">
+                    <MudButton Href="/niveldificuldades" Variant="Variant.Text">
+                        Cancelar
+                    </MudButton>
+
+                    <MudButton Variant="Variant.Filled"
+                               Color="Color.Error"
+                               Disabled="_deleting"
+                               OnClick="DeleteNivelAsync">
+                        Eliminar
+                    </MudButton>
+                </MudStack>
+
+            </MudStack>
+        </MudPaper>
+    }
+</MudStack>
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+
+    private bool _loading = true;
+    private bool _deleting;
+    private string? _errorMessage;
+    private Shared.Models.NivelDificuldade _nivelDificuldade = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var response = await FitControlApi.GetNivelDificuldade(Id);
+
+            if (response.IsSuccessStatusCode && response.Content is not null)
+            {
+                _nivelDificuldade = response.Content;
+            }
+            else
+            {
+                _errorMessage = "Sala não encontrada.";
+            }
+        }
+        catch
+        {
+            _errorMessage = "Could not load the modalidade. Check if the API is running.";
+        }
+        finally
+        {
+            _loading = false;
+        }
+    }
+
+    private async Task DeleteNivelAsync()
+    {
+        _deleting = true;
+        _errorMessage = null;
+
+        try
+        {
+            var response = await FitControlApi.DeleteNivelDificuldade(Id);
+
+            if (response.IsSuccessStatusCode)
+            {
+                NavigationManager.NavigateTo("/niveldificuldades", true);
+            }
+            else
+            {
+                _errorMessage = $"Erro: {response.StatusCode}";
+            }
+        }
+        catch (ApiException ex)
+        {
+            _errorMessage = ex.Content;
+        }
+        catch (Exception ex)
+        {
+            _errorMessage = ex.Message;
+        }
+        finally
+        {
+            _deleting = false;
+        }
+    }
+}
