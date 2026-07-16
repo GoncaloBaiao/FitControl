@@ -18,6 +18,21 @@ public interface IFitControlApi
 
     [Delete("/aula/softdelete/{id}")]
     Task<ApiResponse<string>> DeleteAula(int id);
+    
+    [Get("/generos")]
+    Task<ApiResponse<List<Genero>>> GetGeneros();
+    
+    [Post("/genero")]
+    Task<ApiResponse<Genero>> AddGenero([Body] Genero genero);
+    
+    [Get("/genero/{id}")]
+    Task<ApiResponse<Genero>> GetGenero(int id);
+    
+    [Put("/genero")]
+    Task<ApiResponse<Genero>> UpdateGenero([Body] Genero? genero);
+    
+    [Delete("/genero/softdelete/{id}")]
+    Task<ApiResponse<string>> DeleteGenero(int id);
 
     [Get("/inscricaos")]
     Task<ApiResponse<List<Inscricao>>> GetInscricaos();

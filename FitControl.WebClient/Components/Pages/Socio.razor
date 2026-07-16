@@ -38,6 +38,9 @@
                             <MudTh>Email</MudTh>
                             <MudTh>Contacto</MudTh>
                             <MudTh>Data Nascimento</MudTh>
+                            <MudTh>Genero</MudTh>
+                            <MudTh>Altura</MudTh>
+                            <MudTh>Peso</MudTh>
                             <MudTh>Início Subscrição</MudTh>
                             <MudTh>Fim Subscrição</MudTh>
                             <MudTh>Tipo Plano</MudTh>
@@ -48,6 +51,9 @@
                             <MudTd>@socio.Email</MudTd>
                             <MudTd>@socio.ContactoTelefonico</MudTd>
                             <MudTd>@FormatDate(socio.DataNascimento)</MudTd>
+                            <MudTd>@socio.Genero?.Designacao</MudTd>
+                            <MudTd>@socio.Altura</MudTd>
+                            <MudTd>@socio.Peso</MudTd>
                             <MudTd>@FormatDate(socio.InicioSubscricao)</MudTd>
                             <MudTd>@FormatDate(socio.FimSubscricao)</MudTd>
                             <MudTd>@(socio.TipoPlano?.Designacao ?? "N/A")</MudTd>

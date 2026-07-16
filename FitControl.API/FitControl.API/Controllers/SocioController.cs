@@ -29,6 +29,7 @@ public class SocioController : ControllerBase
 
         var socios = await _fitControlAppDbContext.Socios
             .Include(s => s.TipoPlano)
+            .Include(s => s.Genero)
             .Where(s => s.IsDeleted == false)
             .ToListAsync();
 
