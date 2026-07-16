@@ -1,7 +1,6 @@
 ﻿namespace FitControl.API.Entities;
 
-public enum Genero
+public class Genero : BaseEntity
 {
-    Feminino,
-    Masculino
+    public string Designacao { get; set; }
 }
