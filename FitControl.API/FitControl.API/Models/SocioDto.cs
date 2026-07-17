@@ -14,6 +14,14 @@ public class SocioDto
     
     public DateTime DataNascimento { get; set; }
     
+    public int GeneroId { get; set; }
+    
+    public Genero Genero { get; set; }
+   
+    public float Altura { get; set; }
+    
+    public float Peso { get; set; }
+    
     public string Email { get; set; }
     
     public string ContactoTelefonico { get; set; }

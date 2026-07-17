@@ -31,6 +31,14 @@
                     <MudTextField @bind-Value="_socio.Nome" Label="Nome" Required="true" RequiredError="Nome é obrigatório" />
                     <MudTextField @bind-Value="_socio.Email" Label="Email" Required="true" RequiredError="Email é obrigatório" />
                     <MudTextField @bind-Value="_socio.ContactoTelefonico" Label="Contacto Telefónico" />
+                    <MudSelect Label="Genero" @bind-Value="_generoId" Required="true" RequiredError="Género é obrigatório">
+                        @foreach (var genero in _generos)
+                        {
+                            <MudSelectItem Value="@genero.Id">@genero.Designacao</MudSelectItem>
+                        }
+                    </MudSelect>
+                    <MudTextField @bind-Value="_socio.Altura" Label="Altura" />
+                    <MudTextField @bind-Value="_socio.Peso" Label="Peso" />
 
                     <MudGrid>
                         <MudItem xs="12" sm="4">
@@ -73,7 +81,9 @@
     private string? _errorMessage;
     private Shared.Models.Socio _socio = new();
     private List<Shared.Models.TipoPlano> _tiposPlano = new();
+    private List<Shared.Models.Genero> _generos = new();
     private int _tipoPlanoId;
+    private int _generoId;
 
     private DateTime? _dataNascimento;
     private DateTime? _inicioSubscricao;
@@ -87,6 +97,12 @@
             if (tiposResponse.IsSuccessStatusCode && tiposResponse.Content is not null)
             {
                 _tiposPlano = tiposResponse.Content;
+            }
+            
+            var generosResponse = await FitControlApi.GetGeneros();
+            if (generosResponse.IsSuccessStatusCode && generosResponse.Content is not null)
+            {
+                _generos = generosResponse.Content;
             }
 
             var response = await FitControlApi.GetSocio(Id);
@@ -103,6 +119,7 @@
                 _inicioSubscricao = _socio.InicioSubscricao;
                 _fimSubscricao = _socio.FimSubscricao;
                 _tipoPlanoId = _socio.TipoPlanoId;
+                _generoId = _socio.GeneroId;
             }
         }
         catch (Exception ex)
@@ -139,6 +156,7 @@
             _socio.InicioSubscricao = _inicioSubscricao.Value;
             _socio.FimSubscricao = _fimSubscricao.Value;
             _socio.TipoPlanoId = _tipoPlanoId;
+            _generoId = _socio.GeneroId;
             /*
             _socio.UpdatedAt = DateTime.Now;
             */

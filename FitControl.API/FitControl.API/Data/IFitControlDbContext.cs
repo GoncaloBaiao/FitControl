@@ -5,6 +5,7 @@ namespace FitControl.API.Data;
 public interface IFitControlDbContext
 {
     public DbSet<Aula>? Aulas { get; set; }
+    public DbSet<Genero>? Generos { get; set; }
     public DbSet<Inscricao>? Inscricaos { get; set; }
     public DbSet<Instrutor>? Instrutors { get; set; }
     public DbSet<InstrutorModalidade>? InstrutorModalidades { get; set; }
