@@ -16,6 +16,10 @@
         <InputText class="form-control" id="nomeAula" @bind-Value="@_aulaModel.Nome"/>
     </div>
     <div class="mb-3">
+        <label for="descricaoAula" class="form-label">Descricao</label>
+        <InputText class="form-control" id="descricaoAula" @bind-Value="@_aulaModel.Descricao"></InputText>
+    </div>
+    <div class="mb-3">
         <label for="capacidadeAula" class="form-label">Capacidade</label>
         <InputNumber class="form-control" id="capacidadeAula" @bind-Value="_aulaModel.Capacidade"/>
     </div>

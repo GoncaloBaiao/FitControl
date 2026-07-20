@@ -1,4 +1,4 @@
-@page "/Aulas"
+@page "/aulas"
 @using FitControl.Shared.Services
 @using FitControl.Shared.Models
 @inject IFitControlApi FitControlApi
@@ -12,9 +12,7 @@
 <MudTable Items="@_aulas" Hover="true" Breakpoint="Breakpoint.Sm" Loading="@_loading" LoadingProgressColor="Color.Info">
     <HeaderContent>
         <MudTh>Nome</MudTh>
-        <MudTh>Modalidade</MudTh>
         <MudTh>Instrutor</MudTh>
-        <MudTh>Sala</MudTh>
         <MudTh>Hora de Início</MudTh>
         <MudTh>Hora de Fim</MudTh>
         <MudTh>Capacidade</MudTh>
@@ -22,15 +20,14 @@
     </HeaderContent>
     <RowTemplate>
         <MudTd DataLabel="Nome">@context.Nome</MudTd>
-        <MudTd DataLabel="Modalidade">@context.Modalidade.Nome</MudTd>
         <MudTd DataLabel="Instrutor">@context.Instrutor.Nome</MudTd>
-        <MudTd DataLabel="Sala">@context.Sala.Nome</MudTd>
         <MudTd DataLabel="Hora de Início">@context.HoraInicio</MudTd>
         <MudTd DataLabel="Hora de Fim">@context.HoraFim</MudTd>
         <MudTd DataLabel="Capacidade">@context.Capacidade</MudTd>
         <MudTd DataLabel="Actions">
             <MudIconButton Icon="@Icons.Material.Filled.RemoveRedEye" aria-label="detail" OnClick="() => OnEditNavigate(context.Id)"/>
             <MudIconButton Icon="@Icons.Material.Filled.Delete" Color='Color.Error' aria-label="delete" OnClick="()=> OnAulaDelete(context.Id)"/>
+            <MudIconButton Icon="@Icons.Material.Filled.Info" Color='Color.Info' aria-label="detail" OnClick="()=> OnDetailNavigate(context.Id)"/>
         </MudTd>
     </RowTemplate>
 </MudTable>
@@ -144,5 +141,10 @@
     private void OnAddNavigate()
     {
         NavigationManager.NavigateTo($"/addAula");
+    }
+    
+    private void OnDetailNavigate(int id)
+    {
+        NavigationManager.NavigateTo($"/auladetail/{id}");
     }
 }
