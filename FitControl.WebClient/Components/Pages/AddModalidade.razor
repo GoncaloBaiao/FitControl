@@ -17,28 +17,34 @@
     {
         <MudAlert Severity="Severity.Error" Variant="Variant.Filled">@_errorMessage</MudAlert>
     }
-
-    <MudPaper Class="pa-4" Elevation="1">
-        <MudForm @ref="_form">
-            <MudStack Spacing="3">
-                <MudTextField @bind-Value="_modalidade.Nome" Label="Nome" Required="true" RequiredError="Nome é obrigatório" />
-                <MudTextField @bind-Value="_modalidade.Descricao" Label="Descrição" RequiredError="Descrição é obrigatória" />
-                <MudSelect Label="Nivel de Dificuldade" @bind-Value="_nivelDificuldadeId" Required="true" RequiredError="Nivel de Dificuldade é obrigatório">
-                    @foreach (var nivel in _nivelDificuldade)
-                    {
-                        <MudSelectItem Value="@nivel.Id">@nivel.Nivel</MudSelectItem>
-                    }
-                </MudSelect>
-
-                <MudStack Row="true" Justify="Justify.FlexEnd" Spacing="2">
-                    <MudButton Href="/modalidades" Variant="Variant.Text">Cancelar</MudButton>
-                    <MudButton Variant="Variant.Filled" Color="Color.Primary" Disabled="@_saving" OnClick="SaveModalidade">
-                        Guardar
-                    </MudButton>
-                </MudStack>
-            </MudStack>
-        </MudForm>
-    </MudPaper>
+    
+    @if (_modalidade != null)
+    {
+        @if (_modalidade.NivelDificuldade != null)
+        {
+            <MudPaper Class="pa-4" Elevation="1">
+                <MudForm @ref="_form">
+                    <MudStack Spacing="3">
+                        <MudTextField @bind-Value="_modalidade.Nome" Label="Nome" Required="true" RequiredError="Nome é obrigatório"/>
+                        <MudTextField @bind-Value="_modalidade.Descricao" Label="Descrição" RequiredError="Descrição é obrigatória"/>
+                        <MudSelect Label="Nivel de Dificuldade" @bind-Value="_modalidade.NivelDificuldade" Required="true" RequiredError="Nivel de Dificuldade é obrigatório"
+                                   ToStringFunc="@((Shared.Models.NivelDificuldade obj) => obj.Nivel ?? null)">
+                            @foreach (var nivel in _nivelDificuldade)
+                            {
+                                <MudSelectItem Value="nivel">@nivel.Nivel</MudSelectItem>
+                            }
+                        </MudSelect>
+                        <MudStack Row="true" Justify="Justify.FlexEnd" Spacing="2">
+                            <MudButton Href="/modalidades" Variant="Variant.Text">Cancelar</MudButton>
+                            <MudButton Variant="Variant.Filled" Color="Color.Primary" Disabled="@_saving" OnClick="SaveModalidade">
+                                Guardar
+                            </MudButton>
+                        </MudStack>
+                    </MudStack>
+                </MudForm>
+            </MudPaper>
+        }
+    }
 </MudStack>
 
 
@@ -48,7 +54,6 @@
     private string? _errorMessage;
     private Shared.Models.Modalidade _modalidade = new();
     private List<Shared.Models.NivelDificuldade> _nivelDificuldade = new();
-    private int _nivelDificuldadeId;
 
     protected override async Task OnInitializedAsync()
     {
@@ -59,6 +64,8 @@
             {
                 _nivelDificuldade = response.Content;
             }
+            
+            _modalidade.NivelDificuldade = new();
         }
         catch (Exception ex)
         {
@@ -86,7 +93,7 @@
 
         try
         {
-            _modalidade.NivelDificuldadeId = _nivelDificuldadeId;
+            _modalidade.NivelDificuldadeId = _modalidade.NivelDificuldade.Id;
             /*_modalidade.CreatedAt = DateTime.Now;
             _modalidade.UpdatedAt = DateTime.Now;*/
 

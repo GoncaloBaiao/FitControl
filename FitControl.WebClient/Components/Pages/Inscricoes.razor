@@ -23,8 +23,8 @@
         <MudTd DataLabel="Data de Inscricao">@context.DataInscricao</MudTd>
         <MudTd DataLabel="Data de Cancelamento">@context.DataCancelamento</MudTd>
         <MudTd DataLabel="Actions">
-            <MudIconButton Icon="@Icons.Material.Filled.RemoveRedEye" aria-label="detail" OnClick="() => OnEditNavigate(context.Id)"/>
-            <MudIconButton Icon="@Icons.Material.Filled.Delete" Color='Color.Error' aria-label="delete" OnClick="()=> OnInscricaoDelete(context.Id)"/>
+            <MudIconButton Icon="@Icons.Material.Filled.Edit" Color="Color.Primary" Size="Size.Small" OnClick="() => OnEditNavigate(context.Id)"/>
+            <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Error" Size="Size.Small" aria-label="delete" OnClick="()=> OnInscricaoDelete(context.Id)"/>
         </MudTd>
     </RowTemplate>
 </MudTable>

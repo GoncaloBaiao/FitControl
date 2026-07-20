@@ -24,35 +24,41 @@
 
     <MudPaper Class="pa-4" Elevation="1">
         <MudForm @ref="_form">
-            <MudStack Spacing="3">
-                <MudTextField @bind-Value="_socio.Nome" Label="Nome" Required="true" RequiredError="Nome é obrigatório" />
-                <MudTextField @bind-Value="_socio.Email" Label="Email" Required="true" RequiredError="Email é obrigatório" />
-                <MudTextField @bind-Value="_socio.ContactoTelefonico" Label="Contacto Telefónico" />
-                <MudSelect Label="Genero" @bind-Value="_generoId" Required="true" RequiredError="Género é obrigatório">
+            @if (_socio != null)
+            {
+                if (_socio.TipoPlano != null && _socio.Genero != null)
+                {
+                    <MudStack Spacing="3">
+                <MudTextField @bind-Value="_socio.Nome" Label="Nome" Required="true" RequiredError="Nome é obrigatório"/>
+                <MudTextField @bind-Value="_socio.Email" Label="Email" Required="true" RequiredError="Email é obrigatório"/>
+                <MudTextField @bind-Value="_socio.ContactoTelefonico" Label="Contacto Telefónico"/>
+                <MudSelect Label="Genero" @bind-Value="_socio.Genero" Required="true" RequiredError="Género é obrigatório"
+                           ToStringFunc="@((Genero obj) => obj.Designacao ?? null)">
                     @foreach (var genero in _generos)
                     {
-                        <MudSelectItem Value="@genero.Id">@genero.Designacao</MudSelectItem>
+                        <MudSelectItem Value="@genero">@genero.Designacao</MudSelectItem>
                     }
                 </MudSelect>
-                <MudTextField @bind-Value="_socio.Altura" Label="Altura" />
-                <MudTextField @bind-Value="_socio.Peso" Label="Peso" />
+                <MudTextField @bind-Value="_socio.Altura" Label="Altura"/>
+                <MudTextField @bind-Value="_socio.Peso" Label="Peso"/>
 
                 <MudGrid>
                     <MudItem xs="12" sm="4">
-                        <MudDatePicker @bind-Date="_dataNascimento" Label="Data de Nascimento" Required="true" RequiredError="Data de nascimento é obrigatória" DateFormat="dd/MM/yyyy" />
+                        <MudDatePicker @bind-Date="_socio.DataNascimento" Label="Data de Nascimento" Required="true" RequiredError="Data de nascimento é obrigatória" DateFormat="dd/MM/yyyy"/>
                     </MudItem>
                     <MudItem xs="12" sm="4">
-                        <MudDatePicker @bind-Date="_inicioSubscricao" Label="Início Subscrição" Required="true" RequiredError="Data de início é obrigatória" />
+                        <MudDatePicker @bind-Date="_socio.InicioSubscricao" Label="Início Subscrição" Required="true" RequiredError="Data de início é obrigatória"/>
                     </MudItem>
                     <MudItem xs="12" sm="4">
-                        <MudDatePicker @bind-Date="_fimSubscricao" Label="Fim Subscrição" Required="true" RequiredError="Data de fim é obrigatória" />
+                        <MudDatePicker @bind-Date="_socio.FimSubscricao" Label="Fim Subscrição" Required="true" RequiredError="Data de fim é obrigatória"/>
                     </MudItem>
                 </MudGrid>
 
-                <MudSelect Label="Tipo de Plano" @bind-Value="_tipoPlanoId" Required="true" RequiredError="Tipo de plano é obrigatório">
+                <MudSelect Label="Tipo de Plano" @bind-Value="_socio.TipoPlano" Required="true" RequiredError="Tipo de plano é obrigatório"
+                           ToStringFunc="@((Shared.Models.TipoPlano obj) => obj.Designacao ?? null)">
                     @foreach (var plano in _tiposPlano)
                     {
-                        <MudSelectItem Value="@plano.Id">@plano.Designacao</MudSelectItem>
+                        <MudSelectItem Value="@plano">@plano.Designacao</MudSelectItem>
                     }
                 </MudSelect>
 
@@ -63,6 +69,8 @@
                     </MudButton>
                 </MudStack>
             </MudStack>
+                }
+            }
         </MudForm>
     </MudPaper>
 </MudStack>
@@ -75,12 +83,6 @@
     private Shared.Models.Socio _socio = new();
     private List<Shared.Models.TipoPlano> _tiposPlano = new();
     private List<Shared.Models.Genero> _generos = new();
-    private int _tipoPlanoId;
-    private int _generoId;
-
-    private DateTime? _dataNascimento = DateTime.Today;
-    private DateTime? _inicioSubscricao = DateTime.Today;
-    private DateTime? _fimSubscricao = DateTime.Today;
 
     protected override async Task OnInitializedAsync()
     {
@@ -97,6 +99,9 @@
             {
                 _generos = generosResponse.Content;
             }
+
+            _socio.TipoPlano = new();
+            _socio.Genero = new();
         }
         catch (Exception ex)
         {
@@ -113,7 +118,7 @@
         if (!_form.IsValid)
             return;
 
-        if (_dataNascimento is null || _inicioSubscricao is null || _fimSubscricao is null)
+        if (_socio.DataNascimento is null || _socio.InicioSubscricao is null || _socio.FimSubscricao is null)
         {
             _errorMessage = "Todas as datas são obrigatórias.";
             return;
@@ -124,11 +129,8 @@
 
         try
         {
-            _socio.DataNascimento = _dataNascimento.Value;
-            _socio.InicioSubscricao = _inicioSubscricao.Value;
-            _socio.FimSubscricao = _fimSubscricao.Value;
-            _socio.TipoPlanoId = _tipoPlanoId;
-            _socio.GeneroId = _generoId;
+            _socio.TipoPlanoId = _socio.TipoPlano.Id;
+            _socio.GeneroId = _socio.Genero.Id;
             /*_socio.CreatedAt = DateTime.Now;
             _socio.UpdatedAt = DateTime.Now;*/
 
