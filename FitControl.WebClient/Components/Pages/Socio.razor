@@ -50,12 +50,12 @@
                             <MudTd>@socio.Nome</MudTd>
                             <MudTd>@socio.Email</MudTd>
                             <MudTd>@socio.ContactoTelefonico</MudTd>
-                            <MudTd>@FormatDate(socio.DataNascimento)</MudTd>
+                            <MudTd>@socio.DataNascimento?.ToString("yyyy-MM-dd")</MudTd>
                             <MudTd>@socio.Genero?.Designacao</MudTd>
                             <MudTd>@socio.Altura</MudTd>
                             <MudTd>@socio.Peso</MudTd>
-                            <MudTd>@FormatDate(socio.InicioSubscricao)</MudTd>
-                            <MudTd>@FormatDate(socio.FimSubscricao)</MudTd>
+                            <MudTd>@socio.InicioSubscricao?.ToString("yyyy-MM-dd")</MudTd>
+                            <MudTd>@socio.FimSubscricao?.ToString("yyyy-MM-dd")</MudTd>
                             <MudTd>@(socio.TipoPlano?.Designacao ?? "N/A")</MudTd>
                             <MudTd DataLabel="Ações">
                                 <MudStack Row="true" Spacing="1">

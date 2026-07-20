@@ -10,21 +10,29 @@
 
 <h3>@( Id.HasValue ? "Editar a Modalidade do Instrutor" : "Adicionar Modalidade ao Instrutor")</h3>
 
-<EditForm FormName="AddInstrutorModalidadeForm" Model="_instrutorModalidadeModel" OnValidSubmit="OnAddInstrutorModalidade">
-    <MudSelect Label="Instrutor" @bind-Value="_selectedInstrutor" Placeholder="Selecione o instrutor">
-        @foreach (Instrutor instrutor in _instrutores)
-        {
-            <MudSelectItem Value="instrutor.Id">@instrutor.Nome</MudSelectItem>
-        }
-    </MudSelect>
-    <MudSelect Label="Modalidade" @bind-Value="_selectedModalidade" Placeholder="Selecione a modalidade">
-        @foreach (Modalidade modalidade in _modalidades)
-        {
-            <MudSelectItem Value="modalidade.Id">@modalidade.Nome</MudSelectItem>
-        }
-    </MudSelect>
-    <button class="btn btn-primary" type="submit">@(Id.HasValue ? "Gravar" : "Adicionar")</button>
-</EditForm>
+@if (_instrutorModalidadeModel != null)
+{
+    if (_instrutorModalidadeModel.Instrutor != null && _instrutorModalidadeModel.Modalidade != null)
+    {
+        <EditForm FormName="AddInstrutorModalidadeForm" Model="_instrutorModalidadeModel" OnValidSubmit="OnAddInstrutorModalidade">
+            <MudSelect Label="Instrutor" @bind-Value="_instrutorModalidadeModel.Instrutor" Placeholder="Selecione o instrutor"
+                       ToStringFunc="@((Instrutor obj) => obj.Nome ?? null)">
+                @foreach (Instrutor instrutor in _instrutores)
+                {
+                    <MudSelectItem Value="instrutor">@instrutor.Nome</MudSelectItem>
+                }
+            </MudSelect>
+            <MudSelect Label="Modalidade" @bind-Value="_instrutorModalidadeModel.Modalidade" Placeholder="Selecione a modalidade"
+                       ToStringFunc="@((Modalidade obj) => obj.Nome ?? null)">
+                @foreach (Modalidade modalidade in _modalidades)
+                {
+                    <MudSelectItem Value="modalidade">@modalidade.Nome</MudSelectItem>
+                }
+            </MudSelect>
+            <button class="btn btn-primary" type="submit">@(Id.HasValue ? "Gravar" : "Adicionar")</button>
+        </EditForm>
+    }
+}
 
 @code {
     [Parameter]
@@ -33,9 +41,6 @@
     private FitControl.Shared.Models.InstrutorModalidade _instrutorModalidadeModel = new();
     private List<Modalidade> _modalidades = new ();
     private List<Instrutor> _instrutores = new ();
-    
-    private int _selectedModalidade;
-    private int _selectedInstrutor;
 
     protected override async Task OnInitializedAsync()
     {
@@ -49,6 +54,11 @@
                 if (instrutorModalidadeResponse.Content != null) 
                     _instrutorModalidadeModel = instrutorModalidadeResponse.Content;
             }
+            else
+            {
+                _instrutorModalidadeModel.Modalidade = new();
+                _instrutorModalidadeModel.Instrutor = new();
+            }
         
             var modalidadesResponse = await FitControlApi.GetModalidades();
             if (modalidadesResponse.Content != null)
@@ -57,12 +67,6 @@
             var instrutorsResponse = await FitControlApi.GetInstrutors();
             if (instrutorsResponse.Content != null) 
                 _instrutores = instrutorsResponse.Content;
-
-            if (_instrutorModalidadeModel != null)
-            {
-                _selectedModalidade = _instrutorModalidadeModel.ModalidadeId;
-                _selectedInstrutor = _instrutorModalidadeModel.InstrutorId;
-            }
         }
         catch (Exception)
         {
@@ -74,8 +78,8 @@
 
     private async Task OnAddInstrutorModalidade()
     {
-        _instrutorModalidadeModel.ModalidadeId = _selectedModalidade;
-        _instrutorModalidadeModel.InstrutorId = _selectedInstrutor;
+        _instrutorModalidadeModel.ModalidadeId = _instrutorModalidadeModel.Modalidade.Id;
+        _instrutorModalidadeModel.InstrutorId = _instrutorModalidadeModel.Instrutor.Id;;
         
         if (Id.HasValue)
         {

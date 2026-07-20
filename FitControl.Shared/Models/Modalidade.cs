@@ -21,4 +21,10 @@ public class Modalidade
     
     [JsonPropertyName("isDeleted")]
     public bool IsDeleted { get; set; }
+    
+    [JsonPropertyName("createdAt")]
+    public DateTime CreatedAt { get; set; }
+    
+    [JsonPropertyName("updatedAt")]
+    public DateTime UpdatedAt { get; set; }
 }

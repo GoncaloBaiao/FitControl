@@ -29,8 +29,8 @@
         <MudTd DataLabel="Hora de Fim">@context.HoraFim</MudTd>
         <MudTd DataLabel="Capacidade">@context.Capacidade</MudTd>
         <MudTd DataLabel="Actions">
-            <MudIconButton Icon="@Icons.Material.Filled.RemoveRedEye" aria-label="detail" OnClick="() => OnEditNavigate(context.Id)"/>
-            <MudIconButton Icon="@Icons.Material.Filled.Delete" Color='Color.Error' aria-label="delete" OnClick="()=> OnAulaDelete(context.Id)"/>
+            <MudIconButton Icon="@Icons.Material.Filled.Edit" Color="Color.Primary" Size="Size.Small" OnClick="() => OnEditNavigate(context.Id)"/>
+            <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Error" Size="Size.Small" OnClick="()=> OnAulaDelete(context.Id)"/>
         </MudTd>
     </RowTemplate>
 </MudTable>

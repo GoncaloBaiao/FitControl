@@ -1,4 +1,4 @@
-@page "/instrutormodalidades"
+@page "/instrutormodalidade"
 @using FitControl.Shared.Services
 @using FitControl.Shared.Models
 @inject IFitControlApi FitControlApi
@@ -19,8 +19,8 @@
         <MudTd DataLabel="Instrutor">@context.Instrutor.Nome</MudTd>
         <MudTd DataLabel="Modalidade">@context.Modalidade.Nome</MudTd>
         <MudTd DataLabel="Actions">
-            <MudIconButton Icon="@Icons.Material.Filled.RemoveRedEye" aria-label="detail" OnClick="() => OnEditNavigate(context.Id)"/>
-            <MudIconButton Icon="@Icons.Material.Filled.Delete" Color='Color.Error' aria-label="delete" OnClick="()=> OnInstrutorModalidadeDelete(context.Id)"/>
+            <MudIconButton Icon="@Icons.Material.Filled.Edit" Color="Color.Primary" Size="Size.Small" OnClick="() => OnEditNavigate(context.Id)"/>
+            <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Error" Size="Size.Small" OnClick="()=> OnInstrutorModalidadeDelete(context.Id)"/>
         </MudTd>
     </RowTemplate>
 </MudTable>
