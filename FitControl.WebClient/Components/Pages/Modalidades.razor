@@ -88,7 +88,7 @@ else
 
         try
         {
-            var apiResponse = await FitControlApi.DeleteModalidade(id); // ajusta se o nome for diferente no teu IFitControlApi
+            var apiResponse = await FitControlApi.DeleteModalidade(id);
             if (apiResponse.IsSuccessStatusCode)
             {
                 _modalidades = _modalidades.Where(m => m.Id != id).ToList();
