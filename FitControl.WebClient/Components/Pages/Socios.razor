@@ -105,5 +105,5 @@ else
         }
     }
 
-    private string FormatDate(DateTime date) => date.ToString("dd/MM/yyyy");
+    private string FormatDate(DateTime? date) => date?.ToString("dd/MM/yyyy") ?? "";
 }

@@ -17,50 +17,58 @@
     <div class="alert alert-danger">@_errorMessage</div>
 }
 
-<EditForm FormName="AddSocioForm" Model="_socio" OnValidSubmit="SaveSocio">
-    <div class="mb-3">
-        <label class="form-label">Nome</label>
-        <InputText class="form-control" @bind-Value="_socio.Nome" />
-    </div>
-    <div class="mb-3">
-        <label class="form-label">Email</label>
-        <InputText class="form-control" @bind-Value="_socio.Email" />
-    </div>
-    <div class="mb-3">
-        <label class="form-label">Contacto Telefónico</label>
-        <InputText class="form-control" @bind-Value="_socio.ContactoTelefonico" />
-    </div>
+@if (_socio != null)
+{
+    if (_socio.TipoPlano != null && _socio.Genero != null)
+    {
+        <EditForm FormName="AddSocioForm" Model="_socio" OnValidSubmit="SaveSocio">
+            <div class="mb-3">
+                <label class="form-label">Nome</label>
+                <InputText class="form-control" @bind-Value="_socio.Nome"/>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Email</label>
+                <InputText class="form-control" @bind-Value="_socio.Email"/>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Contacto Telefónico</label>
+                <InputText class="form-control" @bind-Value="_socio.ContactoTelefonico"/>
+            </div>
 
-    <MudSelect Label="Género" @bind-Value="_socio.Genero" Placeholder="Selecione o género">
-        <MudSelectItem Value="@("Feminino")">Feminino</MudSelectItem>
-        <MudSelectItem Value="@("Masculino")">Masculino</MudSelectItem>
-    </MudSelect>
+            <MudSelect Label="Género" @bind-Value="_socio.Genero" Placeholder="Selecione o género">
+                <MudSelectItem Value="@("Feminino")">Feminino</MudSelectItem>
+                <MudSelectItem Value="@("Masculino")">Masculino</MudSelectItem>
+            </MudSelect>
 
-    <div class="mb-3">
-        <label class="form-label">Altura</label>
-        <InputNumber class="form-control" @bind-Value="_socio.Altura" />
-    </div>
-    <div class="mb-3">
-        <label class="form-label">Peso</label>
-        <InputNumber class="form-control" @bind-Value="_socio.Peso" />
-    </div>
+            <div class="mb-3">
+                <label class="form-label">Altura</label>
+                <InputNumber class="form-control" @bind-Value="_socio.Altura"/>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Peso</label>
+                <InputNumber class="form-control" @bind-Value="_socio.Peso"/>
+            </div>
 
-    <MudDatePicker @bind-Date="_dataNascimento" Label="Data de Nascimento" DateFormat="dd/MM/yyyy" />
-    <MudDatePicker @bind-Date="_inicioSubscricao" Label="Início Subscrição" DateFormat="dd/MM/yyyy" />
-    <MudDatePicker @bind-Date="_fimSubscricao" Label="Fim Subscrição" DateFormat="dd/MM/yyyy" />
+            <MudDatePicker @bind-Date="_socio.DataNascimento" Label="Data de Nascimento" DateFormat="dd/MM/yyyy"/>
+            <MudDatePicker @bind-Date="_socio.InicioSubscricao" Label="Início Subscrição" DateFormat="dd/MM/yyyy"/>
+            <MudDatePicker @bind-Date="_socio.FimSubscricao" Label="Fim Subscrição" DateFormat="dd/MM/yyyy"/>
 
-    <MudSelect Label="Tipo de Plano" @bind-Value="_tipoPlanoId" Placeholder="Selecione o tipo de plano">
-        @foreach (var plano in _tiposPlano)
-        {
-            <MudSelectItem Value="@plano.Id">@plano.Designacao</MudSelectItem>
-        }
-    </MudSelect>
+            <MudSelect Label="Tipo de Plano" @bind-Value="_socio.TipoPlano" Placeholder="Selecione o tipo de plano"
+                       ToStringFunc="@((Shared.Models.TipoPlano obj) => obj.Designacao ?? null)">
+                @foreach (var plano in _tiposPlano)
+                {
+                    <MudSelectItem Value="@plano">@plano.Designacao</MudSelectItem>
+                }
+            </MudSelect>
 
-    <button class="btn btn-primary mt-3" type="submit" disabled="@_saving">@(Id.HasValue ? "Gravar" : "Adicionar")</button>
-</EditForm>
+            <button class="btn btn-primary mt-3" type="submit"
+                    disabled="@_saving">@(Id.HasValue ? "Gravar" : "Adicionar")</button>
+        </EditForm>
+    }
+}
 
 @code {
-    [Parameter]
+        [Parameter]
     public int? Id { get; set; }
 
     private bool _saving;
@@ -68,10 +76,6 @@
     private Shared.Models.Socio _socio = new();
     private List<Shared.Models.TipoPlano> _tiposPlano = new();
     private int _tipoPlanoId;
-
-    private DateTime? _dataNascimento = DateTime.Today;
-    private DateTime? _inicioSubscricao = DateTime.Today;
-    private DateTime? _fimSubscricao = DateTime.Today;
 
     protected override async Task OnInitializedAsync()
     {
@@ -93,13 +97,11 @@
                 {
                     _errorMessage = "Sócio não encontrado.";
                 }
-                else
-                {
-                    _dataNascimento = _socio.DataNascimento;
-                    _inicioSubscricao = _socio.InicioSubscricao;
-                    _fimSubscricao = _socio.FimSubscricao;
-                    _tipoPlanoId = _socio.TipoPlanoId;
-                }
+            }
+            else
+            {
+                _socio.TipoPlano = new();
+                _socio.Genero = new();
             }
         }
         catch (Exception ex)
@@ -111,7 +113,7 @@
     private async Task SaveSocio()
     {
 
-        if (_dataNascimento is null || _inicioSubscricao is null || _fimSubscricao is null)
+        if (_socio.DataNascimento is null || _socio.InicioSubscricao is null || _socio.FimSubscricao is null)
         {
             _errorMessage = "Todas as datas são obrigatórias.";
             return;
@@ -122,10 +124,6 @@
 
         try
         {
-            _socio.DataNascimento = _dataNascimento.Value;
-            _socio.InicioSubscricao = _inicioSubscricao.Value;
-            _socio.FimSubscricao = _fimSubscricao.Value;
-            _socio.TipoPlanoId = _tipoPlanoId;
             /*_socio.CreatedAt = DateTime.Now;
             _socio.UpdatedAt = DateTime.Now;*/
 

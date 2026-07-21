@@ -16,25 +16,32 @@
     <div class="alert alert-danger">@_errorMessage</div>
 }
 
-<EditForm FormName="AddModalidadeForm" Model="_modalidade" OnValidSubmit="SaveModalidade">
-    <div class="mb-3">
-        <label class="form-label">Nome</label>
-        <InputText class="form-control" @bind-Value="_modalidade.Nome" />
-    </div>
-    <div class="mb-3">
-        <label class="form-label">Descrição</label>
-        <InputText class="form-control" @bind-Value="_modalidade.Descricao" />
-    </div>
+@if (_modalidade != null)
+{
+    @if (_modalidade.NivelDificuldade != null)
+    {
+        <EditForm FormName="AddModalidadeForm" Model="_modalidade" OnValidSubmit="SaveModalidade">
+            <div class="mb-3">
+                <label class="form-label">Nome</label>
+                <InputText class="form-control" @bind-Value="_modalidade.Nome"/>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Descrição</label>
+                <InputText class="form-control" @bind-Value="_modalidade.Descricao"/>
+            </div>
 
-    <MudSelect Label="Nível de Dificuldade" @bind-Value="_nivelDificuldadeId" Placeholder="Selecione o nível">
-        @foreach (var nivel in _nivelDificuldade)
-        {
-            <MudSelectItem Value="@nivel.Id">@nivel.Nivel</MudSelectItem>
-        }
-    </MudSelect>
+            <MudSelect Label="Nível de Dificuldade" @bind-Value="_modalidade.NivelDificuldade" Placeholder="Selecione o nível"
+                       ToStringFunc="@((Shared.Models.NivelDificuldade obj) => obj.Nivel ?? null)">
+                @foreach (var nivel in _nivelDificuldade)
+                {
+                    <MudSelectItem Value="@nivel">@nivel.Nivel</MudSelectItem>
+                }
+            </MudSelect>
 
-    <button class="btn btn-primary mt-3" type="submit" disabled="@_saving">@(Id.HasValue ? "Gravar" : "Adicionar")</button>
-</EditForm>
+            <button class="btn btn-primary mt-3" type="submit" disabled="@_saving">@(Id.HasValue ? "Gravar" : "Adicionar")</button>
+        </EditForm>
+    }
+}
 
 @code {
     [Parameter]
@@ -44,7 +51,6 @@
     private string? _errorMessage;
     private Shared.Models.Modalidade _modalidade = new();
     private List<Shared.Models.NivelDificuldade> _nivelDificuldade = new();
-    private int _nivelDificuldadeId;
 
     protected override async Task OnInitializedAsync()
     {
@@ -62,12 +68,15 @@
                 if (modalidadeResponse.IsSuccessStatusCode && modalidadeResponse.Content is not null)
                 {
                     _modalidade = modalidadeResponse.Content;
-                    _nivelDificuldadeId = _modalidade.NivelDificuldadeId;
                 }
                 else
                 {
                     _errorMessage = "Modalidade não encontrada.";
                 }
+            }
+            else
+            {
+                _modalidade.NivelDificuldade = new();
             }
         }
         catch (Exception ex)
@@ -78,7 +87,7 @@
 
     private async Task SaveModalidade()
     {
-        if (_nivelDificuldadeId == 0)
+        if (_modalidade.NivelDificuldadeId == 0)
         {
             _errorMessage = "Nivel de Dificuldade Obrigatório";
             return;
@@ -89,7 +98,7 @@
 
         try
         {
-            _modalidade.NivelDificuldadeId = _nivelDificuldadeId;
+            _modalidade.NivelDificuldadeId = _modalidade.NivelDificuldade.Id;
             /*_modalidade.CreatedAt = DateTime.Now;
             _modalidade.UpdatedAt = DateTime.Now;*/
             var response = Id.HasValue

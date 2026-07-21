@@ -10,41 +10,50 @@
 
 <h3>@( Id.HasValue ? "Editar Aula" : "Adicionar Aula")</h3>
 
-<EditForm FormName="AddAulaForm" Model="_aulaModel" OnValidSubmit="OnAddAula">
-    <div class="mb-3">
-        <label for="nomeAula" class="form-label">Nome</label>
-        <InputText class="form-control" id="nomeAula" @bind-Value="@_aulaModel.Nome"/>
-    </div>
-    <div class="mb-3">
-        <label for="descricaoAula" class="form-label">Descricao</label>
-        <InputText class="form-control" id="descricaoAula" @bind-Value="@_aulaModel.Descricao"></InputText>
-    </div>
-    <div class="mb-3">
-        <label for="capacidadeAula" class="form-label">Capacidade</label>
-        <InputNumber class="form-control" id="capacidadeAula" @bind-Value="_aulaModel.Capacidade"/>
-    </div>
-    <MudDatePicker @bind-Date="_aulaModel.HoraInicio" Label="Hora de Início" DateFormat="dd/MM/yyyy"/>
-    <MudDatePicker @bind-Date="_aulaModel.HoraFim" Label="Hora de Fim" DateFormat="dd/MM/yyyy"/>
-    <MudSelect Label="Modalidade" @bind-Value="_selectedModalidade" Placeholder="Selecione a modalidade">
-        @foreach (Modalidade modalidade in _modalidades)
-        {
-            <MudSelectItem Value="modalidade.Id">@modalidade.Nome</MudSelectItem>
-        }
-    </MudSelect>
-    <MudSelect Label="Instrutor" @bind-Value="_selectedInstrutor" Placeholder="Selecione o instrutor">
-        @foreach (Instrutor instrutor in _instrutores)
-        {
-            <MudSelectItem Value="instrutor.Id">@instrutor.Nome</MudSelectItem>
-        }
-    </MudSelect>
-    <MudSelect Label="Sala" @bind-Value="_selectedSala" Placeholder="Selecione a sala">
-        @foreach (Sala sala in _salas)
-        {
-            <MudSelectItem Value="sala.Id">@sala.Nome</MudSelectItem>
-        }
-    </MudSelect>
-    <button class="btn btn-primary" type="submit">@(Id.HasValue ? "Gravar" : "Adicionar")</button>
-</EditForm>
+@if (_aulaModel != null)
+{
+    if (_aulaModel.Modalidade != null && _aulaModel.Sala != null && _aulaModel.Instrutor != null)
+    {
+        <EditForm FormName="AddAulaForm" Model="_aulaModel" OnValidSubmit="OnAddAula">
+            <div class="mb-3">
+                <label for="nomeAula" class="form-label">Nome</label>
+                <InputText class="form-control" id="nomeAula" @bind-Value="@_aulaModel.Nome"/>
+            </div>
+            <div class="mb-3">
+                <label for="descricaoAula" class="form-label">Descricao</label>
+                <InputText class="form-control" id="descricaoAula" @bind-Value="@_aulaModel.Descricao"></InputText>
+            </div>
+            <div class="mb-3">
+                <label for="capacidadeAula" class="form-label">Capacidade</label>
+                <InputNumber class="form-control" id="capacidadeAula" @bind-Value="_aulaModel.Capacidade"/>
+            </div>
+            <MudDatePicker @bind-Date="_aulaModel.HoraInicio" Label="Hora de Início" DateFormat="dd/MM/yyyy"/>
+            <MudDatePicker @bind-Date="_aulaModel.HoraFim" Label="Hora de Fim" DateFormat="dd/MM/yyyy"/>
+            <MudSelect Label="Modalidade" @bind-Value="_aulaModel.Modalidade" Placeholder="Selecione a modalidade"
+                       ToStringFunc="@((Modalidade obj) => obj.Nome ?? null)">
+                @foreach (Modalidade modalidade in _modalidades)
+                {
+                    <MudSelectItem Value="modalidade">@modalidade.Nome</MudSelectItem>
+                }
+            </MudSelect>
+            <MudSelect Label="Instrutor" @bind-Value="_aulaModel.Instrutor" Placeholder="Selecione o instrutor"
+                       ToStringFunc="@((Instrutor obj) => obj.Nome ?? null)">
+                @foreach (Instrutor instrutor in _instrutores)
+                {
+                    <MudSelectItem Value="instrutor">@instrutor.Nome</MudSelectItem>
+                }
+            </MudSelect>
+            <MudSelect Label="Sala" @bind-Value="_aulaModel.Sala" Placeholder="Selecione a sala"
+                       ToStringFunc="@((Sala obj) => obj.Nome ?? null)">
+                @foreach (Sala sala in _salas)
+                {
+                    <MudSelectItem Value="sala">@sala.Nome</MudSelectItem>
+                }
+            </MudSelect>
+            <button class="btn btn-primary" type="submit">@(Id.HasValue ? "Gravar" : "Adicionar")</button>
+        </EditForm>
+    }
+}
 
 @code {
     [Parameter]
@@ -54,10 +63,6 @@
     private List<Modalidade> _modalidades = new ();
     private List<Instrutor> _instrutores = new ();
     private List<Sala> _salas = new ();
-    
-    private int _selectedModalidade;
-    private int _selectedInstrutor;
-    private int _selectedSala;
 
     protected override async Task OnInitializedAsync()
     {
@@ -71,6 +76,12 @@
                 if (aulaResponse.Content != null) 
                     _aulaModel = aulaResponse.Content;
             }
+            else
+            {
+                _aulaModel.Instrutor = new();
+                _aulaModel.Modalidade = new();
+                _aulaModel.Sala = new();
+            }
         
             var modalidadesResponse = await FitControlApi.GetModalidades();
             if (modalidadesResponse.Content != null)
@@ -83,13 +94,6 @@
             var instrutorsResponse = await FitControlApi.GetInstrutors();
             if (instrutorsResponse.Content != null) 
                 _instrutores = instrutorsResponse.Content;
-
-            if (_aulaModel != null)
-            {
-                _selectedModalidade = _aulaModel.ModalidadeId;
-                _selectedInstrutor = _aulaModel.InstrutorId;
-                _selectedSala = _aulaModel.SalaId;
-            }
         }
         catch (Exception)
         {
@@ -101,9 +105,9 @@
 
     private async Task OnAddAula()
     {
-        _aulaModel.ModalidadeId = _selectedModalidade;
-        _aulaModel.InstrutorId = _selectedInstrutor;
-        _aulaModel.SalaId = _selectedSala;
+        _aulaModel.ModalidadeId = _aulaModel.Modalidade.Id;
+        _aulaModel.InstrutorId = _aulaModel.Instrutor.Id;
+        _aulaModel.SalaId = _aulaModel.Sala.Id;
         
         if (Id.HasValue)
         {
