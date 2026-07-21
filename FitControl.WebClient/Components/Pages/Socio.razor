@@ -40,7 +40,7 @@ else
             <MudTd DataLabel="Email">@context.Email</MudTd>
             <MudTd DataLabel="Contacto">@context.ContactoTelefonico</MudTd>
             <MudTd DataLabel="Data Nascimento">@FormatDate(context.DataNascimento)</MudTd>
-            <MudTd>@context.Genero</MudTd>
+            <MudTd DataLabel="Genero">@context.Genero?.Designacao</MudTd>
             <MudTd>@context.Altura</MudTd>
             <MudTd>@context.Peso</MudTd>
             <MudTd DataLabel="Início Subscrição">@FormatDate(context.InicioSubscricao)</MudTd>

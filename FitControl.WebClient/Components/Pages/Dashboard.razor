@@ -46,7 +46,7 @@
     {
         await base.OnInitializedAsync();
         
-        var inscricaosRes = await FitControlApi.GetInscricaos();
+        var inscricaosRes = await FitControlApi.GetInscricoes();
         if (inscricaosRes.Content != null)
             _inscricoes = inscricaosRes.Content;
 

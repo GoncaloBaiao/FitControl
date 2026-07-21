@@ -36,25 +36,14 @@ public class InscricaoController : ControllerBase
     public async Task<IResult> GetInscricoes()
     {
         if (_fitControlDbContext?.Inscricaos is null)
-            return Results.Ok(new List<InscricaoReadDto>());
+            return Results.Ok();
 
         var inscricoes = await _fitControlDbContext.Inscricaos
             .Include(i => i.Aula)
             .Include(i => i.Socio)
-            .Where(i => !i.IsDeleted)
-            .Select(i => new InscricaoReadDto
-            {
-                Id = i.Id,
-                AulaId = i.AulaId,
-                AulaNome = i.Aula != null ? i.Aula.Nome : "",
-                SocioId = i.SocioId,
-                SocioNome = i.Socio != null ? i.Socio.Nome : "",
-                DataInscricao = i.DataInscricao,
-                DataCancelamento = i.DataCancelamento,
-                IsDeleted = i.IsDeleted
-            })
+            .Where(a=>a.IsDeleted ==  false && a.Aula.IsDeleted == false && a.Socio.IsDeleted == false)
             .ToListAsync();
-
+            
         return Results.Ok(inscricoes);
     }
 
