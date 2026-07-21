@@ -6,73 +6,62 @@
 @inject IFitControlApi FitControlApi
 @layout FitControl.WebClient.Components.Layout.MainLayout
 
-
-
 <PageTitle>Sócios</PageTitle>
 
-<ErrorBoundary>
-    <ChildContent>
-        <MudStack Spacing="3">
-            <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween">
-                <MudText Typo="Typo.h4">Gestão de Sócios</MudText>
-                <MudButton Href="/socios/add" Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add">
-                    Adicionar Sócio
-                </MudButton>
-            </MudStack>
+@if (_loading)
+{
+    <MudProgressLinear Indeterminate="true" Class="mb-4" />
+}
+else
+{
 
-            @if (!string.IsNullOrWhiteSpace(_errorMessage))
-            {
-                <MudAlert Severity="Severity.Error" Variant="Variant.Filled">@_errorMessage</MudAlert>
-            }
+    <PaginaListar TItem="Shared.Models.Socio"
+                  Title="Sócios"
+                  AddLabel="ADICIONAR SÓCIO"
+                  AddHref="/socios/add"
+                  Items="_socios">
 
-            <MudPaper Class="pa-4" Elevation="1">
-                @if (_loading)
-                {
-                    <MudProgressLinear Indeterminate="true" />
-                }
-                else if (_socios.Count > 0)
-                {
-                    <MudTable Items="@_socios" Hover="true" Dense="true" Breakpoint="Breakpoint.Sm">
-                        <HeaderContent>
-                            <MudTh>Nome</MudTh>
-                            <MudTh>Email</MudTh>
-                            <MudTh>Contacto</MudTh>
-                            <MudTh>Data Nascimento</MudTh>
-                            <MudTh>Início Subscrição</MudTh>
-                            <MudTh>Fim Subscrição</MudTh>
-                            <MudTh>Tipo Plano</MudTh>
-                            <MudTh>Ações</MudTh>
-                        </HeaderContent>
-                        <RowTemplate Context="socio">
-                            <MudTd>@socio.Nome</MudTd>
-                            <MudTd>@socio.Email</MudTd>
-                            <MudTd>@socio.ContactoTelefonico</MudTd>
-                            <MudTd>@FormatDate(socio.DataNascimento)</MudTd>
-                            <MudTd>@FormatDate(socio.InicioSubscricao)</MudTd>
-                            <MudTd>@FormatDate(socio.FimSubscricao)</MudTd>
-                            <MudTd>@(socio.TipoPlano?.Designacao ?? "N/A")</MudTd>
-                            <MudTd DataLabel="Ações">
-                                <MudStack Row="true" Spacing="1">
-                                    <MudIconButton Href="@($"/socios/edit/{socio.Id}")" Icon="@Icons.Material.Filled.Edit" Color="Color.Primary" Size="Size.Small" Title="Editar" />
-                                    <MudIconButton Href="@($"/socios/delete/{socio.Id}")" Icon="@Icons.Material.Filled.Delete" Color="Color.Error" Size="Size.Small" Title="Eliminar" />
-                                </MudStack>
-                            </MudTd>
-                        </RowTemplate>
-                    </MudTable>
-                }
-                else
-                {
-                    <MudText>Nenhum sócio encontrado.</MudText>
-                }
-            </MudPaper>
-        </MudStack>
-    </ChildContent>
-    <ErrorContent Context="ex">
-        <MudAlert Severity="Severity.Error" Variant="Variant.Filled">
-            Erro ao apresentar sócios: @ex.Message
-        </MudAlert>
-    </ErrorContent>
-</ErrorBoundary>
+        <HeaderContent>
+            <MudTh>Nome</MudTh>
+            <MudTh>Email</MudTh>
+            <MudTh>Contacto</MudTh>
+            <MudTh>Data Nascimento</MudTh>
+            <MudTh>Início Subscrição</MudTh>
+            <MudTh>Fim Subscrição</MudTh>
+            <MudTh>Tipo Plano</MudTh>
+            <MudTh Style="text-align:right;">Ações</MudTh>
+        </HeaderContent>
+
+        <RowTemplate>
+            <MudTd DataLabel="Nome">@context.Nome</MudTd>
+            <MudTd DataLabel="Email">@context.Email</MudTd>
+            <MudTd DataLabel="Contacto">@context.ContactoTelefonico</MudTd>
+            <MudTd DataLabel="Data Nascimento">@FormatDate(context.DataNascimento)</MudTd>
+            <MudTd DataLabel="Início Subscrição">@FormatDate(context.InicioSubscricao)</MudTd>
+            <MudTd DataLabel="Fim Subscrição">@FormatDate(context.FimSubscricao)</MudTd>
+            <MudTd DataLabel="Tipo Plano">@(context.TipoPlano?.Designacao ?? "N/A")</MudTd>
+            <MudTd DataLabel="Ações" Style="text-align:right;">
+                <MudStack Row="true" Spacing="1" Justify="Justify.FlexEnd">
+                    <MudIconButton Href="@($"/socios/edit/{context.Id}")"
+                                   Icon="@Icons.Material.Filled.Edit"
+                                   Size="Size.Small"
+                                   Style="color:#1E90FF;"
+                                   Title="Editar" />
+                    <MudIconButton Href="@($"/socios/delete/{context.Id}")"
+                                   Icon="@Icons.Material.Filled.Delete"
+                                   Size="Size.Small"
+                                   Style="color:#ef4444;"
+                                   Title="Eliminar" />
+                </MudStack>
+            </MudTd>
+        </RowTemplate>
+    </PaginaListar>
+
+    @if (!string.IsNullOrWhiteSpace(_errorMessage))
+    {
+        <MudAlert Severity="Severity.Error" Variant="Variant.Filled" Class="mt-3">@_errorMessage</MudAlert>
+    }
+}
 
 @code {
     private bool _loading = true;
@@ -110,5 +99,5 @@
         }
     }
 
-    private string FormatDate(DateTime date) => date.ToString("dd/MM/yyyy") ?? "N/A";
+    private string FormatDate(DateTime date) => date.ToString("dd/MM/yyyy");
 }

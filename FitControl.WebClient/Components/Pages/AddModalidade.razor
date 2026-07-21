@@ -1,4 +1,5 @@
 ﻿@page "/modalidades/add"
+@page "/modalidades/edit/{Id:int}"
 @layout FitControl.WebClient.Components.Layout.MainLayout
 @using FitControl.Shared.Models
 @using FitControl.Shared.Services
@@ -7,43 +8,39 @@
 @inject IFitControlApi FitControlApi
 @inject NavigationManager NavigationManager
 
+<div class="mt-15"></div>
 
-<PageTitle>Adicionar Modalidade</PageTitle>
+<h3>@(Id.HasValue ? "Editar Modalidade" : "Adicionar Modalidade")</h3>
 
-<MudStack Spacing="3">
-    <MudText Typo="Typo.h4">Adicionar Modalidade</MudText>
+@if (!string.IsNullOrWhiteSpace(_errorMessage))
+{
+    <div class="alert alert-danger">@_errorMessage</div>
+}
 
-    @if (!string.IsNullOrWhiteSpace(_errorMessage))
-    {
-        <MudAlert Severity="Severity.Error" Variant="Variant.Filled">@_errorMessage</MudAlert>
-    }
+<EditForm FormName="AddModalidadeForm" Model="_modalidade" OnValidSubmit="SaveModalidade">
+    <div class="mb-3">
+        <label class="form-label">Nome</label>
+        <InputText class="form-control" @bind-Value="_modalidade.Nome" />
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Descrição</label>
+        <InputText class="form-control" @bind-Value="_modalidade.Descricao" />
+    </div>
 
-    <MudPaper Class="pa-4" Elevation="1">
-        <MudForm @ref="_form">
-            <MudStack Spacing="3">
-                <MudTextField @bind-Value="_modalidade.Nome" Label="Nome" Required="true" RequiredError="Nome é obrigatório" />
-                <MudTextField @bind-Value="_modalidade.Descricao" Label="Descrição" RequiredError="Descrição é obrigatória" />
-                <MudSelect Label="Nivel de Dificuldade" @bind-Value="_nivelDificuldadeId" Required="true" RequiredError="Nivel de Dificuldade é obrigatório">
-                    @foreach (var nivel in _nivelDificuldade)
-                    {
-                        <MudSelectItem Value="@nivel.Id">@nivel.Nivel</MudSelectItem>
-                    }
-                </MudSelect>
+    <MudSelect Label="Nível de Dificuldade" @bind-Value="_nivelDificuldadeId" Placeholder="Selecione o nível">
+        @foreach (var nivel in _nivelDificuldade)
+        {
+            <MudSelectItem Value="@nivel.Id">@nivel.Nivel</MudSelectItem>
+        }
+    </MudSelect>
 
-                <MudStack Row="true" Justify="Justify.FlexEnd" Spacing="2">
-                    <MudButton Href="/modalidades" Variant="Variant.Text">Cancelar</MudButton>
-                    <MudButton Variant="Variant.Filled" Color="Color.Primary" Disabled="@_saving" OnClick="SaveModalidade">
-                        Guardar
-                    </MudButton>
-                </MudStack>
-            </MudStack>
-        </MudForm>
-    </MudPaper>
-</MudStack>
-
+    <button class="btn btn-primary mt-3" type="submit" disabled="@_saving">@(Id.HasValue ? "Gravar" : "Adicionar")</button>
+</EditForm>
 
 @code {
-    private MudForm? _form;
+    [Parameter]
+    public int? Id { get; set; }
+
     private bool _saving;
     private string? _errorMessage;
     private Shared.Models.Modalidade _modalidade = new();
@@ -59,6 +56,20 @@
             {
                 _nivelDificuldade = response.Content;
             }
+
+            if (Id.HasValue)
+            {
+                var modalidadeResponse = await FitControlApi.GetModalidade(Id.Value);
+                if (modalidadeResponse.IsSuccessStatusCode && modalidadeResponse.Content is not null)
+                {
+                    _modalidade = modalidadeResponse.Content;
+                    _nivelDificuldadeId = _modalidade.NivelDificuldadeId;
+                }
+                else
+                {
+                    _errorMessage = "Modalidade não encontrada.";
+                }
+            }
         }
         catch (Exception ex)
         {
@@ -68,14 +79,7 @@
 
     private async Task SaveModalidade()
     {
-        if (_form is null)
-            return;
-
-        await _form.ValidateAsync();
-        if (!_form.IsValid)
-            return;
-
-        if (_nivelDificuldade is null)
+        if (_nivelDificuldadeId == 0)
         {
             _errorMessage = "Nivel de Dificuldade Obrigatório";
             return;
@@ -87,10 +91,10 @@
         try
         {
             _modalidade.NivelDificuldadeId = _nivelDificuldadeId;
-            /*_modalidade.CreatedAt = DateTime.Now;
-            _modalidade.UpdatedAt = DateTime.Now;*/
 
-            var response = await FitControlApi.AddModalidade(_modalidade);
+            var response = Id.HasValue
+                ? await FitControlApi.UpdateModalidade(_modalidade)
+                : await FitControlApi.AddModalidade(_modalidade);
 
             if (response.IsSuccessStatusCode)
             {
@@ -98,16 +102,16 @@
             }
             else
             {
-                _errorMessage = $"Não foi possível adicionar a modalidade. API devolveu {response.StatusCode}.";
+                _errorMessage = $"Não foi possível guardar a modalidade. API devolveu {response.StatusCode}.";
             }
         }
         catch (ApiException ex)
         {
-            _errorMessage = $"Não foi possível adicionar a modalidade. API devolveu {(int)ex.StatusCode}: {ex.ReasonPhrase}";
+            _errorMessage = $"Não foi possível guardar a modalidade. API devolveu {(int)ex.StatusCode}: {ex.ReasonPhrase}";
         }
         catch (Exception ex)
         {
-            _errorMessage = $"Não foi possível adicionar a modalidade. {ex.Message}";
+            _errorMessage = $"Não foi possível guardar a modalidade. {ex.Message}";
         }
         finally
         {

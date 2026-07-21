@@ -1,0 +1,45 @@
+﻿@typeparam TItem
+@using MudBlazor
+
+<div class="d-flex flex-column flex-sm-row justify-space-between align-sm-center gap-3 mb-4">
+    <div>
+        <MudText Class="fc-heading" Style="font-size:1.75rem;">@Title</MudText>
+        <MudText Style="color:var(--fc-text-muted);font-size:0.8rem;">
+            @Items.Count() registo(s) encontrado(s)
+        </MudText>
+    </div>
+
+    @if (!string.IsNullOrEmpty(AddHref))
+    {
+        <MudButton Class="fc-btn-primary" StartIcon="@Icons.Material.Filled.Add" Href="@AddHref">
+            @AddLabel
+        </MudButton>
+    }
+</div>
+
+<div class="fc-card" style="overflow:hidden;">
+    <MudTable Items="@Items" Hover="true" Dense="true" Elevation="0"
+              Class="fc-table" Style="background:transparent;">
+        <HeaderContent>
+            @HeaderContent
+        </HeaderContent>
+        <RowTemplate>
+            @RowTemplate(context)
+        </RowTemplate>
+        <NoRecordsContent>
+            <div class="d-flex flex-column align-center py-8">
+                <MudIcon Icon="@Icons.Material.Filled.Inbox" Style="color:rgba(255,107,53,0.4);font-size:2rem;" Class="mb-2" />
+                <MudText Style="color:var(--fc-text-muted);">Ainda não há registos.</MudText>
+            </div>
+        </NoRecordsContent>
+    </MudTable>
+</div>
+
+@code {
+    [Parameter] public string Title { get; set; } = "";
+    [Parameter] public string AddLabel { get; set; } = "Adicionar";
+    [Parameter] public string? AddHref { get; set; }
+    [Parameter] public IEnumerable<TItem> Items { get; set; } = Enumerable.Empty<TItem>();
+    [Parameter] public RenderFragment HeaderContent { get; set; } = default!;
+    [Parameter] public RenderFragment<TItem> RowTemplate { get; set; } = default!;
+}

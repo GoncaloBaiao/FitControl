@@ -1,69 +1,78 @@
-@page "/Instrutores"
+@page "/instrutores"
 @using FitControl.Shared.Services
 @using FitControl.Shared.Models
-@using Refit
 @inject IFitControlApi FitControlApi
-@rendermode InteractiveServer
 @inject NavigationManager NavigationManager
 @inject ISnackbar Snackbar
 @inject IDialogService DialogService
 
 <PageTitle>Instrutores</PageTitle>
 
-<MudTable Items="@_instrutores" Hover="true" Breakpoint="Breakpoint.Sm" Loading="@_loading" LoadingProgressColor="Color.Info">
-    <HeaderContent>
-        <MudTh>Nome</MudTh>
-        <MudTh>Data de Nascimento</MudTh>
-        <MudTh>Email</MudTh>
-        <MudTh>Contacto Telefónico</MudTh>
-    </HeaderContent>
-    <RowTemplate>
-        <MudTd DataLabel="Nome">@context.Nome</MudTd>
-        <MudTd DataLabel="Data de Nascimento">@context.DataNascimento</MudTd>
-        <MudTd DataLabel="Email">@context.Email</MudTd>
-        <MudTd DataLabel="Contacto Telefónico">@context.ContactoTelefonico</MudTd>
-        <!--<MudCheckBox @bind-Value="" Disabled="true"></MudCheckBox>-->
-        <MudTd DataLabel="Actions">
-            <MudIconButton Icon="@Icons.Material.Filled.RemoveRedEye" aria-label="detail" OnClick="() => OnEditNavigate(context.Id)"/>
-            <MudIconButton Icon="@Icons.Material.Filled.Delete" Color='Color.Error' aria-label="delete" OnClick="()=> OnInstrutorDelete(context.Id)"/>
-        </MudTd>
-    </RowTemplate>
-</MudTable>
-<MudIconButton Icon="@Icons.Material.Filled.Add" aria-label="detail" OnClick="OnAddNavigate"/>
+@if (_loading)
+{
+    <MudProgressLinear Indeterminate="true" Class="mb-4" />
+}
+else
+{
+    
+    <PaginaListar TItem="Instrutor"
+                  Title="Instrutores"
+                  AddLabel="ADICIONAR INSTRUTOR"
+                  AddHref="/addInstrutor"
+                  Items="_instrutores">
+        <HeaderContent>
+            <MudTh>Nome</MudTh>
+            <MudTh>Data de Nascimento</MudTh>
+            <MudTh>Email</MudTh>
+            <MudTh>Contacto Telefónico</MudTh>
+            <MudTh Style="text-align:right;">Ações</MudTh>
+        </HeaderContent>
+
+        <RowTemplate>
+            <MudTd DataLabel="Nome">@context.Nome</MudTd>
+            <MudTd DataLabel="Data de Nascimento">@context.DataNascimento</MudTd>
+            <MudTd DataLabel="Email">@context.Email</MudTd>
+            <MudTd DataLabel="Contacto Telefónico">@context.ContactoTelefonico</MudTd>
+            <MudTd DataLabel="Ações" Style="text-align:right;">
+                <MudIconButton Icon="@Icons.Material.Filled.Edit"
+                               Size="Size.Small"
+                               Style="color:#1E90FF;"
+                               OnClick="@(() => OnEditNavigate(context.Id))" />
+                <MudIconButton Icon="@Icons.Material.Filled.Delete"
+                               Size="Size.Small"
+                               Style="color:#ef4444;"
+                               OnClick="@(() => OnInstrutorDelete(context.Id))" />
+            </MudTd>
+        </RowTemplate>
+    </PaginaListar>
+}
 
 @code {
-
     private List<Instrutor> _instrutores = new();
-    
-    private bool _loading;
+    private bool _loading = true;
 
     protected override async Task OnInitializedAsync()
     {
         _loading = true;
-        
-        await base.OnInitializedAsync();
-        
         try
         {
             var response = await FitControlApi.GetInstrutors();
-            if (response.Content != null) 
-                _instrutores = response.Content;
+            _instrutores = response.Content ?? new List<Instrutor>();
         }
-        catch (Exception)
+        catch
         {
             Snackbar.Clear();
             Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopRight;
             Snackbar.Add("Erro a extrair a lista de Instrutores", Severity.Error);
         }
-        
-        StateHasChanged();
-        
-        _loading = false;
+        finally
+        {
+            _loading = false;
+        }
     }
 
     private async Task OnInstrutorDelete(int id)
     {
-        //POPUP
         try
         {
             var parameters = new DialogParameters<Dialog>
@@ -74,45 +83,30 @@
             };
 
             var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall };
-
             var result = await DialogService.ShowAsync<Dialog>("Apagar", parameters, options);
-        
             var res = await result.Result;
 
-            if (res != null && res.Canceled)
-            {
-                return;
-            }
+            if (res != null && res.Canceled) return;
         }
-        catch (Exception )
+        catch
         {
             Snackbar.Clear();
             Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopRight;
             Snackbar.Add("Erro a criar popup de confirmação de apagar", Severity.Error);
+            return;
         }
-        
+
         try
         {
             var apiResponse = await FitControlApi.DeleteInstrutor(id);
-            
+
             if (apiResponse.IsSuccessStatusCode)
             {
                 Snackbar.Clear();
                 Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopRight;
                 Snackbar.Add("Instrutor apagado com sucesso", Severity.Success);
-                
-                try
-                {
-                    var response = await FitControlApi.GetInstrutors();
-                    if (response.Content != null) 
-                        _instrutores = response.Content;
-                }
-                catch (Exception )
-                {
-                    Snackbar.Clear();
-                    Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopRight;
-                    Snackbar.Add("Erro a atualizar a lista de Instrutores", Severity.Error);
-                }
+
+                _instrutores = _instrutores.Where(i => i.Id != id).ToList();
             }
             else
             {
@@ -121,23 +115,13 @@
                 Snackbar.Add("Não foi possível apagar o Instrutor", Severity.Error);
             }
         }
-        catch (Exception)
+        catch
         {
             Snackbar.Clear();
             Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopRight;
             Snackbar.Add("Erro a apagar Instrutor", Severity.Error);
         }
-        
-        StateHasChanged();
     }
 
-    private void OnAddNavigate()
-    {
-        NavigationManager.NavigateTo($"/addInstrutor");
-    }
-    
-    private void OnEditNavigate(int id)
-    {
-        NavigationManager.NavigateTo($"addInstrutor/{id}");
-    }
+    private void OnEditNavigate(int id) => NavigationManager.NavigateTo($"/addInstrutor/{id}");
 }
