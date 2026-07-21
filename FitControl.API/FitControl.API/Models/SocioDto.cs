@@ -14,7 +14,9 @@ public class SocioDto
     
     public DateTime DataNascimento { get; set; }
     
-    public string Genero { get; set; }
+    public int GeneroId { get; set; }
+    
+    public Genero Genero { get; set; }
    
     public float Altura { get; set; }
     

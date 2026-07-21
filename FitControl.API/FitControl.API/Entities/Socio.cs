@@ -8,6 +8,7 @@ public class Socio : BaseEntity
     public TipoPlano TipoPlano { get; set; }
     public string Nome { get; set; }
     public DateTime DataNascimento { get; set; }
+    public int GeneroId { get; set; }
     public Genero Genero { get; set; }
     public float Altura { get; set; }
     public float Peso { get; set; }

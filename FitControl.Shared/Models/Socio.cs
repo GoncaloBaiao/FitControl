@@ -17,10 +17,13 @@ public class Socio
     public string Nome { get; set; }
     
     [JsonPropertyName("dataNascimento")]
-    public DateTime DataNascimento { get; set; }
+    public DateTime? DataNascimento { get; set; }
+    
+    [JsonPropertyName("generoId")]
+    public int GeneroId { get; set; }
     
     [JsonPropertyName("genero")]
-    public string Genero { get; set; }
+    public Genero Genero { get; set; }
     
     [JsonPropertyName("altura")]
     public float Altura { get; set; }
@@ -35,10 +38,10 @@ public class Socio
     public string ContactoTelefonico { get; set; }
     
     [JsonPropertyName("inicioSubscricao")]
-    public DateTime InicioSubscricao { get; set; }
+    public DateTime? InicioSubscricao { get; set; }
     
     [JsonPropertyName("fimSubscricao")]
-    public DateTime FimSubscricao { get; set; }
+    public DateTime? FimSubscricao { get; set; }
     
     [JsonPropertyName("isDeleted")]
     public bool IsDeleted { get; set; }

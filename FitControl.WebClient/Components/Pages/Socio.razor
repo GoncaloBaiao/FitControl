@@ -26,6 +26,9 @@ else
             <MudTh>Email</MudTh>
             <MudTh>Contacto</MudTh>
             <MudTh>Data Nascimento</MudTh>
+            <MudTh>Genero</MudTh>
+            <MudTh>Altura</MudTh>
+            <MudTh>Peso</MudTh>
             <MudTh>Início Subscrição</MudTh>
             <MudTh>Fim Subscrição</MudTh>
             <MudTh>Tipo Plano</MudTh>
@@ -37,6 +40,9 @@ else
             <MudTd DataLabel="Email">@context.Email</MudTd>
             <MudTd DataLabel="Contacto">@context.ContactoTelefonico</MudTd>
             <MudTd DataLabel="Data Nascimento">@FormatDate(context.DataNascimento)</MudTd>
+            <MudTd>@context.Genero</MudTd>
+            <MudTd>@context.Altura</MudTd>
+            <MudTd>@context.Peso</MudTd>
             <MudTd DataLabel="Início Subscrição">@FormatDate(context.InicioSubscricao)</MudTd>
             <MudTd DataLabel="Fim Subscrição">@FormatDate(context.FimSubscricao)</MudTd>
             <MudTd DataLabel="Tipo Plano">@(context.TipoPlano?.Designacao ?? "N/A")</MudTd>

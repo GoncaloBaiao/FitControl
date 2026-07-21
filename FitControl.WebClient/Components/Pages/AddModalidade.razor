@@ -8,7 +8,6 @@
 @inject IFitControlApi FitControlApi
 @inject NavigationManager NavigationManager
 
-<div class="mt-15"></div>
 
 <h3>@(Id.HasValue ? "Editar Modalidade" : "Adicionar Modalidade")</h3>
 
@@ -91,7 +90,8 @@
         try
         {
             _modalidade.NivelDificuldadeId = _nivelDificuldadeId;
-
+            /*_modalidade.CreatedAt = DateTime.Now;
+            _modalidade.UpdatedAt = DateTime.Now;*/
             var response = Id.HasValue
                 ? await FitControlApi.UpdateModalidade(_modalidade)
                 : await FitControlApi.AddModalidade(_modalidade);

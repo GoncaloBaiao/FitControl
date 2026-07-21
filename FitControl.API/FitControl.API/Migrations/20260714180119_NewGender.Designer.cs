@@ -4,6 +4,7 @@ using FitControl.API.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FitControl.API.Migrations
 {
     [DbContext(typeof(FitControlDbContext))]
-    partial class FitControlDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260714180119_NewGender")]
+    partial class NewGender
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -70,32 +73,6 @@ namespace FitControl.API.Migrations
                     b.HasIndex("SalaId");
 
                     b.ToTable("Aulas");
-                });
-
-            modelBuilder.Entity("FitControl.API.Entities.Genero", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Designacao")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Generos");
                 });
 
             modelBuilder.Entity("FitControl.API.Entities.Inscricao", b =>
@@ -324,7 +301,7 @@ namespace FitControl.API.Migrations
                     b.Property<DateTime>("FimSubscricao")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("GeneroId")
+                    b.Property<int>("Genero")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("InicioSubscricao")
@@ -347,8 +324,6 @@ namespace FitControl.API.Migrations
                         .HasColumnType("datetime2");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("GeneroId");
 
                     b.HasIndex("TipoPlanoId");
 
@@ -492,19 +467,11 @@ namespace FitControl.API.Migrations
 
             modelBuilder.Entity("FitControl.API.Entities.Socio", b =>
                 {
-                    b.HasOne("FitControl.API.Entities.Genero", "Genero")
-                        .WithMany()
-                        .HasForeignKey("GeneroId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("FitControl.API.Entities.TipoPlano", "TipoPlano")
                         .WithMany()
                         .HasForeignKey("TipoPlanoId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("Genero");
 
                     b.Navigation("TipoPlano");
                 });
