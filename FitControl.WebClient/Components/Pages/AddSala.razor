@@ -1,4 +1,5 @@
 ﻿@page "/salas/add"
+@page "/sala/edit/{Id:int}"
 @layout FitControl.WebClient.Components.Layout.MainLayout
 @using FitControl.Shared.Models
 @using FitControl.Shared.Services
@@ -7,62 +8,70 @@
 @inject IFitControlApi FitControlApi
 @inject NavigationManager NavigationManager
 
+<div class="mt-15"></div>
 
-<PageTitle>Adicionar Sala</PageTitle>
+<h3>@(Id.HasValue ? "Editar Sala" : "Adicionar Sala")</h3>
 
-<MudStack Spacing="3">
-    <MudText Typo="Typo.h4">Adicionar Sala</MudText>
+@if (!string.IsNullOrWhiteSpace(_errorMessage))
+{
+    <div class="alert alert-danger">@_errorMessage</div>
+}
 
-    @if (!string.IsNullOrWhiteSpace(_errorMessage))
-    {
-        <MudAlert Severity="Severity.Error" Variant="Variant.Filled">@_errorMessage</MudAlert>
-    }
+<EditForm FormName="AddSalaForm" Model="_sala" OnValidSubmit="SaveSala">
+    <div class="mb-3">
+        <label class="form-label">Nome</label>
+        <InputText class="form-control" @bind-Value="_sala.Nome" />
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Descrição</label>
+        <InputText class="form-control" @bind-Value="_sala.Descricao" />
+    </div>
 
-    <MudPaper Class="pa-4" Elevation="1">
-        <MudForm @ref="_form">
-            <MudStack Spacing="3">
-                <MudTextField @bind-Value="_sala.Nome" Label="Nome" Required="true" RequiredError="Nome é obrigatório" />
-                <MudTextField @bind-Value="_sala.Descricao" Label="Descrição" RequiredError="Descrição é obrigatória" />
-
-                <MudStack Row="true" Justify="Justify.FlexEnd" Spacing="2">
-                    <MudButton Href="/modalidades" Variant="Variant.Text">Cancelar</MudButton>
-                    <MudButton Variant="Variant.Filled" Color="Color.Primary" Disabled="@_saving" OnClick="SaveSala">
-                        Guardar
-                    </MudButton>
-                </MudStack>
-            </MudStack>
-        </MudForm>
-    </MudPaper>
-</MudStack>
-
+    <button class="btn btn-primary" type="submit" disabled="@_saving">@(Id.HasValue ? "Gravar" : "Adicionar")</button>
+</EditForm>
 
 @code {
-    private MudForm? _form;
+    [Parameter]
+    public int? Id { get; set; }
+
     private bool _saving;
     private string? _errorMessage;
     private Shared.Models.Sala _sala = new();
 
     protected override async Task OnInitializedAsync()
     {
-        
+        if (Id.HasValue)
+        {
+            try
+            {
+                var response = await FitControlApi.GetSala(Id.Value);
+                if (response.IsSuccessStatusCode && response.Content is not null)
+                {
+                    _sala = response.Content;
+                }
+                else
+                {
+                    _errorMessage = "Sala não encontrada.";
+                }
+            }
+            catch (Exception ex)
+            {
+                _errorMessage = $"Não foi possível carregar a Sala. Verifica se a API está a correr. Erro: {ex.Message}";
+            }
+        }
     }
 
     private async Task SaveSala()
     {
-        if (_form is null)
-            return;
-
-        await _form.ValidateAsync();
-        if (!_form.IsValid)
-            return;
 
         _saving = true;
         _errorMessage = null;
 
         try
         {
-            
-            var response = await FitControlApi.AddSala(_sala);
+            var response = Id.HasValue
+                ? await FitControlApi.UpdateSala(_sala)
+                : await FitControlApi.AddSala(_sala);
 
             if (response.IsSuccessStatusCode)
             {
@@ -70,16 +79,16 @@
             }
             else
             {
-                _errorMessage = $"Não foi possível adicionar a sala. API devolveu {response.StatusCode}.";
+                _errorMessage = $"Não foi possível guardar a sala. API devolveu {response.StatusCode}.";
             }
         }
         catch (ApiException ex)
         {
-            _errorMessage = $"Não foi possível adicionar a sala. API devolveu {(int)ex.StatusCode}: {ex.ReasonPhrase}";
+            _errorMessage = $"Não foi possível guardar a sala. API devolveu {(int)ex.StatusCode}: {ex.ReasonPhrase}";
         }
         catch (Exception ex)
         {
-            _errorMessage = $"Não foi possível adicionar a sala. {ex.Message}";
+            _errorMessage = $"Não foi possível guardar a sala. {ex.Message}";
         }
         finally
         {

@@ -29,6 +29,7 @@ public class SocioController : ControllerBase
 
         var socios = await _fitControlAppDbContext.Socios
             .Include(s => s.TipoPlano)
+            .Include(s => s.Genero)
             .Where(s => s.IsDeleted == false)
             .ToListAsync();
 
@@ -41,6 +42,8 @@ public class SocioController : ControllerBase
         if (_fitControlAppDbContext.Socios is not null)
         {
             var socio = await _fitControlAppDbContext.Socios
+                .Include(s => s.TipoPlano)
+                .Include(s => s.Genero)
                 .FirstOrDefaultAsync(s => s.IsDeleted == false && s.Id == id);
 
             if (socio is not null)
@@ -58,6 +61,9 @@ public class SocioController : ControllerBase
         {
          return Results.BadRequest();   
         }
+
+        socio.TipoPlano = null;
+        socio.Genero = null;
         
         var mapper = _mapper.Map<Models.SocioDto, Entities.Socio>(socio);
 

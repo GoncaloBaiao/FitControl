@@ -6,60 +6,50 @@
 @inject IFitControlApi FitControlApi
 @layout MainLayout
 
+<PageTitle>Nível de Dificuldade</PageTitle>
 
+@if (_loading)
+{
+    <MudProgressLinear Indeterminate="true" Class="mb-4" />
+}
+else
+{
 
-<PageTitle>Nivel de Dificulade</PageTitle>
+    <PaginaListar TItem="Shared.Models.NivelDificuldade"
+                  Title="Níveis de Dificuldade"
+                  AddLabel="ADICIONAR NÍVEL DE DIFICULDADE"
+                  AddHref="/niveldificuldades/add"
+                  Items="_nivelDificuldade">
 
-<ErrorBoundary>
-    <ChildContent>
-        <MudStack Spacing="3">
-            <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween">
-                <MudText Typo="Typo.h4">Niveis de Dificuldade</MudText>
-                <MudButton Href="/niveldificuldades/add" Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add">
-                    Adicionar nivel de dificuldade
-                </MudButton>
-            </MudStack>
+        <HeaderContent>
+            <MudTh>Nível</MudTh>
+            <MudTh Style="text-align:right;">Ações</MudTh>
+        </HeaderContent>
 
-            @if (!string.IsNullOrWhiteSpace(_errorMessage))
-            {
-                <MudAlert Severity="Severity.Error" Variant="Variant.Filled">@_errorMessage</MudAlert>
-            }
+        <RowTemplate>
+            <MudTd DataLabel="Nível">@context.Nivel</MudTd>
+            <MudTd DataLabel="Ações" Style="text-align:right;">
+                <MudStack Row="true" Spacing="1" Justify="Justify.FlexEnd">
+                    <MudIconButton Href="@($"/nivelDificuldade/edit/{context.Id}")"
+                                   Icon="@Icons.Material.Filled.Edit"
+                                   Size="Size.Small"
+                                   Style="color:#1E90FF;"
+                                   Title="Editar" />
+                    <MudIconButton Href="@($"/nivelDificuldade/softdelete/{context.Id}")"
+                                   Icon="@Icons.Material.Filled.Delete"
+                                   Size="Size.Small"
+                                   Style="color:#ef4444;"
+                                   Title="Eliminar" />
+                </MudStack>
+            </MudTd>
+        </RowTemplate>
+    </PaginaListar>
 
-            <MudPaper Class="pa-4" Elevation="1">
-                @if (_loading)
-                {
-                    <MudProgressLinear Indeterminate="true" />
-                }
-                else if (_nivelDificuldade.Count > 0)
-                {
-                    <MudTable Items="@_nivelDificuldade" Hover="true" Dense="true" Breakpoint="Breakpoint.Sm">
-                        <HeaderContent>
-                            <MudTh>Niveis</MudTh>
-                        </HeaderContent>
-                        <RowTemplate Context="nivelDificuldade">
-                            <MudTd>@nivelDificuldade.Nivel</MudTd>
-                            <MudTd DataLabel="Ações">
-                                <MudStack Row="true" Spacing="1">
-                                    <MudIconButton Href="@($"/nivelDificuldade/edit/{nivelDificuldade.Id}")" Icon="@Icons.Material.Filled.Edit" Color="Color.Primary" Size="Size.Small" Title="Editar" />
-                                    <MudIconButton Href="@($"/nivelDificuldade/softdelete/{nivelDificuldade.Id}")" Icon="@Icons.Material.Filled.Delete" Color="Color.Error" Size="Size.Small" Title="Eliminar" />
-                                </MudStack>
-                            </MudTd>
-                        </RowTemplate>
-                    </MudTable>
-                }
-                else
-                {
-                    <MudText>Nenhum sócio encontrado.</MudText>
-                }
-            </MudPaper>
-        </MudStack>
-    </ChildContent>
-    <ErrorContent Context="ex">
-        <MudAlert Severity="Severity.Error" Variant="Variant.Filled">
-            Erro ao apresentar os niveis de dificuldade: @ex.Message
-        </MudAlert>
-    </ErrorContent>
-</ErrorBoundary>
+    @if (!string.IsNullOrWhiteSpace(_errorMessage))
+    {
+        <MudAlert Severity="Severity.Error" Variant="Variant.Filled" Class="mt-3">@_errorMessage</MudAlert>
+    }
+}
 
 @code {
     private bool _loading = true;
@@ -88,7 +78,7 @@
         }
         catch (Exception ex)
         {
-            _errorMessage = $"Não foi possível carregar sócios. Verifica se a API está a correr. Erro: {ex.Message}";
+            _errorMessage = $"Não foi possível carregar níveis de dificuldade. Verifica se a API está a correr. Erro: {ex.Message}";
             _nivelDificuldade = new List<Shared.Models.NivelDificuldade>();
         }
         finally

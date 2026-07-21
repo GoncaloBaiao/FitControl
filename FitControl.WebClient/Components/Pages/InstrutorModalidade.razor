@@ -1,4 +1,4 @@
-@page "/InstrutorModalidade"
+@page "/instrutormodalidades"
 @using FitControl.Shared.Services
 @using FitControl.Shared.Models
 @inject IFitControlApi FitControlApi
@@ -9,22 +9,40 @@
 
 <PageTitle>Modalidades dos Instrutores</PageTitle>
 
-<MudTable Items="@_instrutorModalidades" Hover="true" Breakpoint="Breakpoint.Sm" Loading="@_loading" LoadingProgressColor="Color.Info">
-    <HeaderContent>
-        <MudTh>Instrutor</MudTh>
-        <MudTh>Modalidade</MudTh>
-        <MudTh>Ações</MudTh>
-    </HeaderContent>
-    <RowTemplate>
-        <MudTd DataLabel="Instrutor">@context.Instrutor.Nome</MudTd>
-        <MudTd DataLabel="Modalidade">@context.Modalidade.Nome</MudTd>
-        <MudTd DataLabel="Actions">
-            <MudIconButton Icon="@Icons.Material.Filled.RemoveRedEye" aria-label="detail" OnClick="() => OnEditNavigate(context.Id)"/>
-            <MudIconButton Icon="@Icons.Material.Filled.Delete" Color='Color.Error' aria-label="delete" OnClick="()=> OnInstrutorModalidadeDelete(context.Id)"/>
-        </MudTd>
-    </RowTemplate>
-</MudTable>
-<MudIconButton Icon="@Icons.Material.Filled.Add" aria-label="detail" OnClick="OnAddNavigate"/>
+@if (_loading)
+{
+    <MudProgressLinear Indeterminate="true" Class="mb-4" />
+}
+else
+{
+
+    <PaginaListar TItem="FitControl.Shared.Models.InstrutorModalidade"
+                  Title="Modalidades dos Instrutores"
+                  AddLabel="ADICIONAR MODALIDADE DO INSTRUTOR"
+                  AddHref="/addInstrutorModalidade"
+                  Items="_instrutorModalidades">
+        <HeaderContent>
+            <MudTh>Instrutor</MudTh>
+            <MudTh>Modalidade</MudTh>
+            <MudTh Style="text-align:right;">Ações</MudTh>
+        </HeaderContent>
+
+        <RowTemplate>
+            <MudTd DataLabel="Instrutor">@(context.Instrutor?.Nome ?? "N/A")</MudTd>
+            <MudTd DataLabel="Modalidade">@(context.Modalidade?.Nome ?? "N/A")</MudTd>
+            <MudTd DataLabel="Ações" Style="text-align:right;">
+                <MudIconButton Icon="@Icons.Material.Filled.Edit"
+                               Size="Size.Small"
+                               Style="color:#1E90FF;"
+                               OnClick="@(() => OnEditNavigate(context.Id))" />
+                <MudIconButton Icon="@Icons.Material.Filled.Delete"
+                               Size="Size.Small"
+                               Style="color:#ef4444;"
+                               OnClick="@(() => OnInstrutorModalidadeDelete(context.Id))" />
+            </MudTd>
+        </RowTemplate>
+    </PaginaListar>
+}
 
 @code {
 

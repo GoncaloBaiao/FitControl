@@ -15,7 +15,13 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\FitControl.API\FitControl.API\FitControl.API.csproj" />
       <ProjectReference Include="..\FitControl.Shared\FitControl.Shared.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Content Remove="Components\Pages\EditSala.razor" />
+      <Content Remove="Components\Pages\EditNivelDificuldade.razor" />
     </ItemGroup>
 
 </Project>

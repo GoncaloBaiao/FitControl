@@ -2,99 +2,67 @@
 @using Modalidade = FitControl.Shared.Models.Modalidade
 @using FitControl.Shared.Services
 @using MudBlazor
-@using Refit
 @inject IFitControlApi FitControlApi
+@inject NavigationManager NavigationManager
+@inject ISnackbar Snackbar
+@inject IDialogService DialogService
 @layout FitControl.WebClient.Components.Layout.MainLayout
-
-
 
 <PageTitle>Modalidades</PageTitle>
 
-<ErrorBoundary>
-    <ChildContent>
-        <MudStack Spacing="3">
-            <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween">
-                <MudText Typo="Typo.h4">Modalidades</MudText>
-                <MudButton Href="/modalidades/add" Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add">
-                    Adicionar Modalidade
-                </MudButton>
-            </MudStack>
+@if (_loading)
+{
+    <MudProgressLinear Indeterminate="true" Class="mb-4" />
+}
+else
+{
+    <PaginaListar TItem="Modalidade"
+                  Title="Modalidades"
+                  AddLabel="ADICIONAR MODALIDADE"
+                  AddHref="/modalidades/add"
+                  Items="_modalidades">
 
-            @if (!string.IsNullOrWhiteSpace(_errorMessage))
-            {
-                <MudAlert Severity="Severity.Error" Variant="Variant.Filled">@_errorMessage</MudAlert>
-            }
+        <HeaderContent>
+            <MudTh>Nome</MudTh>
+            <MudTh>Descrição</MudTh>
+            <MudTh>Nível de Dificuldade</MudTh>
+            <MudTh Style="text-align:right;">Ações</MudTh>
+        </HeaderContent>
 
-            <MudPaper Class="pa-4" Elevation="1">
-                @if (_loading)
-                {
-                    <MudProgressLinear Indeterminate="true" />
-                }
-                else if (_modalidades.Count > 0)
-                {
-                    <MudTable Items="@_modalidades" Hover="true" Dense="true" Breakpoint="Breakpoint.Sm">
-                        <HeaderContent>
-                            <MudTh>Nome</MudTh>
-                            <MudTh>Descricao</MudTh>
-                            <MudTh>Nivel de Dificuldade</MudTh>
-                            
-                        </HeaderContent>
-                        <RowTemplate Context="modalidade">
-                            <MudTd>@modalidade.Nome</MudTd>
-                            <MudTd>@modalidade.Descricao</MudTd>
-                            <MudTd>@(modalidade.NivelDificuldade.Nivel ?? "Iniciante")</MudTd>
-                            <MudTd DataLabel="Ações">
-                                <MudStack Row="true" Spacing="1">
-                                    <MudIconButton Href="@($"/modalidade/edit/{modalidade.Id}")" Icon="@Icons.Material.Filled.Edit" Color="Color.Primary" Size="Size.Small" Title="Editar" />
-                                    <MudIconButton Href="@($"/modalidade/softdelete/{modalidade.Id}")" Icon="@Icons.Material.Filled.Delete" Color="Color.Error" Size="Size.Small" Title="Eliminar" />
-                                </MudStack>
-                            </MudTd>
-                        </RowTemplate>
-                    </MudTable>
-                }
-                else
-                {
-                    <MudText>Nenhum sócio encontrado.</MudText>
-                }
-            </MudPaper>
-        </MudStack>
-    </ChildContent>
-    <ErrorContent Context="ex">
-        <MudAlert Severity="Severity.Error" Variant="Variant.Filled">
-            Erro ao apresentar modalidades: @ex.Message
-        </MudAlert>
-    </ErrorContent>
-</ErrorBoundary>
+        <RowTemplate>
+            <MudTd DataLabel="Nome">@context.Nome</MudTd>
+            <MudTd DataLabel="Descrição">@context.Descricao</MudTd>
+            <MudTd DataLabel="Nível de Dificuldade">@(context.NivelDificuldade?.Nivel ?? "Iniciante")</MudTd>
+            <MudTd DataLabel="Ações" Style="text-align:right;">
+                <MudIconButton Icon="@Icons.Material.Filled.Edit"
+                               Size="Size.Small"
+                               Style="color:#1E90FF;"
+                               OnClick="@(() => OnEditNavigate(context.Id))" />
+                <MudIconButton Icon="@Icons.Material.Filled.Delete"
+                               Size="Size.Small"
+                               Style="color:#ef4444;"
+                               OnClick="@(() => OnModalidadeDelete(context.Id))" />
+            </MudTd>
+        </RowTemplate>
+    </PaginaListar>
+}
 
 @code {
     private bool _loading = true;
-    private bool _hasLoaded;
-    private string? _errorMessage;
-    private List<Shared.Models.Modalidade> _modalidades = new();
+    private List<Modalidade> _modalidades = new();
 
     protected override async Task OnInitializedAsync()
     {
-        if (_hasLoaded) return;
-        _hasLoaded = true;
-
+        _loading = true;
         try
         {
             var response = await FitControlApi.GetModalidades();
-
-            if (response.IsSuccessStatusCode && response.Content is not null)
-            {
-                _modalidades = response.Content;
-            }
-            else
-            {
-                _modalidades = new List<Shared.Models.Modalidade>();
-                _errorMessage = $"API devolveu {response.StatusCode}.";
-            }
+            _modalidades = response.Content ?? new List<Modalidade>();
         }
         catch (Exception ex)
         {
-            _errorMessage = $"Não foi possível carregar sócios. Verifica se a API está a correr. Erro: {ex.Message}";
-            _modalidades = new List<Shared.Models.Modalidade>();
+            Snackbar.Add($"Erro ao carregar modalidades: {ex.Message}", Severity.Error);
+            _modalidades = new List<Modalidade>();
         }
         finally
         {
@@ -102,5 +70,38 @@
         }
     }
 
-    private string FormatDate(DateTime date) => date.ToString("dd/MM/yyyy") ?? "N/A";
+    private void OnEditNavigate(int id) => NavigationManager.NavigateTo($"/modalidades/edit/{id}");
+
+    private async Task OnModalidadeDelete(int id)
+    {
+        var parameters = new DialogParameters<Dialog>
+        {
+            { x => x.ContentText, "Tem a certeza que quer apagar este registo? Este processo não pode ser desfeito." },
+            { x => x.ButtonOkText, "Apagar" },
+            { x => x.Color, Color.Error }
+        };
+
+        var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall };
+        var dialog = await DialogService.ShowAsync<Dialog>("Apagar", parameters, options);
+        var result = await dialog.Result;
+        if (result.Canceled) return;
+
+        try
+        {
+            var apiResponse = await FitControlApi.DeleteModalidade(id);
+            if (apiResponse.IsSuccessStatusCode)
+            {
+                _modalidades = _modalidades.Where(m => m.Id != id).ToList();
+                Snackbar.Add("Modalidade apagada com sucesso", Severity.Success);
+            }
+            else
+            {
+                Snackbar.Add("Não foi possível apagar a Modalidade", Severity.Error);
+            }
+        }
+        catch
+        {
+            Snackbar.Add("Erro a apagar Modalidade", Severity.Error);
+        }
+    }
 }
