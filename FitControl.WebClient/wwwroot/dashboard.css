@@ -1,0 +1,213 @@
+﻿:root {
+    --fc-orange: #FF6B35;
+    --fc-yellow: #FFD60A;
+    --fc-blue: #1E90FF;
+    --fc-green: #4ADE80;
+    --fc-red: #ef4444;
+
+    --fc-bg-page: #0D0D0D;
+    --fc-bg-sidebar: #111111;
+    --fc-bg-card: #1A1A1A;
+    --fc-bg-dropdown: #242424;
+
+    --fc-border: rgba(255,255,255,0.06);
+    --fc-border-strong: rgba(255,255,255,0.1);
+
+    --fc-text: rgba(255,255,255,0.85);
+    --fc-text-muted: rgba(255,255,255,0.45);
+    --fc-text-faint: rgba(255,255,255,0.3);
+}
+
+/* Base page */
+.fc-page {
+    background: var(--fc-bg-page);
+    min-height: 100vh;
+    font-family: 'DM Sans', sans-serif;
+    color: var(--fc-text);
+}
+
+.fc-heading {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: #fff;
+    line-height: 1;
+}
+.fc-page { color: #F5F5F5; }
+.fc-heading { color: #FFFFFF !important; }
+.fc-table .mud-table-cell { color: #E5E7EB !important; }
+
+/* Cards / blocks */
+.fc-card {
+    background: var(--fc-bg-card);
+    border: 1px solid var(--fc-border);
+    border-radius: 0.75rem;
+}
+
+/* Buttons */
+.fc-btn-primary {
+    background: linear-gradient(135deg, var(--fc-orange) 0%, var(--fc-yellow) 100%) !important;
+    color: #0D0D0D !important;
+    font-family: 'Barlow Condensed', sans-serif !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.08em !important;
+    text-transform: uppercase !important;
+    box-shadow: 0 4px 20px rgba(255,107,53,0.3);
+    transition: transform .15s ease-in-out;
+}
+.fc-btn-primary:hover {
+    transform: scale(1.03);
+}
+
+/* Table */
+.fc-table-header {
+    background: var(--fc-bg-card);
+    color: var(--fc-text-muted);
+    font-size: 0.72rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    border-bottom: 1px solid var(--fc-border);
+}
+
+.fc-table-row {
+    color: var(--fc-text);
+}
+.fc-table-row:hover {
+    background: rgba(255,255,255,0.025) !important;
+}
+.fc-table table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.fc-table thead th {
+    text-align: left;
+    padding: 12px 16px;
+}
+
+.fc-table tbody td {
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--fc-border);
+    vertical-align: middle;
+}
+
+.fc-table tbody tr:last-child td {
+    border-bottom: none;
+}
+/* Badge / chips */
+.fc-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 10px;
+    border-radius: 9999px;
+    font-size: 0.72rem;
+    font-weight: 600;
+}
+
+/* Avatar */
+.fc-avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 9999px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    font-weight: 700;
+    flex-shrink: 0;
+    background: rgba(255,107,53,0.15);
+    color: var(--fc-orange);
+}
+
+/* Sidebar links */
+.fc-sidebar-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.6rem 1rem;
+    color: var(--fc-text-muted);
+    text-decoration: none;
+    transition: color 0.15s, background 0.15s;
+    position: relative;
+    border: none;
+    background: transparent;
+    width: 100%;
+    text-align: left;
+    cursor: pointer;
+}
+.fc-sidebar-item:hover {
+    color: #fff;
+    text-decoration: none;
+}
+.fc-sidebar-item.active {
+    background: rgba(255,107,53,0.1);
+    color: var(--fc-orange);
+}
+.fc-sidebar-item.active::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 6px;
+    bottom: 6px;
+    width: 2px;
+    background: var(--fc-orange);
+    border-radius: 0 2px 2px 0;
+}
+
+/* ===== MudBlazor overrides para topbar escura ===== */
+.fc-topbar {
+    background: #111111 !important;
+    border-bottom: 1px solid rgba(255,255,255,0.06) !important;
+}
+
+/* Ícones do AppBar (menu, sino, etc.) */
+.fc-topbar .mud-icon-button,
+.fc-topbar .mud-icon-root,
+.fc-topbar .mud-button-root {
+    color: rgba(255,255,255,0.72) !important;
+}
+.fc-topbar .mud-icon-button:hover {
+    color: #ffffff !important;
+    background: rgba(255,255,255,0.06) !important;
+}
+.fc-topbar {
+    background: #111111 !important;
+    border-bottom: 1px solid rgba(255,255,255,0.06) !important;
+}
+/* Campo de pesquisa no AppBar */
+.fc-topbar .mud-input-control,
+.fc-topbar .mud-input,
+.fc-topbar .mud-input-slot,
+.fc-topbar .mud-input-adornment {
+    color: rgba(255,255,255,0.78) !important;
+}
+.fc-topbar .mud-input::before {
+    border-bottom: 1px solid rgba(255,255,255,0.20) !important;
+}
+.fc-topbar .mud-input:hover:not(.mud-disabled)::before {
+    border-bottom: 1px solid rgba(255,255,255,0.35) !important;
+}
+.fc-topbar .mud-input::after {
+    border-bottom: 2px solid #FF6B35 !important;
+}
+.fc-topbar input::placeholder {
+    color: rgba(255,255,255,0.38) !important;
+}
+
+/* ===== MudBlazor overrides globais para texto em páginas de Add/Edit ===== */
+/* Corrige o texto acinzentado que o MudThemeProvider injeta (necessário para o MudDatePicker),
+   aplicando-se apenas dentro de .fc-page (conteúdo das páginas), sem afetar a topbar. */
+.fc-page .mud-input-label,
+.fc-page .mud-input-control input,
+.fc-page .mud-input-control .mud-input,
+.fc-page .mud-input-slot,
+.fc-page .mud-select .mud-input,
+.fc-page .mud-picker .mud-input {
+    color: #ffffff !important;
+}
+
+.fc-page .mud-input-helper-text {
+    color: rgba(255,255,255,0.6) !important;
+}

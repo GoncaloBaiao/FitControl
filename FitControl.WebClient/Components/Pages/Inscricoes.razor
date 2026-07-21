@@ -9,26 +9,46 @@
 
 <PageTitle>Inscrições</PageTitle>
 
-<MudTable Items="@_inscricoes" Hover="true" Breakpoint="Breakpoint.Sm" Loading="@_loading" LoadingProgressColor="Color.Info">
-    <HeaderContent>
-        <MudTh>Aula</MudTh>
-        <MudTh>Sócio</MudTh>
-        <MudTh>Data de Inscrição</MudTh>
-        <MudTh>Data de Cancelamento</MudTh>
-        <MudTh>Ações</MudTh>
-    </HeaderContent>
-    <RowTemplate>
-        <MudTd DataLabel="Aula">@context.Aula.Nome</MudTd>
-        <MudTd DataLabel="Socio">@context.Socio.Nome</MudTd>
-        <MudTd DataLabel="Data de Inscricao">@context.DataInscricao</MudTd>
-        <MudTd DataLabel="Data de Cancelamento">@context.DataCancelamento</MudTd>
-        <MudTd DataLabel="Actions">
-            <MudIconButton Icon="@Icons.Material.Filled.Edit" Color="Color.Primary" Size="Size.Small" OnClick="() => OnEditNavigate(context.Id)"/>
-            <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Error" Size="Size.Small" aria-label="delete" OnClick="()=> OnInscricaoDelete(context.Id)"/>
-        </MudTd>
-    </RowTemplate>
-</MudTable>
-<MudIconButton Icon="@Icons.Material.Filled.Add" aria-label="detail" OnClick="OnAddNavigate"/>
+@if (_loading)
+{
+    <MudProgressLinear Indeterminate="true" Class="mb-4" />
+}
+else
+{
+
+    <PaginaListar TItem="Inscricao"
+                  Title="Inscrições"
+                  AddLabel="ADICIONAR INSCRIÇÃO"
+                  AddHref="/addInscricao"
+                  Items="_inscricoes">
+        <HeaderContent>
+            <MudTh>Aula</MudTh>
+            <MudTh>Sócio</MudTh>
+            <MudTh>Data de Inscrição</MudTh>
+            <MudTh>Data de Cancelamento</MudTh>
+            <MudTh Style="text-align:right;">Ações</MudTh>
+        </HeaderContent>
+
+        <RowTemplate>
+            <MudTd DataLabel="Aula">@(context.Aula?.Nome ?? "N/A")</MudTd>
+            <MudTd DataLabel="Sócio">@(context.Socio?.Nome ?? "N/A")</MudTd>
+            <MudTd DataLabel="Data de Inscrição">@context.DataInscricao</MudTd>
+            <MudTd DataLabel="Data de Cancelamento">
+                @(context.DataCancelamento.HasValue ? context.DataCancelamento.Value.ToString("dd/MM/yyyy HH:mm") : "-")
+            </MudTd>
+            <MudTd DataLabel="Ações" Style="text-align:right;">
+                <MudIconButton Icon="@Icons.Material.Filled.Edit"
+                               Size="Size.Small"
+                               Style="color:#1E90FF;"
+                               OnClick="@(() => OnEditNavigate(context.Id))" />
+                <MudIconButton Icon="@Icons.Material.Filled.Delete"
+                               Size="Size.Small"
+                               Style="color:#ef4444;"
+                               OnClick="@(() => OnInscricaoDelete(context.Id))" />
+            </MudTd>
+        </RowTemplate>
+    </PaginaListar>
+}
 
 @code {
 
@@ -44,7 +64,7 @@
         
         try
         {
-            var response = await FitControlApi.GetInscricaos();
+            var response = await FitControlApi.GetInscricoes();
             if (response.Content != null)
                 _inscricoes = response.Content;
         }
@@ -62,7 +82,6 @@
     
     private async Task OnInscricaoDelete(int id)
     {
-        //POPUP
         try
         {
             var parameters = new DialogParameters<Dialog>
@@ -102,7 +121,7 @@
                 
                 try
                 {
-                    var response = await FitControlApi.GetInscricaos();
+                    var response = await FitControlApi.GetInscricoes();
                     if (response.Content != null)
                         _inscricoes = response.Content;
                 }

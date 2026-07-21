@@ -1,4 +1,5 @@
 ﻿@page "/salas"
+@using FitControl.Shared.Models
 @using Salas = FitControl.Shared.Models.Sala
 @using FitControl.Shared.Services
 @using MudBlazor
@@ -6,63 +7,52 @@
 @inject IFitControlApi FitControlApi
 @layout FitControl.WebClient.Components.Layout.MainLayout
 
-
-
 <PageTitle>Salas</PageTitle>
 
-<ErrorBoundary>
-    <ChildContent>
-        <MudStack Spacing="3">
-            <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween">
-                <MudText Typo="Typo.h4">Salas</MudText>
-                <MudButton Href="/salas/add" Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add">
-                    Adicionar Sala
-                </MudButton>
-            </MudStack>
+@if (_loading)
+{
+    <MudProgressLinear Indeterminate="true" Class="mb-4" />
+}
+else
+{
 
-            @if (!string.IsNullOrWhiteSpace(_errorMessage))
-            {
-                <MudAlert Severity="Severity.Error" Variant="Variant.Filled">@_errorMessage</MudAlert>
-            }
+    <PaginaListar TItem="Sala"
+                  Title="Salas"
+                  AddLabel="ADICIONAR SALA"
+                  AddHref="/salas/add"
+                  Items="_salas">
 
-            <MudPaper Class="pa-4" Elevation="1">
-                @if (_loading)
-                {
-                    <MudProgressLinear Indeterminate="true" />
-                }
-                else if (_salas.Count > 0)
-                {
-                    <MudTable Items="@_salas" Hover="true" Dense="true" Breakpoint="Breakpoint.Sm">
-                        <HeaderContent>
-                            <MudTh>Nome</MudTh>
-                            <MudTh>Descricao</MudTh>
-                            <MudTh>Ações</MudTh>
-                        </HeaderContent>
-                        <RowTemplate Context="sala">
-                            <MudTd>@sala.Nome</MudTd>
-                            <MudTd>@sala.Descricao</MudTd>
-                            <MudTd DataLabel="Ações">
-                                <MudStack Row="true" Spacing="1">
-                                    <MudIconButton Href="@($"/sala/edit/{sala.Id}")" Icon="@Icons.Material.Filled.Edit" Color="Color.Primary" Size="Size.Small" Title="Editar" />
-                                    <MudIconButton Href="@($"/sala/softdelete/{sala.Id}")" Icon="@Icons.Material.Filled.Delete" Color="Color.Error" Size="Size.Small" Title="Eliminar" />
-                                </MudStack>
-                            </MudTd>
-                        </RowTemplate>
-                    </MudTable>
-                }
-                else
-                {
-                    <MudText>Nenhum sócio encontrado.</MudText>
-                }
-            </MudPaper>
-        </MudStack>
-    </ChildContent>
-    <ErrorContent Context="ex">
-        <MudAlert Severity="Severity.Error" Variant="Variant.Filled">
-            Erro ao apresentar as salas: @ex.Message
-        </MudAlert>
-    </ErrorContent>
-</ErrorBoundary>
+        <HeaderContent>
+            <MudTh>Nome</MudTh>
+            <MudTh>Descricao</MudTh>
+            <MudTh Style="text-align:right;">Ações</MudTh>
+        </HeaderContent>
+
+        <RowTemplate>
+            <MudTd DataLabel="Nome">@context.Nome</MudTd>
+            <MudTd DataLabel="Descricao">@context.Descricao</MudTd>
+            <MudTd DataLabel="Ações" Style="text-align:right;">
+                <MudStack Row="true" Spacing="1" Justify="Justify.FlexEnd">
+                    <MudIconButton Href="@($"/sala/edit/{context.Id}")"
+                                   Icon="@Icons.Material.Filled.Edit"
+                                   Size="Size.Small"
+                                   Style="color:#1E90FF;"
+                                   Title="Editar" />
+                    <MudIconButton Href="@($"/sala/softdelete/{context.Id}")"
+                                   Icon="@Icons.Material.Filled.Delete"
+                                   Size="Size.Small"
+                                   Style="color:#ef4444;"
+                                   Title="Eliminar" />
+                </MudStack>
+            </MudTd>
+        </RowTemplate>
+    </PaginaListar>
+
+    @if (!string.IsNullOrWhiteSpace(_errorMessage))
+    {
+        <MudAlert Severity="Severity.Error" Variant="Variant.Filled" Class="mt-3">@_errorMessage</MudAlert>
+    }
+}
 
 @code {
     private bool _loading = true;
@@ -91,7 +81,7 @@
         }
         catch (Exception ex)
         {
-            _errorMessage = $"Não foi possível carregar sócios. Verifica se a API está a correr. Erro: {ex.Message}";
+            _errorMessage = $"Não foi possível carregar salas. Verifica se a API está a correr. Erro: {ex.Message}";
             _salas = new List<Shared.Models.Sala>();
         }
         finally

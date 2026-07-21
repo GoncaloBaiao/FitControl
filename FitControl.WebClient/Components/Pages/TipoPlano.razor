@@ -7,24 +7,42 @@
 @inject ISnackbar Snackbar
 @inject IDialogService DialogService
 
-<PageTitle>Home</PageTitle>
+<PageTitle>Tipos de Plano</PageTitle>
 
-<MudTable Items="@_tipoPlanos" Hover="true" Breakpoint="Breakpoint.Sm" Loading="@_loading" LoadingProgressColor="Color.Info">
-    <HeaderContent>
-        <MudTh>Designação</MudTh>
-        <MudTh>Preço</MudTh>
-        <MudTh>Ações</MudTh>
-    </HeaderContent>
-    <RowTemplate>
-        <MudTd DataLabel="Designacao">@context.Designacao</MudTd>
-        <MudTd DataLabel="Preco">@context.Preco</MudTd>
-        <MudTd DataLabel="Actions">
-            <MudIconButton Icon="@Icons.Material.Filled.Edit" Color="Color.Primary" Size="Size.Small" OnClick="() => OnEditNavigate(context.Id)"/>
-            <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Error" Size="Size.Small" aria-label="delete" OnClick="()=> OnTipoPlanoDelete(context.Id)"/>
-        </MudTd>
-    </RowTemplate>
-</MudTable>
-<MudIconButton Icon="@Icons.Material.Filled.Add" aria-label="detail" OnClick="OnAddNavigate"/>
+@if (_loading)
+{
+    <MudProgressLinear Indeterminate="true" Class="mb-4" />
+}
+else
+{
+
+    <PaginaListar TItem="FitControl.Shared.Models.TipoPlano"
+                  Title="Tipos de Plano"
+                  AddLabel="ADICIONAR TIPO DE PLANO"
+                  AddHref="/addTipoPlano"
+                  Items="_tipoPlanos">
+        <HeaderContent>
+            <MudTh>Designação</MudTh>
+            <MudTh>Preço</MudTh>
+            <MudTh Style="text-align:right;">Ações</MudTh>
+        </HeaderContent>
+
+        <RowTemplate>
+            <MudTd DataLabel="Designação">@context.Designacao</MudTd>
+            <MudTd DataLabel="Preço">@context.Preco</MudTd>
+            <MudTd DataLabel="Ações" Style="text-align:right;">
+                <MudIconButton Icon="@Icons.Material.Filled.Edit"
+                               Size="Size.Small"
+                               Style="color:#1E90FF;"
+                               OnClick="@(() => OnEditNavigate(context.Id))" />
+                <MudIconButton Icon="@Icons.Material.Filled.Delete"
+                               Size="Size.Small"
+                               Style="color:#ef4444;"
+                               OnClick="@(() => OnTipoPlanoDelete(context.Id))" />
+            </MudTd>
+        </RowTemplate>
+    </PaginaListar>
+}
 
 @code {
 

@@ -1,4 +1,6 @@
-﻿namespace FitControl.API.Entities;
+﻿using System.ComponentModel.DataAnnotations.Schema;
+
+namespace FitControl.API.Entities;
 
 public class Socio : BaseEntity
 {
