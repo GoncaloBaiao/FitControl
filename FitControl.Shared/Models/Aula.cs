@@ -37,6 +37,9 @@ public class Aula
     [JsonPropertyName("capacidade")]
     public int Capacidade {get; set;}
     
+    [JsonPropertyName("descricao")]
+    public string Descricao {get; set;}
+    
     [JsonPropertyName("isDeleted")]
     public bool IsDeleted {get; set;}
     

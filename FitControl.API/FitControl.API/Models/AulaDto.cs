@@ -26,6 +26,8 @@ public class AulaDto
     
     public int Capacidade {get; set;}
     
+    public string Descricao {get; set;}
+    
     public bool IsDeleted {get; set;}
     
     public DateTime CreatedAt {get; set;}
