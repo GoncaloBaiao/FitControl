@@ -24,9 +24,7 @@ else
 
         <HeaderContent>
             <MudTh>Aula</MudTh>
-            <MudTh>Modalidade</MudTh>
             <MudTh>Instrutor</MudTh>
-            <MudTh>Sala</MudTh>
             <MudTh>Horário</MudTh>
             <MudTh>Vagas</MudTh>
             <MudTh Style="text-align:right;">Ações</MudTh>
@@ -37,16 +35,8 @@ else
                 @context.Nome
             </MudTd>
 
-            <MudTd DataLabel="Modalidade" Class="fc-table-row">
-                @(context.Modalidade?.Nome ?? "N/A")
-            </MudTd>
-
             <MudTd DataLabel="Instrutor" Class="fc-table-row">
                 @(context.Instrutor?.Nome ?? "N/A")
-            </MudTd>
-
-            <MudTd DataLabel="Sala" Class="fc-table-row">
-                @(context.Sala?.Nome ?? "N/A")
             </MudTd>
 
             <MudTd DataLabel="Horário" Class="fc-table-row">
@@ -68,6 +58,10 @@ else
                                Size="Size.Small"
                                Style="color:#ef4444;"
                                OnClick="@(() => OnAulaDelete(context.Id))"/>
+                <MudIconButton Icon="@Icons.Material.Filled.Info"
+                               Size="Size.Small"
+                               Style="color:#14C3F1;"
+                               OnClick="@(() => OnDetailNavigate(context.Id))"/>
             </MudTd>
         </RowTemplate>
     </PaginaListar>
