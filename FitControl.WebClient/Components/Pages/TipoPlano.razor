@@ -55,6 +55,7 @@ else
         _loading = true;
         
         await base.OnInitializedAsync();
+        Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopRight;
         
         try
         {
@@ -64,8 +65,6 @@ else
         }
         catch (Exception)
         {
-            Snackbar.Clear();
-            Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopRight;
             Snackbar.Add("Erro a extrair a lista de Tipos de Plano", Severity.Error);
         }
         
@@ -99,8 +98,6 @@ else
         }
         catch (Exception)
         {
-            Snackbar.Clear();
-            Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopRight;
             Snackbar.Add("Erro a criar popup de confirmação da ação de apagar", Severity.Error);
         }
         
@@ -110,8 +107,6 @@ else
             
             if (apiResponse.IsSuccessStatusCode)
             {
-                Snackbar.Clear();
-                Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopRight;
                 Snackbar.Add("Tipo de Plano apagado com sucesso", Severity.Success);
                 
                 try
@@ -122,22 +117,16 @@ else
                 }
                 catch (Exception )
                 {
-                    Snackbar.Clear();
-                    Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopRight;
                     Snackbar.Add("Erro a atualizar a lista de Tipos de Plano", Severity.Error);
                 }
             }
             else
             {
-                Snackbar.Clear();
-                Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopRight;
                 Snackbar.Add("Não foi possível apagar o Tipo de Plano", Severity.Error);
             }
         }
         catch (Exception)
         {
-            Snackbar.Clear();
-            Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopRight;
             Snackbar.Add("Erro a apagar Tipo de Plano", Severity.Error);
         }
 
@@ -147,10 +136,5 @@ else
     private void OnEditNavigate(int id)
     {
         NavigationManager.NavigateTo($"/addTipoPlano/{id}");
-    }
-    
-    private void OnAddNavigate()
-    {
-        NavigationManager.NavigateTo($"/addTipoPlano");
     }
 }

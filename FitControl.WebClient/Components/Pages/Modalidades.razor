@@ -54,6 +54,9 @@ else
     protected override async Task OnInitializedAsync()
     {
         _loading = true;
+        await base.OnInitializedAsync();
+        Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopRight;
+        
         try
         {
             var response = await FitControlApi.GetModalidades();

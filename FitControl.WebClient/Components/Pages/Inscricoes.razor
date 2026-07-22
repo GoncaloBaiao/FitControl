@@ -61,6 +61,7 @@ else
         _loading = true;
         
         await base.OnInitializedAsync();
+        Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopRight;
         
         try
         {
@@ -70,8 +71,6 @@ else
         }
         catch (Exception)
         {
-            Snackbar.Clear();
-            Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopRight;
             Snackbar.Add("Erro a extrair a lista de Inscrições", Severity.Error);
         }
         
@@ -104,8 +103,6 @@ else
         }
         catch (Exception)
         {
-            Snackbar.Clear();
-            Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopRight;
             Snackbar.Add("Erro a criar popup de confirmação da ação de apagar", Severity.Error);
         }
         
@@ -115,8 +112,6 @@ else
             
             if (apiResponse.IsSuccessStatusCode)
             {
-                Snackbar.Clear();
-                Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopRight;
                 Snackbar.Add("Inscrição apagada com sucesso", Severity.Success);
                 
                 try
@@ -127,22 +122,16 @@ else
                 }
                 catch (Exception )
                 {
-                    Snackbar.Clear();
-                    Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopRight;
                     Snackbar.Add("Erro a atualizar a lista de Inscrições", Severity.Error);
                 }
             }
             else
             {
-                Snackbar.Clear();
-                Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopRight;
                 Snackbar.Add("Não foi possível apagar a Inscrição", Severity.Error);
             }
         }
         catch (Exception)
         {
-            Snackbar.Clear();
-            Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopRight;
             Snackbar.Add("Erro a apagar Inscrição", Severity.Error);
         }
 
@@ -152,10 +141,5 @@ else
     private void OnEditNavigate(int id)
     {
         NavigationManager.NavigateTo($"/addInscricao/{id}");
-    }
-    
-    private void OnAddNavigate()
-    {
-        NavigationManager.NavigateTo($"/addInscricao");
     }
 }

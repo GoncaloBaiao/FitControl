@@ -5,6 +5,8 @@
 @using Refit
 @inject IFitControlApi FitControlApi
 @layout MainLayout
+@inject ISnackbar Snackbar
+@inject IDialogService DialogService
 
 <PageTitle>Nível de Dificuldade</PageTitle>
 
@@ -35,7 +37,7 @@ else
                                    Size="Size.Small"
                                    Style="color:#1E90FF;"
                                    Title="Editar" />
-                    <MudIconButton Href="@($"/nivelDificuldade/softdelete/{context.Id}")"
+                    <MudIconButton OnClick="@(() => OnNivelDificuldadeDelete(context.Id))"
                                    Icon="@Icons.Material.Filled.Delete"
                                    Size="Size.Small"
                                    Style="color:#ef4444;"
@@ -44,21 +46,18 @@ else
             </MudTd>
         </RowTemplate>
     </PaginaListar>
-
-    @if (!string.IsNullOrWhiteSpace(_errorMessage))
-    {
-        <MudAlert Severity="Severity.Error" Variant="Variant.Filled" Class="mt-3">@_errorMessage</MudAlert>
-    }
 }
 
 @code {
     private bool _loading = true;
     private bool _hasLoaded;
-    private string? _errorMessage;
     private List<Shared.Models.NivelDificuldade> _nivelDificuldade = new();
 
     protected override async Task OnInitializedAsync()
     {
+        await base.OnInitializedAsync();
+        Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopRight;
+        
         if (_hasLoaded) return;
         _hasLoaded = true;
 
@@ -73,17 +72,60 @@ else
             else
             {
                 _nivelDificuldade = new List<Shared.Models.NivelDificuldade>();
-                _errorMessage = $"API devolveu {response.StatusCode}.";
+                Snackbar.Add($"API devolveu {response.StatusCode}.", Severity.Error);
             }
         }
         catch (Exception ex)
         {
-            _errorMessage = $"Não foi possível carregar níveis de dificuldade. Verifica se a API está a correr. Erro: {ex.Message}";
+            Snackbar.Add($"Não foi possível carregar níveis de dificuldade. Verifica se a API está a correr. Erro: {ex.Message}", Severity.Error);
             _nivelDificuldade = new List<Shared.Models.NivelDificuldade>();
         }
         finally
         {
             _loading = false;
+        }
+    }
+    
+    private async Task OnNivelDificuldadeDelete(int id)
+    {
+        try
+        {
+            var parameters = new DialogParameters<Dialog>
+            {
+                { x => x.ContentText, "Tem a certeza que quer apagar este registo? Este processo não pode ser desfeito." },
+                { x => x.ButtonOkText, "Apagar" },
+                { x => x.Color, Color.Error }
+            };
+
+            var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall };
+            var dialog = await DialogService.ShowAsync<Dialog>("Apagar", parameters, options);
+            var result = await dialog.Result;
+
+            if (result.Canceled) return;
+        }
+        catch
+        {
+            Snackbar.Add("Erro a criar popup de confirmação de apagar.", Severity.Error);
+            return;
+        }
+
+        try
+        {
+            var res = await FitControlApi.DeleteNivelDificuldade(id);
+
+            if (res.IsSuccessStatusCode)
+            {
+                _nivelDificuldade = _nivelDificuldade.Where(a => a.Id != id).ToList();
+                Snackbar.Add("Nível de dificuldade apagado com sucesso", Severity.Success);
+            }
+            else
+            {
+                Snackbar.Add("Não foi possível apagar o Nível de dificuldade", Severity.Error);
+            }
+        }
+        catch
+        {
+            Snackbar.Add("Erro a apagar Nível de dificuldade", Severity.Error);
         }
     }
 }

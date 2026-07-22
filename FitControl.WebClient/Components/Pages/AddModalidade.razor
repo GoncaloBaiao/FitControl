@@ -7,14 +7,10 @@
 @using Refit
 @inject IFitControlApi FitControlApi
 @inject NavigationManager NavigationManager
-
+@inject ISnackbar Snackbar
+@inject IDialogService DialogService
 
 <h3>@(Id.HasValue ? "Editar Modalidade" : "Adicionar Modalidade")</h3>
-
-@if (!string.IsNullOrWhiteSpace(_errorMessage))
-{
-    <div class="alert alert-danger">@_errorMessage</div>
-}
 
 @if (_modalidade != null)
 {
@@ -48,12 +44,14 @@
     public int? Id { get; set; }
 
     private bool _saving;
-    private string? _errorMessage;
     private Shared.Models.Modalidade _modalidade = new();
     private List<Shared.Models.NivelDificuldade> _nivelDificuldade = new();
 
     protected override async Task OnInitializedAsync()
     {
+        await base.OnInitializedAsync();
+        Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopRight;
+        
         try
         {
             var response = await FitControlApi.GetNivelDificuldades();
@@ -71,7 +69,7 @@
                 }
                 else
                 {
-                    _errorMessage = "Modalidade não encontrada.";
+                    Snackbar.Add("Modalidade não encontrada.", Severity.Error);
                 }
             }
             else
@@ -81,20 +79,19 @@
         }
         catch (Exception ex)
         {
-            _errorMessage = $"Não foi possível carregar os niveis de dificuldade. {ex.Message}";
+            Snackbar.Add("Não foi possível carregar os niveis de dificuldade.", Severity.Error);
         }
     }
 
     private async Task SaveModalidade()
     {
-        if (_modalidade.NivelDificuldadeId == 0)
+        if (_modalidade.NivelDificuldade.Id == 0)
         {
-            _errorMessage = "Nivel de Dificuldade Obrigatório";
+            Snackbar.Add("Nivel de Dificuldade Obrigatório", Severity.Error);
             return;
         }
 
         _saving = true;
-        _errorMessage = null;
 
         try
         {
@@ -107,24 +104,55 @@
 
             if (response.IsSuccessStatusCode)
             {
-                NavigationManager.NavigateTo("/Modalidades");
+                Snackbar.Add(Id.HasValue
+                    ? "Modalidade editada com sucesso"
+                    : "Modalidade adicionada com sucesso", Severity.Success);
             }
             else
             {
-                _errorMessage = $"Não foi possível guardar a modalidade. API devolveu {response.StatusCode}.";
+                Snackbar.Add($"Não foi possível guardar a modalidade. API devolveu {response.StatusCode}.", Severity.Error);
             }
         }
         catch (ApiException ex)
         {
-            _errorMessage = $"Não foi possível guardar a modalidade. API devolveu {(int)ex.StatusCode}: {ex.ReasonPhrase}";
+            Snackbar.Add($"Não foi possível guardar a modalidade. API devolveu {(int)ex.StatusCode}: {ex.ReasonPhrase}", Severity.Error);
         }
         catch (Exception ex)
         {
-            _errorMessage = $"Não foi possível guardar a modalidade. {ex.Message}";
+            Snackbar.Add($"Não foi possível guardar a modalidade. {ex.Message}", Severity.Error);
         }
         finally
         {
             _saving = false;
         }
+        
+        //POPUP
+        try
+        {
+            var parameters = new DialogParameters<Dialog>
+            {
+                { x => x.ContentText, "Deseja sair da página?" },
+                { x => x.ButtonOkText, "Sim" },
+                { x => x.ButtonCancelText, "Não" },
+                { x => x.Color, Color.Error }
+            };
+
+            var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall };
+
+            var result = await DialogService.ShowAsync<Dialog>("Sair da página", parameters, options);
+        
+            var res = await result.Result;
+
+            if (res != null && res.Canceled)
+            {
+                return;
+            }
+        }
+        catch (Exception)
+        {
+            Snackbar.Add("Erro a criar popup de confirmação de saída", Severity.Error);
+        }
+                
+        NavigationManager.NavigateTo("/Modalidades");
     }
 }
