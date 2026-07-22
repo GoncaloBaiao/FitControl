@@ -54,6 +54,9 @@ else
     protected override async Task OnInitializedAsync()
     {
         _loading = true;
+        await base.OnInitializedAsync();
+        Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopRight;
+        
         try
         {
             var response = await FitControlApi.GetInstrutors();
@@ -61,8 +64,6 @@ else
         }
         catch
         {
-            Snackbar.Clear();
-            Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopRight;
             Snackbar.Add("Erro a extrair a lista de Instrutores", Severity.Error);
         }
         finally
@@ -90,8 +91,6 @@ else
         }
         catch
         {
-            Snackbar.Clear();
-            Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopRight;
             Snackbar.Add("Erro a criar popup de confirmação de apagar", Severity.Error);
             return;
         }
@@ -102,23 +101,17 @@ else
 
             if (apiResponse.IsSuccessStatusCode)
             {
-                Snackbar.Clear();
-                Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopRight;
                 Snackbar.Add("Instrutor apagado com sucesso", Severity.Success);
 
                 _instrutores = _instrutores.Where(i => i.Id != id).ToList();
             }
             else
             {
-                Snackbar.Clear();
-                Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopRight;
                 Snackbar.Add("Não foi possível apagar o Instrutor", Severity.Error);
             }
         }
         catch
         {
-            Snackbar.Clear();
-            Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopRight;
             Snackbar.Add("Erro a apagar Instrutor", Severity.Error);
         }
     }

@@ -31,7 +31,8 @@
     protected override async Task OnInitializedAsync()
     {
         await base.OnInitializedAsync();
-
+        Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopRight;
+        
         try
         {
             if (Id.HasValue)
@@ -43,8 +44,6 @@
         }
         catch (Exception)
         {
-            Snackbar.Clear();
-            Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopRight;
             Snackbar.Add("Erro a extrair a lista de Users", Severity.Error);
         }
     }
@@ -59,21 +58,15 @@
 
                 if (response.IsSuccessStatusCode && response.Content != null)
                 {
-                    Snackbar.Clear();
-                    Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopRight;
                     Snackbar.Add("User editado com sucesso", Severity.Success);
                 }
                 else
                 {
-                    Snackbar.Clear();
-                    Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopRight;
                     Snackbar.Add("Não foi possível editar o User", Severity.Error);
                 }
             }
             catch (Exception)
             {
-                Snackbar.Clear();
-                Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopRight;
                 Snackbar.Add("Erro a editar User", Severity.Error);
             }
         }
@@ -85,21 +78,15 @@
             
                 if (response.IsSuccessStatusCode)
                 {
-                    Snackbar.Clear();
-                    Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopRight;
                     Snackbar.Add("User adicionado com sucesso", Severity.Success);
                 }
                 else
                 {
-                    Snackbar.Clear();
-                    Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopRight;
                     Snackbar.Add("Não foi possível adicionar o User", Severity.Error);
                 }
             }
             catch (Exception)
             {
-                Snackbar.Clear();
-                Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopRight;
                 Snackbar.Add("Erro a adicionar User", Severity.Error);
             }
         }
@@ -128,8 +115,6 @@
         }
         catch (Exception)
         {
-            Snackbar.Clear();
-            Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopRight;
             Snackbar.Add("Erro a criar popup de confirmação de saída", Severity.Error);
         }
         

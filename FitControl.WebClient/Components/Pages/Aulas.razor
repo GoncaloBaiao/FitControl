@@ -75,7 +75,9 @@ else
     protected override async Task OnInitializedAsync()
     {
         _loading = true;
-
+        await base.OnInitializedAsync();
+        Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopRight;
+        
         try
         {
             var aulasTask = FitControlApi.GetAulas();
@@ -88,8 +90,6 @@ else
         }
         catch
         {
-            Snackbar.Clear();
-            Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopRight;
             Snackbar.Add("Erro a carregar aulas/inscrições.", Severity.Error);
 
             _aulas = new List<Aula>();
@@ -120,8 +120,6 @@ else
         }
         catch
         {
-            Snackbar.Clear();
-            Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopRight;
             Snackbar.Add("Erro a criar popup de confirmação de apagar.", Severity.Error);
             return;
         }
@@ -133,21 +131,15 @@ else
             if (res.IsSuccessStatusCode)
             {
                 _aulas = _aulas.Where(a => a.Id != id).ToList();
-                Snackbar.Clear();
-                Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopRight;
                 Snackbar.Add("Aula apagada com sucesso", Severity.Success);
             }
             else
             {
-                Snackbar.Clear();
-                Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopRight;
                 Snackbar.Add("Não foi possível apagar a aula", Severity.Error);
             }
         }
         catch
         {
-            Snackbar.Clear();
-            Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopRight;
             Snackbar.Add("Erro a apagar aula", Severity.Error);
         }
     }
