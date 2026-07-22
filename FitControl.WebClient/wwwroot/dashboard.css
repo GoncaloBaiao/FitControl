@@ -43,6 +43,8 @@
     background: var(--fc-bg-card);
     border: 1px solid var(--fc-border);
     border-radius: 0.75rem;
+    color: whitesmoke !important;
+
 }
 
 /* Buttons */
