@@ -48,7 +48,8 @@
     protected override async Task OnInitializedAsync()
     {
         await base.OnInitializedAsync();
-
+        Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopRight;
+        
         try
         {
             if (Id.HasValue)
@@ -73,8 +74,6 @@
         }
         catch (Exception)
         {
-            Snackbar.Clear();
-            Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopRight;
             Snackbar.Add("Erro a extrair a lista de Inscrições", Severity.Error);
         }
     }
@@ -92,21 +91,15 @@
 
                 if (response.IsSuccessStatusCode && response.Content != null)
                 {
-                    Snackbar.Clear();
-                    Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopRight;
                     Snackbar.Add("Inscrição editada com sucesso", Severity.Success);
                 }
                 else
                 {
-                    Snackbar.Clear();
-                    Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopRight;
                     Snackbar.Add("Não foi possível editar a Inscrição", Severity.Error);
                 }
             }
             catch (Exception)
             {
-                Snackbar.Clear();
-                Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopRight;
                 Snackbar.Add("Erro a editar Inscrição", Severity.Error);
             }
         }
@@ -118,21 +111,15 @@
             
                 if (response.IsSuccessStatusCode)
                 {
-                    Snackbar.Clear();
-                    Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopRight;
                     Snackbar.Add("Inscrição adicionada com sucesso", Severity.Success);
                 }
                 else
                 {
-                    Snackbar.Clear();
-                    Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopRight;
                     Snackbar.Add("Não foi possível adicionar a Inscrição", Severity.Error);
                 }
             }
             catch (Exception)
             {
-                Snackbar.Clear();
-                Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopRight;
                 Snackbar.Add("Erro a adicionar Inscrição", Severity.Error);
             }
         }
@@ -161,8 +148,6 @@
         }
         catch (Exception)
         {
-            Snackbar.Clear();
-            Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopRight;
             Snackbar.Add("Erro a criar popup de confirmação de saída", Severity.Error);
         }
         

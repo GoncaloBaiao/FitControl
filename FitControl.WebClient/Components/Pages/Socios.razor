@@ -5,6 +5,8 @@
 @using Refit
 @inject IFitControlApi FitControlApi
 @layout FitControl.WebClient.Components.Layout.MainLayout
+@inject ISnackbar Snackbar
+@inject IDialogService DialogService
 
 <PageTitle>Sócios</PageTitle>
 
@@ -53,7 +55,7 @@ else
                                    Size="Size.Small"
                                    Style="color:#1E90FF;"
                                    Title="Editar" />
-                    <MudIconButton Href="@($"/socios/delete/{context.Id}")"
+                    <MudIconButton OnClick="@(() => OnSocioDelete(context.Id))"
                                    Icon="@Icons.Material.Filled.Delete"
                                    Size="Size.Small"
                                    Style="color:#ef4444;"
@@ -62,17 +64,11 @@ else
             </MudTd>
         </RowTemplate>
     </PaginaListar>
-
-    @if (!string.IsNullOrWhiteSpace(_errorMessage))
-    {
-        <MudAlert Severity="Severity.Error" Variant="Variant.Filled" Class="mt-3">@_errorMessage</MudAlert>
-    }
 }
 
 @code {
     private bool _loading = true;
     private bool _hasLoaded;
-    private string? _errorMessage;
     private List<Shared.Models.Socio> _socios = new();
 
     protected override async Task OnInitializedAsync()
@@ -91,12 +87,12 @@ else
             else
             {
                 _socios = new List<Shared.Models.Socio>();
-                _errorMessage = $"API devolveu {response.StatusCode}.";
+                Snackbar.Add($"API devolveu {response.StatusCode}.", Severity.Error);
             }
         }
         catch (Exception ex)
         {
-            _errorMessage = $"Não foi possível carregar sócios. Verifica se a API está a correr. Erro: {ex.Message}";
+            Snackbar.Add($"Não foi possível carregar sócios. Verifica se a API está a correr. Erro: {ex.Message}", Severity.Error);
             _socios = new List<Shared.Models.Socio>();
         }
         finally
@@ -104,6 +100,49 @@ else
             _loading = false;
         }
     }
+    
+    private async Task OnSocioDelete(int id)
+    {
+        try
+        {
+            var parameters = new DialogParameters<Dialog>
+            {
+                { x => x.ContentText, "Tem a certeza que quer apagar este registo? Este processo não pode ser desfeito." },
+                { x => x.ButtonOkText, "Apagar" },
+                { x => x.Color, Color.Error }
+            };
 
-    private string FormatDate(DateTime date) => date.ToString("dd/MM/yyyy");
+            var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall };
+            var dialog = await DialogService.ShowAsync<Dialog>("Apagar", parameters, options);
+            var result = await dialog.Result;
+
+            if (result.Canceled) return;
+        }
+        catch
+        {
+            Snackbar.Add("Erro a criar popup de confirmação de apagar.", Severity.Error);
+            return;
+        }
+
+        try
+        {
+            var res = await FitControlApi.DeleteSocio(id);
+
+            if (res.IsSuccessStatusCode)
+            {
+                _socios = _socios.Where(a => a.Id != id).ToList();
+                Snackbar.Add("Sócio apagado com sucesso", Severity.Success);
+            }
+            else
+            {
+                Snackbar.Add("Não foi possível apagar o Sócio", Severity.Error);
+            }
+        }
+        catch
+        {
+            Snackbar.Add("Erro a apagar Sócio", Severity.Error);
+        }
+    }
+
+    private string FormatDate(DateTime? date) => date?.ToString("dd/MM/yyyy") ?? "";
 }
