@@ -21,18 +21,26 @@
 </EditForm>
 
 @code {
-    private User _userModel { get; set; } = new();
+    private User _userModel { get; set; } = new ();
 
     private async Task OnLogin()
     {
-        var response = await AuthApi.GetUserAsync(_userModel);
-        if (response.IsSuccessful)
+        try
         {
-            NavigationManager.NavigateTo("/");
+            var response = await AuthApi.GetUserAsync(_userModel);
+            if (response.IsSuccessStatusCode && response.Content != null)
+            {
+                NavigationManager.NavigateTo($"/");
+            }
+            else
+            {
+                Snackbar.Add("Username ou password errados!", Severity.Error);
+            }
         }
-        else
+        catch
         {
-            Snackbar.Add("Username ou password errados!", Severity.Error);
+            Snackbar.Add("Erro a realizar login!", Severity.Error);
         }
+        
     }
 }

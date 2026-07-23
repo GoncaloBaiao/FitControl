@@ -15,7 +15,7 @@
         </MudText>
 
         <MudSpacer />
-
+        <MudIconButton Icon="@Icons.Material.Filled.Login" Href="/Login"/>
         <MudIconButton Icon="@Icons.Material.Filled.NotificationsNone" Color="Color.Inherit" />
     </MudAppBar>
 
@@ -99,7 +99,7 @@
 @code {
     private bool _drawerOpen = true;
     private string _currentTitle = "FITCONTROL";
-
+    
     private void ToggleDrawer()
     {
         _drawerOpen = !_drawerOpen;
