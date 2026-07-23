@@ -34,8 +34,10 @@
                 <ValidationMessage For=@(() => _aulaModel.Capacidade)/>
 
             </div>
-            <MudDatePicker @bind-Date="_aulaModel.HoraInicio" Label="Hora de Início" DateFormat="dd/MM/yyyy"/>
-            <MudDatePicker @bind-Date="_aulaModel.HoraFim" Label="Hora de Fim" DateFormat="dd/MM/yyyy"/>
+            <MudDatePicker @bind-Date="_aulaModel.HoraInicio" Label="Data de Início" DateFormat="dd/MM/yyyy"/>
+            <MudTimePicker Label="Hora de Início" @bind-Time="_horaInicio"/>
+            <MudDatePicker @bind-Date="_aulaModel.HoraFim" Label="Data de Fim" DateFormat="dd/MM/yyyy"/>
+            <MudTimePicker Label="Hora de Fim" @bind-Time="_horaFim"/>
             <MudSelect Label="Modalidade" @bind-Value="_aulaModel.Modalidade" Placeholder="Selecione a modalidade"
                        ToStringFunc="@((Modalidade obj) => obj.Nome ?? null)">
                 @foreach (Modalidade modalidade in _modalidades)
@@ -70,6 +72,8 @@
     private List<Modalidade> _modalidades = new ();
     private List<Instrutor> _instrutores = new ();
     private List<Sala> _salas = new ();
+    private TimeSpan? _horaInicio = new();
+    private TimeSpan? _horaFim = new();
 
     protected override async Task OnInitializedAsync()
     {
@@ -83,6 +87,8 @@
                 var aulaResponse = await FitControlApi.GetAula(Id.Value);
                 if (aulaResponse.Content != null) 
                     _aulaModel = aulaResponse.Content;
+
+                ExtrairDatas();
             }
             else
             {
@@ -109,11 +115,21 @@
         }
     }
 
+    private void ExtrairDatas()
+    {
+        var data = TimeSpan.ParseExact(_aulaModel.HoraInicio?.ToString("HH:mm"), @"hh\:mm", null);
+        _horaInicio = new TimeSpan(data.Ticks);
+        data = TimeSpan.ParseExact(_aulaModel.HoraFim?.ToString("HH:mm"), @"hh\:mm", null);
+        _horaFim = new TimeSpan(data.Ticks);
+    }
+
     private async Task OnAddAula()
     {
         _aulaModel.ModalidadeId = _aulaModel.Modalidade.Id;
         _aulaModel.InstrutorId = _aulaModel.Instrutor.Id;
         _aulaModel.SalaId = _aulaModel.Sala.Id;
+
+        ValidarDatasModelo();
         
    
         if (Id.HasValue)
@@ -186,4 +202,37 @@
         
         NavigationManager.NavigateTo("/Aulas");
     }
+
+    private void ValidarDatasModelo()
+    {
+        if (Id.HasValue)
+        {
+            if (_aulaModel.HoraInicio?.Hour != _horaInicio?.Hours ||
+                _aulaModel.HoraInicio?.Minute != _horaInicio?.Minutes ||
+                _aulaModel.HoraFim?.Hour != _horaFim?.Hours ||
+                _aulaModel.HoraFim?.Minute != _horaFim?.Minutes)
+            {
+                var data =  _aulaModel.HoraInicio?.ToString("dd/MM/yyyy") 
+                            + $" {_horaInicio?.ToString()}";
+                _aulaModel.HoraInicio = DateTime.ParseExact(data, "dd/MM/yyyy HH:mm:ss", null);
+                
+                data = _aulaModel.HoraFim?.ToString("dd/MM/yyyy")
+                       + $" {_horaFim?.ToString()}";
+                _aulaModel.HoraFim = DateTime.ParseExact(data, "dd/MM/yyyy HH:mm:ss", null);
+            }
+        }
+        else
+        {
+            _aulaModel.HoraInicio = _aulaModel.HoraInicio?
+                .AddHours(Convert.ToDouble(_horaInicio?.Hours));
+            _aulaModel.HoraInicio = _aulaModel.HoraInicio?
+                .AddMinutes(Convert.ToDouble(_horaInicio?.Minutes));
+
+            _aulaModel.HoraFim = _aulaModel.HoraFim?
+                .AddHours(Convert.ToDouble(_horaFim?.Hours));
+            _aulaModel.HoraFim = _aulaModel.HoraFim?
+                .AddMinutes(Convert.ToDouble(_horaFim?.Minutes));
+        }
+    }
+
 }

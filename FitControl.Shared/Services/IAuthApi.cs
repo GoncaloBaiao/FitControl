@@ -11,7 +11,7 @@ public interface IAuthApi
     Task<ApiResponse<User>> AddUser([Body] User user);
     
     [Get("/user")]
-    Task<ApiResponse<bool>> GetUserAsync([Body] User user);
+    Task<ApiResponse<User>> GetUserAsync([Body] User user);
     
     [Put("/user")]
     Task<ApiResponse<User>> UpdateUser([Body] User user);

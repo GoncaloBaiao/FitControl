@@ -6,7 +6,7 @@
 @inject ISnackbar Snackbar
 @rendermode InteractiveServer
 
-<h3>Detalhes da Aula</h3>
+<h2>Detalhes da Aula</h2>
 <h3>@_aulaDetail.Nome</h3>
 
 @if (_aulaDetail != null)
@@ -16,15 +16,31 @@
         <EditForm FormName="ShowAulaDetailForm" Model="_aulaDetail" OnValidSubmit="ShowAulaDetail">
             <div class="mb-3">
                 <label for="descricaoAula" class="form-label">Descricao</label>
-                <MudTextField class="form-control-lg" id="descricaoAula" @bind-Value="@_aulaDetail.Descricao"></MudTextField>
+                <MudTextField class="form-control-lg" id="descricaoAula" @bind-Value="@_aulaDetail.Descricao" Disabled="true"/>
+            </div>
+            <div class="mb-3">
+                <label for="capacidadeAula" class="form-label">Capacidade</label>
+                <MudTextField class="form-control-lg" id="capacidadeAula" @bind-Value="@_aulaDetail.Capacidade" Disabled="true"/>
             </div>
             <div class="mb-3">
                 <label for="modalidadeAula" class="form-label">Modalidade</label>
-                <MudTextField class="form-control-lg" id="modalidadeAula" @bind-Value="@_aulaDetail.Modalidade.Nome" />
+                <MudTextField class="form-control-lg" id="modalidadeAula" @bind-Value="@_aulaDetail.Modalidade.Nome" Disabled="true" />
+            </div>
+            <div class="mb-3">
+                <label for="instrutor" class="form-label">Instrutor</label>
+                <MudTextField class="form-control-lg" id="instrutor" @bind-Value="@_aulaDetail.Instrutor.Nome" Disabled="true"/>
             </div>
             <div class="mb-3">
                 <label for="salaAula" class="form-label">Sala</label>
-                <MudTextField class="form-control-lg" id="salaAula" @bind-Value="@_aulaDetail.Sala.Nome" />
+                <MudTextField class="form-control-lg" id="salaAula" @bind-Value="@_aulaDetail.Sala.Nome" Disabled="true"/>
+            </div>
+            <div class="mb-3">
+                <label for="horaInicio" class="form-label">Hora de Início</label>
+                <MudTextField class="form-control-lg" id="horaInicio" @bind-Value="@_aulaDetail.HoraInicio" Disabled="true"/>
+            </div>
+            <div class="mb-3">
+                <label for="horaFim" class="form-label">Hora de Fim</label>
+                <MudTextField class="form-control-lg" id="horaFim" @bind-Value="@_aulaDetail.HoraFim" Disabled="true"/>
             </div>
         </EditForm> 
     }
