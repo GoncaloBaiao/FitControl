@@ -15,6 +15,8 @@
 <h3>@(Id.HasValue ? "Editar Nível de Dificuldade" : "Adicionar Nível de Dificuldade")</h3>
 
 <EditForm FormName="AddNivelDificuldadeForm" Model="_nivelDificuldade" OnValidSubmit="SaveNivelDificuldade">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
     <div class="mb-3">
         <label class="form-label">Nível</label>
         <InputText class="form-control" @bind-Value="_nivelDificuldade.Nivel" />

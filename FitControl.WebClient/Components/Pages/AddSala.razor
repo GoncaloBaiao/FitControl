@@ -15,6 +15,8 @@
 <h3>@(Id.HasValue ? "Editar Sala" : "Adicionar Sala")</h3>
 
 <EditForm FormName="AddSalaForm" Model="_sala" OnValidSubmit="SaveSala">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
     <div class="mb-3">
         <label class="form-label">Nome</label>
         <InputText class="form-control" @bind-Value="_sala.Nome" />

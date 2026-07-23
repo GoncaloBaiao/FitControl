@@ -18,6 +18,8 @@
     if (_socio.TipoPlano != null && _socio.Genero != null)
     {
         <EditForm FormName="AddSocioForm" Model="_socio" OnValidSubmit="SaveSocio">
+            <DataAnnotationsValidator />
+            <ValidationSummary />
             <div class="mb-3">
                 <label class="form-label">Nome</label>
                 <InputText class="form-control" @bind-Value="_socio.Nome"/>

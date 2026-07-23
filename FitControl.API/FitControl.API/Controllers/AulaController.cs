@@ -74,6 +74,11 @@ public class AulaController : ControllerBase
         mapper.UpdatedAt = DateTime.Now;
         
         var aulas = _fitControlDbContext.Aulas;
+        
+        if (aula.HoraInicio >= aula.HoraFim)
+        {
+            return Results.BadRequest("A hora de início deve ser menor que a hora de fim.");
+        }
 
         if (aulas is not null)
         {
@@ -81,6 +86,8 @@ public class AulaController : ControllerBase
             await _fitControlDbContext.SaveChangesAsync();
             return Results.Ok("Aula adicionada com sucesso!");
         }
+
+        
         return Results.Empty;
     }
     
@@ -102,6 +109,11 @@ public class AulaController : ControllerBase
         }
         
         var oldAula = await _fitControlDbContext.Aulas.FirstOrDefaultAsync(p => p.Id == aulaDto.Id);
+        
+        if (aulaDto.HoraInicio >= aulaDto.HoraFim)
+        {
+            return Results.BadRequest("A hora de início deve ser menor que a hora de fim.");
+        }
 
         if (oldAula is null)
         {

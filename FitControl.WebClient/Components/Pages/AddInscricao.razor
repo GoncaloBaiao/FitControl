@@ -14,6 +14,8 @@
     if (_inscricaoModel.Aula != null && _inscricaoModel.Socio != null)
     {
         <EditForm FormName="AddInscricaoForm" Model="_inscricaoModel.Aula" OnValidSubmit="OnAddInscricao">
+            <DataAnnotationsValidator />
+            <ValidationSummary />
             <MudSelect Label="Aula" @bind-Value="_inscricaoModel.Aula" Placeholder="Selecione a aula"
                        ToStringFunc="@((Aula obj) => obj.Nome ?? null)">
                 @foreach (var aula in _aulas)

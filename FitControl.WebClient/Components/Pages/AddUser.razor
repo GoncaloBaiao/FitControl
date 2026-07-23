@@ -11,6 +11,8 @@
 <h3>@( Id.HasValue ? "Editar User" : "Adicionar User")</h3>
 
 <EditForm FormName="AddUserForm" Model="_userModel" OnValidSubmit="OnAddUser">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
     <div class="mb-3">
         <label for="usernameUser" class="form-label">Username</label>
         <InputText class="form-control" id="usernameUser" @bind-Value="@_userModel.Username"/>
