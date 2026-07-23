@@ -15,6 +15,8 @@
     if (_instrutorModalidadeModel.Instrutor != null && _instrutorModalidadeModel.Modalidade != null)
     {
         <EditForm FormName="AddInstrutorModalidadeForm" Model="_instrutorModalidadeModel" OnValidSubmit="OnAddInstrutorModalidade">
+            <DataAnnotationsValidator />
+            <ValidationSummary />
             <MudSelect Label="Instrutor" @bind-Value="_instrutorModalidadeModel.Instrutor" Placeholder="Selecione o instrutor"
                        ToStringFunc="@((Instrutor obj) => obj.Nome ?? null)">
                 @foreach (Instrutor instrutor in _instrutores)

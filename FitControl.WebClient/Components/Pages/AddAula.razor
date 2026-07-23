@@ -15,17 +15,24 @@
     if (_aulaModel.Modalidade != null && _aulaModel.Sala != null && _aulaModel.Instrutor != null)
     {
         <EditForm FormName="AddAulaForm" Model="_aulaModel" OnValidSubmit="OnAddAula">
+             <DataAnnotationsValidator/>
+            <ValidationSummary/>
             <div class="mb-3">
                 <label for="nomeAula" class="form-label">Nome</label>
                 <InputText class="form-control" id="nomeAula" @bind-Value="@_aulaModel.Nome"/>
+                <ValidationMessage For=@(() => _aulaModel.Nome) />
             </div>
             <div class="mb-3">
                 <label for="descricaoAula" class="form-label">Descricao</label>
                 <InputText class="form-control" id="descricaoAula" @bind-Value="@_aulaModel.Descricao"></InputText>
+                <ValidationMessage For=@(() => _aulaModel.Descricao)/>
+
             </div>
             <div class="mb-3">
                 <label for="capacidadeAula" class="form-label">Capacidade</label>
                 <InputNumber class="form-control" id="capacidadeAula" @bind-Value="_aulaModel.Capacidade"/>
+                <ValidationMessage For=@(() => _aulaModel.Capacidade)/>
+
             </div>
             <MudDatePicker @bind-Date="_aulaModel.HoraInicio" Label="Hora de Início" DateFormat="dd/MM/yyyy"/>
             <MudDatePicker @bind-Date="_aulaModel.HoraFim" Label="Hora de Fim" DateFormat="dd/MM/yyyy"/>
@@ -58,7 +65,7 @@
 @code {
     [Parameter]
     public int? Id { get; set; }
-    
+    private MudForm _form;
     private Aula _aulaModel = new();
     private List<Modalidade> _modalidades = new ();
     private List<Instrutor> _instrutores = new ();
@@ -108,6 +115,7 @@
         _aulaModel.InstrutorId = _aulaModel.Instrutor.Id;
         _aulaModel.SalaId = _aulaModel.Sala.Id;
         
+   
         if (Id.HasValue)
         {
             try
