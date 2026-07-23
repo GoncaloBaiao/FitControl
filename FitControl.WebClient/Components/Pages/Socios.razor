@@ -25,9 +25,9 @@ else
 
         <HeaderContent>
             <MudTh>Nome</MudTh>
-            <MudTh>Email</MudTh>
+            @*<MudTh>Email</MudTh>
             <MudTh>Contacto</MudTh>
-            <MudTh>Data Nascimento</MudTh>
+            <MudTh>Data Nascimento</MudTh>*@
             <MudTh>Genero</MudTh>
             <MudTh>Altura</MudTh>
             <MudTh>Peso</MudTh>
@@ -39,9 +39,9 @@ else
 
         <RowTemplate>
             <MudTd DataLabel="Nome">@context.Nome</MudTd>
-            <MudTd DataLabel="Email">@context.Email</MudTd>
+            @*<MudTd DataLabel="Email">@context.Email</MudTd>
             <MudTd DataLabel="Contacto">@context.ContactoTelefonico</MudTd>
-            <MudTd DataLabel="Data Nascimento">@FormatDate(context.DataNascimento)</MudTd>
+            <MudTd DataLabel="Data Nascimento">@FormatDate(context.DataNascimento)</MudTd>*@
             <MudTd DataLabel="Genero">@context.Genero?.Designacao</MudTd>
             <MudTd>@context.Altura</MudTd>
             <MudTd>@context.Peso</MudTd>
@@ -60,6 +60,11 @@ else
                                    Size="Size.Small"
                                    Style="color:#ef4444;"
                                    Title="Eliminar" />
+                    <MudIconButton Href="@($"/sociodetail/{context.Id}")"
+                                   Icon="@Icons.Material.Filled.Info"
+                                   Size="Size.Small"
+                                   Style="color:#14C3F1;"
+                                   Title="Details" />
                 </MudStack>
             </MudTd>
         </RowTemplate>

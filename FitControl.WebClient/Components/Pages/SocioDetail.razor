@@ -62,7 +62,7 @@
     [Parameter]
     public int? Id { get; set; }
     
-    private string FormatDate(DateTime date) => date.ToString("dd/MM/yyyy"); 
+    private string FormatDate(DateTime? date) => date?.ToString("dd/MM/yyyy"); 
 
     private Socio _socioDetail = new();
 
