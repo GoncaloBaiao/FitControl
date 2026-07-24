@@ -1,30 +1,109 @@
-﻿@inherits LayoutComponentBase
-<link rel="stylesheet" href="_content/MudBlazor/MudBlazor.min.css" />
-<link href="home.css" rel="stylesheet" /> 
-<NavBar/>
-<div class="page">
-    
-    <main>
-
-        <article class="content px-4">
-            @Body
-        </article>
-    </main>
-    
-</div>
-<Footer/>
-<div id="blazor-error-ui" data-nosnippet>
-    An unhandled error has occurred.
-    <a href="." class="reload">Reload</a>
-    <span class="dismiss">🗙</span>
-</div>
-
-@* Required *@
+﻿@using FitControl.API.Entities
+@inherits LayoutComponentBase
 <MudThemeProvider />
 <MudPopoverProvider />
-
-@* Needed for dialogs *@
 <MudDialogProvider />
+<MudSnackbarProvider />
+<MudLayout>
+    <MudAppBar Class="fc-topbar" Elevation="0" Fixed="true">
+        <MudIconButton Icon="@Icons.Material.Filled.Menu"
+                       Color="Color.Inherit"
+                       Edge="Edge.Start"
+                       OnClick="@ToggleDrawer" />
 
-@* Needed for snackbars *@
-<MudSnackbarProvider /> 
+        <MudText Typo="Typo.h6" Class="fc-heading" Style="font-size:1.1rem;">
+            @_currentTitle
+        </MudText>
+
+        <MudSpacer />
+        <MudIconButton Icon="@Icons.Material.Filled.Login" Href="/Login"/>
+        <MudIconButton Icon="@Icons.Material.Filled.Person" Href="/Users"/>
+        <MudIconButton Icon="@Icons.Material.Filled.NotificationsNone" Color="Color.Inherit" />
+    </MudAppBar>
+
+    <MudDrawer @bind-Open="_drawerOpen"
+               Elevation="0"
+               Variant="DrawerVariant.Mini"
+               MiniWidth="64px"
+               Width="240px"
+               Style="background:#111111;border-right:1px solid rgba(255,255,255,0.06);">
+
+        <MudDrawerHeader Style="padding:0 1rem;height:64px;display:flex;align-items:center;border-bottom:1px solid rgba(255,255,255,0.06);">
+            <div style="width:32px;height:32px;background:#FF6B35;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                <MudIcon Icon="@Icons.Material.Filled.FitnessCenter" Style="color:#0D0D0D;font-size:1.1rem;" />
+            </div>
+            @if (_drawerOpen)
+            {
+                <MudText Class="fc-heading ml-2" Style="font-size:1.05rem;">FITCONTROL</MudText>
+            }
+        </MudDrawerHeader>
+
+        <MudNavMenu Style="padding-top:0.5rem;">
+            <NavLink href="/dashboard" class="fc-sidebar-item" Match="NavLinkMatch.All">
+                <MudIcon Icon="@Icons.Material.Filled.Dashboard" Size="Size.Small" Class="mr-3" />
+                @if (_drawerOpen) { <span>Dashboard</span> }
+            </NavLink>
+
+            <NavLink href="/aulas" class="fc-sidebar-item">
+                <MudIcon Icon="@Icons.Material.Filled.CalendarMonth" Size="Size.Small" Class="mr-3" />
+                @if (_drawerOpen) { <span>Aulas</span> }
+            </NavLink>
+
+            <NavLink href="/modalidades" class="fc-sidebar-item">
+                <MudIcon Icon="@Icons.Material.Filled.Layers" Size="Size.Small" Class="mr-3" />
+                @if (_drawerOpen) { <span>Modalidades</span> }
+            </NavLink>
+
+            <NavLink href="/instrutores" class="fc-sidebar-item">
+                <MudIcon Icon="@Icons.Material.Filled.Badge" Size="Size.Small" Class="mr-3" />
+                @if (_drawerOpen) { <span>Instrutores</span> }
+            </NavLink>
+
+            <NavLink href="/socios" class="fc-sidebar-item">
+                <MudIcon Icon="@Icons.Material.Filled.People" Size="Size.Small" Class="mr-3" />
+                @if (_drawerOpen) { <span>Sócios</span> }
+            </NavLink>
+
+            <NavLink href="/tipoplanos" class="fc-sidebar-item">
+                <MudIcon Icon="@Icons.Material.Filled.CreditCard" Size="Size.Small" Class="mr-3" />
+                @if (_drawerOpen) { <span>Tipos de Plano</span> }
+            </NavLink>
+
+            <NavLink href="/salas" class="fc-sidebar-item">
+                <MudIcon Icon="@Icons.Material.Filled.MeetingRoom" Size="Size.Small" Class="mr-3" />
+                @if (_drawerOpen) { <span>Salas</span> }
+            </NavLink>
+
+            <NavLink href="/niveldificuldades" class="fc-sidebar-item">
+                <MudIcon Icon="@Icons.Material.Filled.LocalFireDepartment" Size="Size.Small" Class="mr-3" />
+                @if (_drawerOpen) { <span>Nível de Dificuldade</span> }
+            </NavLink>
+
+            <NavLink href="/inscricoes" class="fc-sidebar-item">
+                <MudIcon Icon="@Icons.Material.Filled.AssignmentTurnedIn" Size="Size.Small" Class="mr-3" />
+                @if (_drawerOpen) { <span>Inscrições</span> }
+            </NavLink>
+
+            <NavLink href="/instrutormodalidades" class="fc-sidebar-item">
+                <MudIcon Icon="@Icons.Material.Filled.Link" Size="Size.Small" Class="mr-3" />
+                @if (_drawerOpen) { <span>Modalidades Instrutores</span> }
+            </NavLink>
+        </MudNavMenu>
+    </MudDrawer>
+
+    <MudMainContent>
+        <div class="fc-page pa-6">
+            @Body
+        </div>
+    </MudMainContent>
+</MudLayout>
+
+@code {
+    private bool _drawerOpen = true;
+    private string _currentTitle = "FITCONTROL";
+    
+    private void ToggleDrawer()
+    {
+        _drawerOpen = !_drawerOpen;
+    }
+}

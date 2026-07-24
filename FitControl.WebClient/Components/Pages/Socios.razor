@@ -1,6 +1,5 @@
-﻿@page "/salas"
-@using FitControl.Shared.Models
-@using Salas = FitControl.Shared.Models.Sala
+﻿@page "/socios"
+@using Socio = FitControl.Shared.Models.Socio
 @using FitControl.Shared.Services
 @using MudBlazor
 @using Refit
@@ -9,7 +8,7 @@
 @inject ISnackbar Snackbar
 @inject IDialogService DialogService
 
-<PageTitle>Salas</PageTitle>
+<PageTitle>Sócios</PageTitle>
 
 @if (_loading)
 {
@@ -18,33 +17,54 @@
 else
 {
 
-    <PaginaListar TItem="Sala"
-                  Title="Salas"
-                  AddLabel="ADICIONAR SALA"
-                  AddHref="/salas/add"
-                  Items="_salas">
+    <PaginaListar TItem="Shared.Models.Socio"
+                  Title="Sócios"
+                  AddLabel="ADICIONAR SÓCIO"
+                  AddHref="/socios/add"
+                  Items="_socios">
 
         <HeaderContent>
             <MudTh>Nome</MudTh>
-            <MudTh>Descricao</MudTh>
+            @*<MudTh>Email</MudTh>
+            <MudTh>Contacto</MudTh>
+            <MudTh>Data Nascimento</MudTh>*@
+            <MudTh>Genero</MudTh>
+            <MudTh>Altura</MudTh>
+            <MudTh>Peso</MudTh>
+            <MudTh>Início Subscrição</MudTh>
+            <MudTh>Fim Subscrição</MudTh>
+            <MudTh>Tipo Plano</MudTh>
             <MudTh Style="text-align:right;">Ações</MudTh>
         </HeaderContent>
 
         <RowTemplate>
             <MudTd DataLabel="Nome">@context.Nome</MudTd>
-            <MudTd DataLabel="Descricao">@context.Descricao</MudTd>
+            @*<MudTd DataLabel="Email">@context.Email</MudTd>
+            <MudTd DataLabel="Contacto">@context.ContactoTelefonico</MudTd>
+            <MudTd DataLabel="Data Nascimento">@FormatDate(context.DataNascimento)</MudTd>*@
+            <MudTd DataLabel="Genero">@context.Genero?.Designacao</MudTd>
+            <MudTd>@context.Altura</MudTd>
+            <MudTd>@context.Peso</MudTd>
+            <MudTd DataLabel="Início Subscrição">@FormatDate(context.InicioSubscricao)</MudTd>
+            <MudTd DataLabel="Fim Subscrição">@FormatDate(context.FimSubscricao)</MudTd>
+            <MudTd DataLabel="Tipo Plano">@(context.TipoPlano?.Designacao ?? "N/A")</MudTd>
             <MudTd DataLabel="Ações" Style="text-align:right;">
                 <MudStack Row="true" Spacing="1" Justify="Justify.FlexEnd">
-                    <MudIconButton Href="@($"/sala/edit/{context.Id}")"
+                    <MudIconButton Href="@($"/socios/edit/{context.Id}")"
                                    Icon="@Icons.Material.Filled.Edit"
                                    Size="Size.Small"
                                    Style="color:#1E90FF;"
                                    Title="Editar" />
-                    <MudIconButton OnClick="@(() => OnSalaDelete(context.Id))"
+                    <MudIconButton OnClick="@(() => OnSocioDelete(context.Id))"
                                    Icon="@Icons.Material.Filled.Delete"
                                    Size="Size.Small"
                                    Style="color:#ef4444;"
                                    Title="Eliminar" />
+                    <MudIconButton Href="@($"/sociodetail/{context.Id}")"
+                                   Icon="@Icons.Material.Filled.Info"
+                                   Size="Size.Small"
+                                   Style="color:#14C3F1;"
+                                   Title="Details" />
                 </MudStack>
             </MudTd>
         </RowTemplate>
@@ -54,7 +74,7 @@ else
 @code {
     private bool _loading = true;
     private bool _hasLoaded;
-    private List<Shared.Models.Sala> _salas = new();
+    private List<Shared.Models.Socio> _socios = new();
 
     protected override async Task OnInitializedAsync()
     {
@@ -63,30 +83,30 @@ else
 
         try
         {
-            var response = await FitControlApi.GetSalas();
+            var response = await FitControlApi.GetSocios();
 
             if (response.IsSuccessStatusCode && response.Content is not null)
             {
-                _salas = response.Content;
+                _socios = response.Content;
             }
             else
             {
-                _salas = new List<Shared.Models.Sala>();
+                _socios = new List<Shared.Models.Socio>();
                 Snackbar.Add($"API devolveu {response.StatusCode}.", Severity.Error);
             }
         }
         catch (Exception ex)
         {
-            Snackbar.Add($"Não foi possível carregar salas. Verifica se a API está a correr. Erro: {ex.Message}", Severity.Error);
-            _salas = new List<Shared.Models.Sala>();
+            Snackbar.Add($"Não foi possível carregar sócios. Verifica se a API está a correr. Erro: {ex.Message}", Severity.Error);
+            _socios = new List<Shared.Models.Socio>();
         }
         finally
         {
             _loading = false;
         }
     }
-
-    private async Task OnSalaDelete(int id)
+    
+    private async Task OnSocioDelete(int id)
     {
         try
         {
@@ -111,22 +131,23 @@ else
 
         try
         {
-            var res = await FitControlApi.DeleteSala(id);
+            var res = await FitControlApi.DeleteSocio(id);
 
             if (res.IsSuccessStatusCode)
             {
-                _salas = _salas.Where(a => a.Id != id).ToList();
-                Snackbar.Add("Sala apagada com sucesso", Severity.Success);
+                _socios = _socios.Where(a => a.Id != id).ToList();
+                Snackbar.Add("Sócio apagado com sucesso", Severity.Success);
             }
             else
             {
-                Snackbar.Add("Não foi possível apagar a Sala", Severity.Error);
+                Snackbar.Add("Não foi possível apagar o Sócio", Severity.Error);
             }
         }
         catch
         {
-            Snackbar.Add("Erro a apagar Sala", Severity.Error);
+            Snackbar.Add("Erro a apagar Sócio", Severity.Error);
         }
     }
 
+    private string FormatDate(DateTime? date) => date?.ToString("dd/MM/yyyy") ?? "";
 }

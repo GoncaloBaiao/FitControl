@@ -9,66 +9,100 @@
 
 <PageTitle>Aulas</PageTitle>
 
-<MudTable Items="@_aulas" Hover="true" Breakpoint="Breakpoint.Sm" Loading="@_loading" LoadingProgressColor="Color.Info">
-    <HeaderContent>
-        <MudTh>Nome</MudTh>
-        <MudTh>Modalidade</MudTh>
-        <MudTh>Instrutor</MudTh>
-        <MudTh>Sala</MudTh>
-        <MudTh>Hora de Início</MudTh>
-        <MudTh>Hora de Fim</MudTh>
-        <MudTh>Capacidade</MudTh>
-        <MudTh>Ações</MudTh>
-    </HeaderContent>
-    <RowTemplate>
-        <MudTd DataLabel="Nome">@context.Nome</MudTd>
-        <MudTd DataLabel="Modalidade">@context.Modalidade.Nome</MudTd>
-        <MudTd DataLabel="Instrutor">@context.Instrutor.Nome</MudTd>
-        <MudTd DataLabel="Sala">@context.Sala.Nome</MudTd>
-        <MudTd DataLabel="Hora de Início">@context.HoraInicio</MudTd>
-        <MudTd DataLabel="Hora de Fim">@context.HoraFim</MudTd>
-        <MudTd DataLabel="Capacidade">@context.Capacidade</MudTd>
-        <MudTd DataLabel="Actions">
-            <MudIconButton Icon="@Icons.Material.Filled.RemoveRedEye" aria-label="detail" OnClick="() => OnEditNavigate(context.Id)"/>
-            <MudIconButton Icon="@Icons.Material.Filled.Delete" Color='Color.Error' aria-label="delete" OnClick="()=> OnAulaDelete(context.Id)"/>
-        </MudTd>
-    </RowTemplate>
-</MudTable>
-<MudIconButton Icon="@Icons.Material.Filled.Add" aria-label="detail" OnClick="OnAddNavigate"/>
+@if (_loading)
+{
+    <MudProgressLinear Indeterminate="true" Class="mb-4"/>
+}
+else
+{
+
+    <PaginaListar TItem="Aula"
+                  Title="Aulas"
+                  AddLabel="ADICIONAR AULA"
+                  AddHref="/addAula"
+                  Items="_aulas">
+
+        <HeaderContent>
+            <MudTh>Aula</MudTh>
+            <MudTh>Instrutor</MudTh>
+            <MudTh>Horário</MudTh>
+            <MudTh>Vagas</MudTh>
+            <MudTh Style="text-align:right;">Ações</MudTh>
+        </HeaderContent>
+
+        <RowTemplate>
+            <MudTd DataLabel="Aula" Class="fc-table-row" Style="color:#fff;font-weight:600;">
+                @context.Nome
+            </MudTd>
+
+            <MudTd DataLabel="Instrutor" Class="fc-table-row">
+                @(context.Instrutor?.Nome ?? "N/A")
+            </MudTd>
+
+            <MudTd DataLabel="Horário" Class="fc-table-row">
+                @context.HoraInicio
+            </MudTd>
+
+            <MudTd DataLabel="Vagas" Class="fc-table-row">
+                <span style="color:@GetVagasColor(context); font-weight:700;">
+                    @GetInscritos(context.Id)/@context.Capacidade
+                </span>
+            </MudTd>
+
+            <MudTd DataLabel="Ações" Class="fc-table-row" Style="text-align:right;">
+                <MudIconButton Icon="@Icons.Material.Filled.Edit"
+                               Size="Size.Small"
+                               Style="color:#1E90FF;"
+                               OnClick="@(() => OnEditNavigate(context.Id))"/>
+                <MudIconButton Icon="@Icons.Material.Filled.Delete"
+                               Size="Size.Small"
+                               Style="color:#ef4444;"
+                               OnClick="@(() => OnAulaDelete(context.Id))"/>
+                <MudIconButton Icon="@Icons.Material.Filled.Info"
+                               Size="Size.Small"
+                               Style="color:#14C3F1;"
+                               OnClick="@(() => OnDetailNavigate(context.Id))"/>
+            </MudTd>
+        </RowTemplate>
+    </PaginaListar>
+}
 
 @code {
-
-    private List<Aula> _aulas = new ();
-    
-    private bool _loading;
+    private List<Aula> _aulas = new();
+    private List<Inscricao> _inscricoes = new();
+    private bool _loading = true;
 
     protected override async Task OnInitializedAsync()
     {
         _loading = true;
-        
         await base.OnInitializedAsync();
+        Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopRight;
         
         try
         {
-            var response = await FitControlApi.GetAulas();
-            if (response.Content != null) 
-                _aulas = response.Content;
+            var aulasTask = FitControlApi.GetAulas();
+            var inscricoesTask = FitControlApi.GetInscricoes();
+
+            await Task.WhenAll(aulasTask, inscricoesTask);
+
+            _aulas = aulasTask.Result.Content ?? new List<Aula>();
+            _inscricoes = inscricoesTask.Result.Content ?? new List<Inscricao>();
         }
-        catch (Exception)
+        catch
         {
-            Snackbar.Clear();
-            Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopRight;
-            Snackbar.Add("Erro a extrair a lista de Aulas", Severity.Error);
+            Snackbar.Add("Erro a carregar aulas/inscrições.", Severity.Error);
+
+            _aulas = new List<Aula>();
+            _inscricoes = new List<Inscricao>();
         }
-        
-        StateHasChanged();
-        
-        _loading = false;
+        finally
+        {
+            _loading = false;
+        }
     }
-    
+
     private async Task OnAulaDelete(int id)
     {
-        //POPUP
         try
         {
             var parameters = new DialogParameters<Dialog>
@@ -78,71 +112,68 @@
                 { x => x.Color, Color.Error }
             };
 
-            var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall };
+            var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall };
+            var dialog = await DialogService.ShowAsync<Dialog>("Apagar", parameters, options);
+            var result = await dialog.Result;
 
-            var result = await DialogService.ShowAsync<Dialog>("Apagar", parameters, options);
-
-            var res = await result.Result;
-
-            if (res != null && res.Canceled)
-            {
-                return;
-            }
+            if (result.Canceled) return;
         }
-        catch (Exception)
+        catch
         {
-            Snackbar.Clear();
-            Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopRight;
-            Snackbar.Add("Erro a criar popup de confirmação da ação de apagar", Severity.Error);
+            Snackbar.Add("Erro a criar popup de confirmação de apagar.", Severity.Error);
+            return;
         }
-        
+
         try
         {
-            var apiResponse = await FitControlApi.DeleteAula(id);
-            
-            if (apiResponse.IsSuccessStatusCode)
+            var res = await FitControlApi.DeleteAula(id);
+
+            if (res.IsSuccessStatusCode)
             {
-                Snackbar.Clear();
-                Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopRight;
+                _aulas = _aulas.Where(a => a.Id != id).ToList();
                 Snackbar.Add("Aula apagada com sucesso", Severity.Success);
-                
-                try
-                {
-                    var response = await FitControlApi.GetAulas();
-                    if (response.Content != null)
-                        _aulas = response.Content;
-                }
-                catch (Exception )
-                {
-                    Snackbar.Clear();
-                    Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopRight;
-                    Snackbar.Add("Erro a atualizar a lista de Aulas", Severity.Error);
-                }
             }
             else
             {
-                Snackbar.Clear();
-                Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopRight;
-                Snackbar.Add("Não foi possível apagar a Aula", Severity.Error);
+                Snackbar.Add("Não foi possível apagar a aula", Severity.Error);
             }
         }
-        catch (Exception)
+        catch
         {
-            Snackbar.Clear();
-            Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopRight;
-            Snackbar.Add("Erro a apagar Aula", Severity.Error);
+            Snackbar.Add("Erro a apagar aula", Severity.Error);
         }
-
-        StateHasChanged();
     }
-    
+
     private void OnEditNavigate(int id)
     {
         NavigationManager.NavigateTo($"/addAula/{id}");
     }
-    
-    private void OnAddNavigate()
+
+    private int GetInscritos(int aulaId)
     {
-        NavigationManager.NavigateTo($"/addAula");
+        return _inscricoes.Count(i =>
+            (
+                i.AulaId == aulaId ||
+                (i.Aula is not null && i.Aula.Id == aulaId)
+            )
+            && (!i.DataCancelamento.HasValue || i.DataCancelamento.Value.Date >= DateTime.Today)
+        );
+    }
+
+    private string GetVagasColor(Aula aula)
+    {
+        if (aula.Capacidade <= 0) return "#4ADE80";
+
+        var inscritos = GetInscritos(aula.Id);
+        var ratio = (double)inscritos / aula.Capacidade;
+
+        if (ratio <= 1.0 / 3.0) return "#4ADE80"; // verde
+        if (ratio <= 2.0 / 3.0) return "#FFD60A"; // amarelo
+        return "#FF6B35"; // vermelho
+    }
+
+    private void OnDetailNavigate(int id)
+    {
+        NavigationManager.NavigateTo($"/auladetail/{id}");
     }
 }

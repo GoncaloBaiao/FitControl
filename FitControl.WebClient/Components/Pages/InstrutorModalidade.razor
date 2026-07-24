@@ -9,22 +9,40 @@
 
 <PageTitle>Modalidades dos Instrutores</PageTitle>
 
-<MudTable Items="@_instrutorModalidades" Hover="true" Breakpoint="Breakpoint.Sm" Loading="@_loading" LoadingProgressColor="Color.Info">
-    <HeaderContent>
-        <MudTh>Instrutor</MudTh>
-        <MudTh>Modalidade</MudTh>
-        <MudTh>Ações</MudTh>
-    </HeaderContent>
-    <RowTemplate>
-        <MudTd DataLabel="Instrutor">@context.Instrutor.Nome</MudTd>
-        <MudTd DataLabel="Modalidade">@context.Modalidade.Nome</MudTd>
-        <MudTd DataLabel="Actions">
-            <MudIconButton Icon="@Icons.Material.Filled.RemoveRedEye" aria-label="detail" OnClick="() => OnEditNavigate(context.Id)"/>
-            <MudIconButton Icon="@Icons.Material.Filled.Delete" Color='Color.Error' aria-label="delete" OnClick="()=> OnInstrutorModalidadeDelete(context.Id)"/>
-        </MudTd>
-    </RowTemplate>
-</MudTable>
-<MudIconButton Icon="@Icons.Material.Filled.Add" aria-label="detail" OnClick="OnAddNavigate"/>
+@if (_loading)
+{
+    <MudProgressLinear Indeterminate="true" Class="mb-4" />
+}
+else
+{
+
+    <PaginaListar TItem="FitControl.Shared.Models.InstrutorModalidade"
+                  Title="Modalidades dos Instrutores"
+                  AddLabel="ADICIONAR MODALIDADE DO INSTRUTOR"
+                  AddHref="/addInstrutorModalidade"
+                  Items="_instrutorModalidades">
+        <HeaderContent>
+            <MudTh>Instrutor</MudTh>
+            <MudTh>Modalidade</MudTh>
+            <MudTh Style="text-align:right;">Ações</MudTh>
+        </HeaderContent>
+
+        <RowTemplate>
+            <MudTd DataLabel="Instrutor">@(context.Instrutor?.Nome ?? "N/A")</MudTd>
+            <MudTd DataLabel="Modalidade">@(context.Modalidade?.Nome ?? "N/A")</MudTd>
+            <MudTd DataLabel="Ações" Style="text-align:right;">
+                <MudIconButton Icon="@Icons.Material.Filled.Edit"
+                               Size="Size.Small"
+                               Style="color:#1E90FF;"
+                               OnClick="@(() => OnEditNavigate(context.Id))" />
+                <MudIconButton Icon="@Icons.Material.Filled.Delete"
+                               Size="Size.Small"
+                               Style="color:#ef4444;"
+                               OnClick="@(() => OnInstrutorModalidadeDelete(context.Id))" />
+            </MudTd>
+        </RowTemplate>
+    </PaginaListar>
+}
 
 @code {
 
@@ -37,6 +55,7 @@
         _loading = true;
         
         await base.OnInitializedAsync();
+        Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopRight;
         
         try
         {
@@ -46,8 +65,6 @@
         }
         catch (Exception)
         {
-            Snackbar.Clear();
-            Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopRight;
             Snackbar.Add("Erro a extrair a lista de Modalidades dos Instrutores", Severity.Error);
         }
         
@@ -81,8 +98,6 @@
         }
         catch (Exception)
         {
-            Snackbar.Clear();
-            Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopRight;
             Snackbar.Add("Erro a criar popup de confirmação da ação de apagar", Severity.Error);
         }
         
@@ -92,8 +107,6 @@
             
             if (apiResponse.IsSuccessStatusCode)
             {
-                Snackbar.Clear();
-                Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopRight;
                 Snackbar.Add("Modalidade do Instrutor apagada com sucesso", Severity.Success);
                 
                 try
@@ -104,22 +117,16 @@
                 }
                 catch (Exception )
                 {
-                    Snackbar.Clear();
-                    Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopRight;
                     Snackbar.Add("Erro a atualizar a lista de Modalidades dos Instrutores", Severity.Error);
                 }
             }
             else
             {
-                Snackbar.Clear();
-                Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopRight;
                 Snackbar.Add("Não foi possível apagar a Modalidade do Instrutor", Severity.Error);
             }
         }
         catch (Exception)
         {
-            Snackbar.Clear();
-            Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopRight;
             Snackbar.Add("Erro a apagar a Modalidade do Instrutor", Severity.Error);
         }
 
@@ -129,10 +136,5 @@
     private void OnEditNavigate(int id)
     {
         NavigationManager.NavigateTo($"/addInstrutorModalidade/{id}");
-    }
-    
-    private void OnAddNavigate()
-    {
-        NavigationManager.NavigateTo($"/addInstrutorModalidade");
     }
 }

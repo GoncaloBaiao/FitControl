@@ -34,8 +34,8 @@ public interface IFitControlApi
     [Delete("/genero/softdelete/{id}")]
     Task<ApiResponse<string>> DeleteGenero(int id);
 
-    [Get("/inscricaos")]
-    Task<ApiResponse<List<Inscricao>>> GetInscricaos();
+    [Get("/inscricoes")]
+    Task<ApiResponse<List<Inscricao>>> GetInscricoes();
 
     [Post("/inscricao")]
     Task<ApiResponse<Inscricao>> AddInscricao([Body] Inscricao inscricao);

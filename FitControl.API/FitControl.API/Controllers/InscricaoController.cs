@@ -18,102 +18,98 @@ public class InscricaoController : ControllerBase
         _fitControlDbContext = fitControlAppDbContext;
         _mapper = mapper;
     }
-    
-    [HttpGet("/inscricaos")]
-    public async Task<IResult> GetInscricaos()
-    {
-        if (_fitControlDbContext is not null)
-        {
-            var inscricao=_fitControlDbContext.Inscricaos
-                .Include(x=>x.Aula)
-                .Include(x=>x.Socio)
-                .Where(i=>i.IsDeleted ==  false && i.Aula.IsDeleted == false && i.Socio.IsDeleted == false);
-            if (inscricao.Any())
-            {
-                return Results.Ok(await inscricao.ToListAsync());
-            }
-        }
 
-        return Results.Ok(new List<Inscricao>());
+    [HttpGet("/inscricoes")]
+    public async Task<IResult> GetInscricoes()
+    {
+        if (_fitControlDbContext?.Inscricaos is null)
+            return Results.Ok();
+
+        var inscricoes = await _fitControlDbContext.Inscricaos
+            .Include(i => i.Aula)
+            .Include(i => i.Socio)
+            .Where(a=>a.IsDeleted ==  false && a.Aula.IsDeleted == false && a.Socio.IsDeleted == false)
+            .ToListAsync();
+            
+        return Results.Ok(inscricoes);
     }
 
     [HttpGet("/inscricao/{id}")]
     public async Task<Inscricao> GetInscricao(int id)
     {
-        if (_fitControlDbContext is not null)
-        {
-            var inscricao= await _fitControlDbContext.Inscricaos
-                .Include(x=>x.Aula)
-                .Include(x=>x.Socio)
-                .FirstOrDefaultAsync(i => (i.IsDeleted == false || i.Aula.IsDeleted == false || i.Socio.IsDeleted == false) && i.Id == id);
-            if (inscricao is not null)
-            {
-                return inscricao;
-            }
-        }
-        return new Inscricao();
+        if (_fitControlDbContext?.Inscricaos is null)
+            return new Inscricao();
+
+        var inscricao = await _fitControlDbContext.Inscricaos
+            .AsNoTracking()
+            .Include(i => i.Aula)
+            .Include(i => i.Socio)
+            .FirstOrDefaultAsync(i =>
+                i.Id == id &&
+                !i.IsDeleted &&
+                i.Aula != null && !i.Aula.IsDeleted &&
+                i.Socio != null && !i.Socio.IsDeleted);
+
+        return inscricao ?? new Inscricao();
     }
 
     [HttpPost("/inscricao")]
     public async Task<IResult> AddInscricao([FromBody] InscricaoDto inscricao)
     {
-        if (inscricao is null)
-        {
-            return Results.BadRequest();
-        }
+        if (inscricao is null) return Results.BadRequest();
 
         inscricao.Aula = null;
         inscricao.Socio = null;
-        
-        var mapper = _mapper.Map<Models.InscricaoDto, Entities.Inscricao>(inscricao);
 
+        var mapper = _mapper.Map<Models.InscricaoDto, Entities.Inscricao>(inscricao);
         mapper.CreatedAt = DateTime.Now;
         mapper.UpdatedAt = DateTime.Now;
-        
-        var inscricaos = _fitControlDbContext.Inscricaos;
 
-        if (inscricaos is not null)
+        if (_fitControlDbContext.Inscricaos is null) return Results.Empty;
+        
+        var aula = await _fitControlDbContext.Aulas
+            .FirstOrDefaultAsync(a => a.Id == inscricao.AulaId);
+
+        if (aula is null)
+            return Results.NotFound("Aula não encontrada.");
+        
+        var inscritos = await _fitControlDbContext.Inscricaos
+            .CountAsync(i =>
+                i.AulaId == inscricao.AulaId &&
+                !i.IsDeleted);
+        
+        if (inscritos >= aula.Capacidade)
         {
-            inscricaos.Add(mapper);
-            await _fitControlDbContext.SaveChangesAsync();
-            return Results.Ok("Inscricao adicionada com sucesso!");
-        }
-        return Results.Empty;
-    }
-    
-    [HttpPut("/inscricao")]
-    public async Task<IResult> UpdateInscricao ([FromBody] InscricaoDto? inscricaoDto)
-    {
-        if (inscricaoDto is null)
-        {
-            return Results.BadRequest();
+            return Results.BadRequest("A aula excedeu a capacidade máxima.");
         }
         
+
+        _fitControlDbContext.Inscricaos.Add(mapper);
+        await _fitControlDbContext.SaveChangesAsync();
+        return Results.Ok("Inscricao adicionada com sucesso!");
+    }
+
+    [HttpPut("/inscricao")]
+    public async Task<IResult> UpdateInscricao([FromBody] InscricaoDto? inscricaoDto)
+    {
+        if (inscricaoDto is null) return Results.BadRequest();
+
         inscricaoDto.Aula = null;
         inscricaoDto.Socio = null;
 
-        if (_fitControlDbContext.Inscricaos is null)
-        {
-            return Results.NotFound();
-        }
-        
-        var oldInscricao = await _fitControlDbContext.Inscricaos.FirstOrDefaultAsync(p => p.Id == inscricaoDto.Id);
+        if (_fitControlDbContext.Inscricaos is null) return Results.NotFound();
 
-        if (oldInscricao is null)
-        {
-            return Results.NotFound("Inscricao não foi encontrada!");
-        }
+        var oldInscricao = await _fitControlDbContext.Inscricaos
+            .FirstOrDefaultAsync(p => p.Id == inscricaoDto.Id);
+
+        if (oldInscricao is null) return Results.NotFound("Inscricao não foi encontrada!");
 
         inscricaoDto.Adapt(oldInscricao);
-        
+
         try
         {
             var result = await _fitControlDbContext.SaveChangesAsync();
-
-            if (result <= 0)
-            {
-                return Results.NotFound("Não foi possível guardar os dados");
-            }
+            if (result <= 0) return Results.NotFound("Não foi possível guardar os dados");
         }
         catch (Exception e)
         {
@@ -122,55 +118,19 @@ public class InscricaoController : ControllerBase
 
         return Results.Ok(inscricaoDto);
     }
-    
+
     [HttpDelete("/inscricao/softdelete/{id}")]
     public async Task<IResult> SoftDeleteInscricao(int id)
     {
-        if (_fitControlDbContext.Inscricaos is not null)
-        {
-            var inscricao = await _fitControlDbContext.Inscricaos.FirstOrDefaultAsync(i => i.Id == id);
-            if (inscricao is null)
-            {
-                return Results.NotFound("Inscricao não encontrada");
-            }
-            
-            inscricao.IsDeleted = true;
-            inscricao.UpdatedAt = DateTime.Now;
-            
-            await _fitControlDbContext.SaveChangesAsync();
-            return Results.Ok("Inscricao apagada com sucesso!");
-        }
-        return Results.Empty; 
+        if (_fitControlDbContext.Inscricaos is null) return Results.Empty;
+
+        var inscricao = await _fitControlDbContext.Inscricaos.FirstOrDefaultAsync(i => i.Id == id);
+        if (inscricao is null) return Results.NotFound("Inscricao não encontrada");
+
+        inscricao.IsDeleted = true;
+        inscricao.UpdatedAt = DateTime.Now;
+
+        await _fitControlDbContext.SaveChangesAsync();
+        return Results.Ok("Inscricao apagada com sucesso!");
     }
-    
-    // [HttpGet("/aula")]
-    // public async Task<IActionResult> GetAula()
-    // {
-    //     if (_fitControlDbContext.Aulas is not null)
-    //     {
-    //         var aulas = await _fitControlDbContext.Aulas.ToListAsync();
-    //
-    //         if (aulas.Any())
-    //         {
-    //             return Ok(aulas);
-    //         }
-    //     }
-    //     return NotFound();
-    // }
-    // [HttpGet("/socios")]
-    // public async Task<IActionResult> GetSocios()
-    // {
-    //     if (_fitControlDbContext.Socios is not null)
-    //     {
-    //         var socios = await _fitControlDbContext.Socios.ToListAsync();
-    //
-    //         if (socios.Any())
-    //         {
-    //             return Ok(socios);
-    //         }
-    //     }
-    //     return NotFound();
-    // }
-
 }
-

@@ -42,6 +42,8 @@ public class SocioController : ControllerBase
         if (_fitControlAppDbContext.Socios is not null)
         {
             var socio = await _fitControlAppDbContext.Socios
+                .Include(s => s.TipoPlano)
+                .Include(s => s.Genero)
                 .FirstOrDefaultAsync(s => s.IsDeleted == false && s.Id == id);
 
             if (socio is not null)
@@ -59,6 +61,9 @@ public class SocioController : ControllerBase
         {
          return Results.BadRequest();   
         }
+
+        socio.TipoPlano = null;
+        socio.Genero = null;
         
         var mapper = _mapper.Map<Models.SocioDto, Entities.Socio>(socio);
 
@@ -66,6 +71,11 @@ public class SocioController : ControllerBase
         mapper.UpdatedAt = DateTime.Now;
         
         var socios = _fitControlAppDbContext.Socios;
+        
+        if (socio.InicioSubscricao >= socio.FimSubscricao)
+        {
+            return Results.BadRequest("A data de início da subscrição deve ser menor que a data de fim.");
+        }
 
         if (socios is not null)
         {
@@ -90,11 +100,17 @@ public class SocioController : ControllerBase
         }
         
         var oldSocio = await _fitControlAppDbContext.Socios.FirstOrDefaultAsync(s => s.Id == socio.Id);
+        
+        
 
         if (oldSocio is null)
         {
             return Results.NotFound("Sócio não foi encontrado!");
         }
+        if (oldSocio.InicioSubscricao >= oldSocio.FimSubscricao)
+                 {
+                     return Results.BadRequest("A data de início da subscrição deve ser menor que a data de fim.");
+                 }
 
         oldSocio.UpdatedAt = DateTime.Now;
         socio.Adapt(oldSocio);

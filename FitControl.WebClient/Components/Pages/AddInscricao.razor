@@ -2,31 +2,42 @@
 @page "/AddInscricao/{Id:int}"
 @using FitControl.Shared.Models
 @using FitControl.Shared.Services
-@rendermode InteractiveServer
+@layout FitControl.WebClient.Components.Layout.MainLayout
 @inject IFitControlApi FitControlApi
 @inject ISnackbar Snackbar
 @inject NavigationManager NavigationManager
 @inject IDialogService DialogService
 
 <h3>@( Id.HasValue ? "Editar Inscrição" : "Adicionar Inscrição")</h3>
-
-<EditForm FormName="AddInscricaoForm" Model="_inscricaoModel" OnValidSubmit="OnAddInscricao">
-    <MudSelect Label="Aula" @bind-Value="_selectedAula" Placeholder="Selecione a aula">
-        @foreach (var aula in _aulas)
-        {
-            <MudSelectItem Value="aula.Id">@aula.Nome</MudSelectItem>
-        }
-    </MudSelect>
-    <MudSelect Label="Socio" @bind-Value="_selectedSocio" Placeholder="Selecione o sócio">
-        @foreach (var socio in _socios)
-        {
-            <MudSelectItem Value="socio.Id">@socio.Nome</MudSelectItem>
-        }
-    </MudSelect>
-    <MudDatePicker @bind-Date="_inscricaoModel.DataInscricao" Label="Data de Inscrição" DateFormat="dd/MM/yyyy"/>
-    <MudDatePicker @bind-Date="_inscricaoModel.DataCancelamento" Label="Data de Cancelamento" DateFormat="dd/MM/yyyy"/>
-    <button class="btn btn-primary" type="submit">@(Id.HasValue ? "Gravar" : "Adicionar")</button>
-</EditForm>
+@if (_inscricaoModel != null)
+{
+    if (_inscricaoModel.Aula != null && _inscricaoModel.Socio != null)
+    {
+        <EditForm FormName="AddInscricaoForm" Model="_inscricaoModel.Aula" OnValidSubmit="OnAddInscricao">
+            <DataAnnotationsValidator />
+            <ValidationSummary />
+            <MudSelect Label="Aula" @bind-Value="_inscricaoModel.Aula" Placeholder="Selecione a aula"
+                       ToStringFunc="@((Aula obj) => obj.Nome ?? null)">
+                @foreach (var aula in _aulas)
+                {
+                    <MudSelectItem Value="aula">@aula.Nome</MudSelectItem>
+                }
+            </MudSelect>
+            <MudSelect Label="Socio" @bind-Value="_inscricaoModel.Socio" Placeholder="Selecione o sócio"
+                       ToStringFunc="@((FitControl.Shared.Models.Socio obj) => obj.Nome ?? null)">
+                @foreach (var socio in _socios)
+                {
+                    <MudSelectItem Value="socio">@socio.Nome</MudSelectItem>
+                }
+            </MudSelect>
+            <MudDatePicker @bind-Date="_inscricaoModel.DataInscricao" Label="Data de Inscrição"
+                           DateFormat="dd/MM/yyyy"/>
+            <MudDatePicker @bind-Date="_inscricaoModel.DataCancelamento" Label="Data de Cancelamento"
+                           DateFormat="dd/MM/yyyy"/>
+            <button class="btn btn-primary" type="submit">@(Id.HasValue ? "Gravar" : "Adicionar")</button>
+        </EditForm>
+    }
+}
 
 @code {
     [Parameter]
@@ -35,14 +46,12 @@
     private Inscricao _inscricaoModel = new();
     private List<Aula> _aulas = new ();
     private List<FitControl.Shared.Models.Socio> _socios = new ();
-    
-    private int _selectedAula;
-    private int _selectedSocio;
 
     protected override async Task OnInitializedAsync()
     {
         await base.OnInitializedAsync();
-
+        Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopRight;
+        
         try
         {
             if (Id.HasValue)
@@ -50,6 +59,11 @@
                 var inscricaoResponse = await FitControlApi.GetInscricao(Id.Value);
                 if (inscricaoResponse.Content != null)
                     _inscricaoModel = inscricaoResponse.Content;
+            }
+            else
+            {
+                _inscricaoModel.Aula = new();
+                _inscricaoModel.Socio = new();
             }
         
             var aulasResponse = await FitControlApi.GetAulas();
@@ -59,25 +73,17 @@
             var sociosResponse = await FitControlApi.GetSocios();
             if (sociosResponse.Content != null)
                 _socios = sociosResponse.Content;
-
-            if (_inscricaoModel != null)
-            {
-                _selectedAula = _inscricaoModel.AulaId;
-                _selectedSocio = _inscricaoModel.SocioId;
-            }
         }
         catch (Exception)
         {
-            Snackbar.Clear();
-            Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopRight;
             Snackbar.Add("Erro a extrair a lista de Inscrições", Severity.Error);
         }
     }
 
     private async Task OnAddInscricao()
     {
-        _inscricaoModel.AulaId = _selectedAula;
-        _inscricaoModel.SocioId = _selectedSocio;
+        _inscricaoModel.AulaId = _inscricaoModel.Aula.Id;
+        _inscricaoModel.SocioId = _inscricaoModel.Socio.Id;
         
         if (Id.HasValue)
         {
@@ -87,21 +93,15 @@
 
                 if (response.IsSuccessStatusCode && response.Content != null)
                 {
-                    Snackbar.Clear();
-                    Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopRight;
                     Snackbar.Add("Inscrição editada com sucesso", Severity.Success);
                 }
                 else
                 {
-                    Snackbar.Clear();
-                    Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopRight;
                     Snackbar.Add("Não foi possível editar a Inscrição", Severity.Error);
                 }
             }
             catch (Exception)
             {
-                Snackbar.Clear();
-                Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopRight;
                 Snackbar.Add("Erro a editar Inscrição", Severity.Error);
             }
         }
@@ -113,21 +113,15 @@
             
                 if (response.IsSuccessStatusCode)
                 {
-                    Snackbar.Clear();
-                    Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopRight;
                     Snackbar.Add("Inscrição adicionada com sucesso", Severity.Success);
                 }
                 else
                 {
-                    Snackbar.Clear();
-                    Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopRight;
                     Snackbar.Add("Não foi possível adicionar a Inscrição", Severity.Error);
                 }
             }
             catch (Exception)
             {
-                Snackbar.Clear();
-                Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopRight;
                 Snackbar.Add("Erro a adicionar Inscrição", Severity.Error);
             }
         }
@@ -156,8 +150,6 @@
         }
         catch (Exception)
         {
-            Snackbar.Clear();
-            Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopRight;
             Snackbar.Add("Erro a criar popup de confirmação de saída", Severity.Error);
         }
         

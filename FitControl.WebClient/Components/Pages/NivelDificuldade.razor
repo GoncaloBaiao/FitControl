@@ -5,70 +5,59 @@
 @using Refit
 @inject IFitControlApi FitControlApi
 @layout MainLayout
+@inject ISnackbar Snackbar
+@inject IDialogService DialogService
 
+<PageTitle>Nível de Dificuldade</PageTitle>
 
+@if (_loading)
+{
+    <MudProgressLinear Indeterminate="true" Class="mb-4" />
+}
+else
+{
 
-<PageTitle>Nivel de Dificulade</PageTitle>
+    <PaginaListar TItem="Shared.Models.NivelDificuldade"
+                  Title="Níveis de Dificuldade"
+                  AddLabel="ADICIONAR NÍVEL DE DIFICULDADE"
+                  AddHref="/niveldificuldades/add"
+                  Items="_nivelDificuldade">
 
-<ErrorBoundary>
-    <ChildContent>
-        <MudStack Spacing="3">
-            <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween">
-                <MudText Typo="Typo.h4">Niveis de Dificuldade</MudText>
-                <MudButton Href="/niveldificuldades/add" Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add">
-                    Adicionar nivel de dificuldade
-                </MudButton>
-            </MudStack>
+        <HeaderContent>
+            <MudTh>Nível</MudTh>
+            <MudTh Style="text-align:right;">Ações</MudTh>
+        </HeaderContent>
 
-            @if (!string.IsNullOrWhiteSpace(_errorMessage))
-            {
-                <MudAlert Severity="Severity.Error" Variant="Variant.Filled">@_errorMessage</MudAlert>
-            }
-
-            <MudPaper Class="pa-4" Elevation="1">
-                @if (_loading)
-                {
-                    <MudProgressLinear Indeterminate="true" />
-                }
-                else if (_nivelDificuldade.Count > 0)
-                {
-                    <MudTable Items="@_nivelDificuldade" Hover="true" Dense="true" Breakpoint="Breakpoint.Sm">
-                        <HeaderContent>
-                            <MudTh>Niveis</MudTh>
-                        </HeaderContent>
-                        <RowTemplate Context="nivelDificuldade">
-                            <MudTd>@nivelDificuldade.Nivel</MudTd>
-                            <MudTd DataLabel="Ações">
-                                <MudStack Row="true" Spacing="1">
-                                    <MudIconButton Href="@($"/nivelDificuldade/edit/{nivelDificuldade.Id}")" Icon="@Icons.Material.Filled.Edit" Color="Color.Primary" Size="Size.Small" Title="Editar" />
-                                    <MudIconButton Href="@($"/nivelDificuldade/softdelete/{nivelDificuldade.Id}")" Icon="@Icons.Material.Filled.Delete" Color="Color.Error" Size="Size.Small" Title="Eliminar" />
-                                </MudStack>
-                            </MudTd>
-                        </RowTemplate>
-                    </MudTable>
-                }
-                else
-                {
-                    <MudText>Nenhum sócio encontrado.</MudText>
-                }
-            </MudPaper>
-        </MudStack>
-    </ChildContent>
-    <ErrorContent Context="ex">
-        <MudAlert Severity="Severity.Error" Variant="Variant.Filled">
-            Erro ao apresentar os niveis de dificuldade: @ex.Message
-        </MudAlert>
-    </ErrorContent>
-</ErrorBoundary>
+        <RowTemplate>
+            <MudTd DataLabel="Nível">@context.Nivel</MudTd>
+            <MudTd DataLabel="Ações" Style="text-align:right;">
+                <MudStack Row="true" Spacing="1" Justify="Justify.FlexEnd">
+                    <MudIconButton Href="@($"/nivelDificuldade/edit/{context.Id}")"
+                                   Icon="@Icons.Material.Filled.Edit"
+                                   Size="Size.Small"
+                                   Style="color:#1E90FF;"
+                                   Title="Editar" />
+                    <MudIconButton OnClick="@(() => OnNivelDificuldadeDelete(context.Id))"
+                                   Icon="@Icons.Material.Filled.Delete"
+                                   Size="Size.Small"
+                                   Style="color:#ef4444;"
+                                   Title="Eliminar" />
+                </MudStack>
+            </MudTd>
+        </RowTemplate>
+    </PaginaListar>
+}
 
 @code {
     private bool _loading = true;
     private bool _hasLoaded;
-    private string? _errorMessage;
     private List<Shared.Models.NivelDificuldade> _nivelDificuldade = new();
 
     protected override async Task OnInitializedAsync()
     {
+        await base.OnInitializedAsync();
+        Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopRight;
+        
         if (_hasLoaded) return;
         _hasLoaded = true;
 
@@ -83,17 +72,60 @@
             else
             {
                 _nivelDificuldade = new List<Shared.Models.NivelDificuldade>();
-                _errorMessage = $"API devolveu {response.StatusCode}.";
+                Snackbar.Add($"API devolveu {response.StatusCode}.", Severity.Error);
             }
         }
         catch (Exception ex)
         {
-            _errorMessage = $"Não foi possível carregar sócios. Verifica se a API está a correr. Erro: {ex.Message}";
+            Snackbar.Add($"Não foi possível carregar níveis de dificuldade. Verifica se a API está a correr. Erro: {ex.Message}", Severity.Error);
             _nivelDificuldade = new List<Shared.Models.NivelDificuldade>();
         }
         finally
         {
             _loading = false;
+        }
+    }
+    
+    private async Task OnNivelDificuldadeDelete(int id)
+    {
+        try
+        {
+            var parameters = new DialogParameters<Dialog>
+            {
+                { x => x.ContentText, "Tem a certeza que quer apagar este registo? Este processo não pode ser desfeito." },
+                { x => x.ButtonOkText, "Apagar" },
+                { x => x.Color, Color.Error }
+            };
+
+            var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall };
+            var dialog = await DialogService.ShowAsync<Dialog>("Apagar", parameters, options);
+            var result = await dialog.Result;
+
+            if (result.Canceled) return;
+        }
+        catch
+        {
+            Snackbar.Add("Erro a criar popup de confirmação de apagar.", Severity.Error);
+            return;
+        }
+
+        try
+        {
+            var res = await FitControlApi.DeleteNivelDificuldade(id);
+
+            if (res.IsSuccessStatusCode)
+            {
+                _nivelDificuldade = _nivelDificuldade.Where(a => a.Id != id).ToList();
+                Snackbar.Add("Nível de dificuldade apagado com sucesso", Severity.Success);
+            }
+            else
+            {
+                Snackbar.Add("Não foi possível apagar o Nível de dificuldade", Severity.Error);
+            }
+        }
+        catch
+        {
+            Snackbar.Add("Erro a apagar Nível de dificuldade", Severity.Error);
         }
     }
 }
