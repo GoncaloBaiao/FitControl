@@ -14,11 +14,11 @@
     <DataAnnotationsValidator />
     <ValidationSummary />
     <div class="mb-3">
-        <label for="usernameUser" class="form-label">Username</label>
+        <label for="usernameUser" class="form-label fw-bold">Username</label>
         <InputText class="form-control" id="usernameUser" @bind-Value="@_userModel.Username"/>
     </div>
     <div class="mb-3">
-        <label for="passwordUser" class="form-label">Password</label>
+        <label for="passwordUser" class="form-label fw-bold">Password</label>
         <InputText class="form-control" id="passwordUser" @bind-Value="_userModel.Password"/>
     </div>
     <button class="btn btn-primary" type="submit">@(Id.HasValue ? "Gravar" : "Adicionar")</button>

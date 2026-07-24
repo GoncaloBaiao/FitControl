@@ -5,44 +5,78 @@
 @inject IFitControlApi FitControlApi
 @inject ISnackbar Snackbar
 @rendermode InteractiveServer
+@inject NavigationManager NavigationManager
 
-<h2>Detalhes da Aula</h2>
-<h3>@_aulaDetail.Nome</h3>
+<MudText Class="fc-heading" Style="font-size:1.75rem;">@_aulaDetail.Nome (Detalhes)</MudText>
 
 @if (_aulaDetail != null)
 {
     if (_aulaDetail.Modalidade != null && _aulaDetail.Sala != null)
     {
-        <EditForm FormName="ShowAulaDetailForm" Model="_aulaDetail" OnValidSubmit="ShowAulaDetail">
+        <EditForm FormName="ShowAulaDetailForm" Model="_aulaDetail">
             <div class="mb-3">
-                <label for="descricaoAula" class="form-label">Descricao</label>
+                <label for="descricaoAula" class="form-label fw-bold">Descricao</label>
                 <MudTextField class="form-control-lg" id="descricaoAula" @bind-Value="@_aulaDetail.Descricao" Disabled="true"/>
             </div>
             <div class="mb-3">
-                <label for="capacidadeAula" class="form-label">Capacidade</label>
+                <label for="capacidadeAula" class="form-label fw-bold">Capacidade</label>
                 <MudTextField class="form-control-lg" id="capacidadeAula" @bind-Value="@_aulaDetail.Capacidade" Disabled="true"/>
             </div>
             <div class="mb-3">
-                <label for="modalidadeAula" class="form-label">Modalidade</label>
+                <label for="modalidadeAula" class="form-label fw-bold">Modalidade</label>
                 <MudTextField class="form-control-lg" id="modalidadeAula" @bind-Value="@_aulaDetail.Modalidade.Nome" Disabled="true" />
             </div>
             <div class="mb-3">
-                <label for="instrutor" class="form-label">Instrutor</label>
+                <label for="instrutor" class="form-label fw-bold">Instrutor</label>
                 <MudTextField class="form-control-lg" id="instrutor" @bind-Value="@_aulaDetail.Instrutor.Nome" Disabled="true"/>
             </div>
             <div class="mb-3">
-                <label for="salaAula" class="form-label">Sala</label>
+                <label for="salaAula" class="form-label fw-bold">Sala</label>
                 <MudTextField class="form-control-lg" id="salaAula" @bind-Value="@_aulaDetail.Sala.Nome" Disabled="true"/>
             </div>
             <div class="mb-3">
-                <label for="horaInicio" class="form-label">Hora de Início</label>
+                <label for="horaInicio" class="form-label fw-bold">Hora de Início</label>
                 <MudTextField class="form-control-lg" id="horaInicio" @bind-Value="@_aulaDetail.HoraInicio" Disabled="true"/>
             </div>
             <div class="mb-3">
-                <label for="horaFim" class="form-label">Hora de Fim</label>
+                <label for="horaFim" class="form-label fw-bold">Hora de Fim</label>
                 <MudTextField class="form-control-lg" id="horaFim" @bind-Value="@_aulaDetail.HoraFim" Disabled="true"/>
             </div>
         </EditForm> 
+        
+        <PaginaListar TItem="Shared.Models.Socio"
+                      Title="Inscritos"
+                      AddLabel="ADICIONAR SÓCIO"
+                      AddHref="/socios/add"
+                      Items="_inscritos"
+                      OnRowClick="@OnClickSocio">
+
+            <HeaderContent>
+                <MudTh>Nome</MudTh>
+                <MudTh>Email</MudTh>
+                <MudTh>Contacto</MudTh>
+                @*<MudTh>Data Nascimento</MudTh>
+                    <MudTh>Genero</MudTh>
+                    <MudTh>Altura</MudTh>
+                    <MudTh>Peso</MudTh>
+                    <MudTh>Início Subscrição</MudTh>
+                    <MudTh>Fim Subscrição</MudTh>
+                    <MudTh>Tipo Plano</MudTh>*@
+            </HeaderContent>
+        
+            <RowTemplate>
+                <MudTd DataLabel="Nome">@context.Nome</MudTd>
+                <MudTd DataLabel="Email">@context.Email</MudTd>
+                <MudTd DataLabel="Contacto">@context.ContactoTelefonico</MudTd>
+                @* <MudTd DataLabel="Data Nascimento">@FormatDate(context.DataNascimento)</MudTd>
+                    <MudTd DataLabel="Genero">@context.Genero?.Designacao</MudTd>
+                    <MudTd>@context.Altura</MudTd>
+                    <MudTd>@context.Peso</MudTd>
+                    <MudTd DataLabel="Início Subscrição">@FormatDate(context.InicioSubscricao)</MudTd>
+                    <MudTd DataLabel="Fim Subscrição">@FormatDate(context.FimSubscricao)</MudTd>
+                    <MudTd DataLabel="Tipo Plano">@(context.TipoPlano?.Designacao ?? "N/A")</MudTd>*@
+            </RowTemplate>
+        </PaginaListar>
     }
 }
 
@@ -51,6 +85,9 @@
     public int? Id { get; set; }
 
     private Aula _aulaDetail = new();
+    private List<Inscricao> _inscricoes = new();
+    private List<Socio> _socios = new();
+    private List<Socio> _inscritos = new();
 
     protected override async Task OnInitializedAsync()
     {
@@ -59,12 +96,19 @@
         
         try
         {
-            if (Id.HasValue)
-            {
-                var detailResponse = await FitControlApi.GetAula(Id.Value);
-                if (detailResponse.Content != null) 
-                    _aulaDetail = detailResponse.Content;
-            }
+            var detailResponse = await FitControlApi.GetAula(Id.Value);
+            if (detailResponse.Content != null) 
+                _aulaDetail = detailResponse.Content;
+            
+            var inscricoesTask = await FitControlApi.GetInscricoes();
+            if(inscricoesTask.Content != null)
+                _inscricoes = inscricoesTask.Content;
+            
+            var sociosTask = await FitControlApi.GetSocios();
+            if(sociosTask.Content != null)
+                _socios = sociosTask.Content;
+            
+            _inscritos = GetInscritos(_aulaDetail.Id);
         }
         catch (Exception)
         {
@@ -72,8 +116,26 @@
         }
     }
     
-    private void ShowAulaDetail()
+    private List<Socio> GetInscritos(int aulaId)
     {
-        
+        return _inscricoes
+            .Join(
+            _socios,
+            i => i.SocioId,
+            s => s.Id,
+            (ins, socs) => new {ins, socs}
+            )
+            .Where(w => 
+                w.ins.AulaId == aulaId &&
+                (!w.ins.DataCancelamento.HasValue || 
+                 w.ins.DataCancelamento.Value.Date >= DateTime.Today)
+            )
+            .Select(s => s.socs)
+            .ToList();
+    }
+
+    private void OnClickSocio(TableRowClickEventArgs<Socio> args)
+    {
+        NavigationManager.NavigateTo($"/sociodetail/{args.Item.Id}");
     }
 }

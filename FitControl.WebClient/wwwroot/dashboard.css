@@ -27,6 +27,7 @@
 }
 
 .fc-heading {
+    margin-bottom: 1vh;
     font-family: 'Barlow Condensed', sans-serif;
     font-weight: 900;
     text-transform: uppercase;
