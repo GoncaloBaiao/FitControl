@@ -18,18 +18,18 @@
              <DataAnnotationsValidator/>
             <ValidationSummary/>
             <div class="mb-3">
-                <label for="nomeAula" class="form-label">Nome</label>
+                <label for="nomeAula" class="form-label fw-bold">Nome</label>
                 <InputText class="form-control" id="nomeAula" @bind-Value="@_aulaModel.Nome"/>
                 <ValidationMessage For=@(() => _aulaModel.Nome) />
             </div>
             <div class="mb-3">
-                <label for="descricaoAula" class="form-label">Descricao</label>
+                <label for="descricaoAula" class="form-label fw-bold">Descricao</label>
                 <InputText class="form-control" id="descricaoAula" @bind-Value="@_aulaModel.Descricao"></InputText>
                 <ValidationMessage For=@(() => _aulaModel.Descricao)/>
 
             </div>
             <div class="mb-3">
-                <label for="capacidadeAula" class="form-label">Capacidade</label>
+                <label for="capacidadeAula" class="form-label fw-bold">Capacidade</label>
                 <InputNumber class="form-control" id="capacidadeAula" @bind-Value="_aulaModel.Capacidade"/>
                 <ValidationMessage For=@(() => _aulaModel.Capacidade)/>
 

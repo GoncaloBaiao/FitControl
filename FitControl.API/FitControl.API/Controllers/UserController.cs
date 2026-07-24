@@ -54,6 +54,23 @@ public class UserController : ControllerBase
         return Results.Empty;
     }
     
+    [HttpGet("/user/{id}")]
+    public async Task<IResult> GetUser(int id)
+    {
+        if (_fitControlDbContext != null)
+        {
+            var User = await _fitControlDbContext.Users
+                .FirstOrDefaultAsync(u => u.IsDeleted == false 
+                                          && u.Id == id);
+
+            if (User is not null)
+            {
+                return Results.Ok(User);
+            }
+        }
+        return Results.Empty;
+    }
+    
     [HttpPost("user")]
     public async Task<IResult> AddUser([FromBody] UserDto? user)
     {
