@@ -46,8 +46,8 @@
         
         <PaginaListar TItem="Shared.Models.Socio"
                       Title="Inscritos"
-                      AddLabel="ADICIONAR SÓCIO"
-                      AddHref="/socios/add"
+                      AddLabel="INSCREVER"
+                      AddHref="/AddInscricao"
                       Items="_inscritos"
                       OnRowClick="@OnClickSocio">
 
@@ -77,6 +77,7 @@
                     <MudTd DataLabel="Tipo Plano">@(context.TipoPlano?.Designacao ?? "N/A")</MudTd>*@
             </RowTemplate>
         </PaginaListar>
+        <button class="btn btn-secondary" onclick="@(()=>GoBack())">Voltar</button>
     }
 }
 
@@ -138,4 +139,10 @@
     {
         NavigationManager.NavigateTo($"/sociodetail/{args.Item.Id}");
     }
+
+    private void GoBack()
+    {
+        NavigationManager.NavigateTo("/Aulas");
+    }
+
 }

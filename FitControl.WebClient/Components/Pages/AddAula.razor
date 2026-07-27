@@ -15,7 +15,7 @@
     if (_aulaModel.Modalidade != null && _aulaModel.Sala != null && _aulaModel.Instrutor != null)
     {
         <EditForm FormName="AddAulaForm" Model="_aulaModel" OnValidSubmit="OnAddAula">
-             <DataAnnotationsValidator/>
+            <DataAnnotationsValidator/>
             <ValidationSummary/>
             <div class="mb-3">
                 <label for="nomeAula" class="form-label fw-bold">Nome</label>
@@ -61,6 +61,7 @@
             </MudSelect>
             <button class="btn btn-primary" type="submit">@(Id.HasValue ? "Gravar" : "Adicionar")</button>
         </EditForm>
+        <button class="btn btn-secondary" onclick="@(()=>GoBack())">Voltar</button>
     }
 }
 
@@ -233,6 +234,11 @@
             _aulaModel.HoraFim = _aulaModel.HoraFim?
                 .AddMinutes(Convert.ToDouble(_horaFim?.Minutes));
         }
+    }
+
+    private void GoBack()
+    {
+        NavigationManager.NavigateTo("/Aulas");
     }
 
 }

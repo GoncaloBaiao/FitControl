@@ -4,6 +4,7 @@
 @using System.Linq
 @layout FitControl.WebClient.Components.Layout.MainLayout
 @inject IFitControlApi FitControlApi
+@inject NavigationManager NavigationManager
 
 <MudContainer MaxWidth="MaxWidth.False" Class="mt-6">
     <MudText Typo="Typo.h4" Class="fc-heading mb-4">Dashboard</MudText>
@@ -12,7 +13,7 @@
 
         <!-- Infos -->
         <MudItem xs="12" sm="6" md="3">
-            <MudPaper Class="pa-4 fc-card">
+            <MudPaper  Class="pa-4 fc-card">
                 <MudText Typo="Typo.subtitle2">Subscrições Ativas</MudText>
                 <MudText Typo="Typo.h4">@_subscricoesAtivas</MudText>
             </MudPaper>
@@ -21,21 +22,33 @@
         <MudItem xs="12" sm="6" md="3">
             <MudPaper Class="pa-4 fc-card">
                 <MudText Typo="Typo.subtitle2">Aulas</MudText>
-                <MudText Typo="Typo.h4">@_aulasNumero</MudText>
+                <MudText Typo="Typo.h4">@_aulasNumero 
+                    <MudIconButton Icon="@Icons.Material.Filled.NavigateNext"
+                                   Color="Color.Primary"
+                                   OnClick="@(() => NavigationManager.NavigateTo("/Aulas"))"/>
+                </MudText>
             </MudPaper>
         </MudItem>
 
         <MudItem xs="12" sm="6" md="3">
             <MudPaper Class="pa-4 fc-card">
                 <MudText Typo="Typo.subtitle2">Modalidades</MudText>
-                <MudText Typo="Typo.h4">@_modalidadesNumero</MudText>
+                <MudText Typo="Typo.h4">@_modalidadesNumero
+                    <MudIconButton Icon="@Icons.Material.Filled.NavigateNext"
+                                   Color="Color.Primary"
+                                   OnClick="@(() => NavigationManager.NavigateTo("/Modalidades"))"/>
+                    </MudText>
             </MudPaper>
         </MudItem>
 
         <MudItem xs="12" sm="6" md="3">
             <MudPaper Class="pa-4 fc-card">
                 <MudText Typo="Typo.subtitle2">Instrutores</MudText>
-                <MudText Typo="Typo.h4">@_instrutoresNumero</MudText>
+                <MudText Typo="Typo.h4">@_instrutoresNumero
+                    <MudIconButton Icon="@Icons.Material.Filled.NavigateNext"
+                                   Color="Color.Primary"
+                                   OnClick="@(() => NavigationManager.NavigateTo("/Instrutores"))"/>
+                    </MudText>
             </MudPaper>
         </MudItem>
 

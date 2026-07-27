@@ -5,6 +5,7 @@
 @inject IFitControlApi FitControlApi
 @inject ISnackbar Snackbar
 @rendermode InteractiveServer
+@inject NavigationManager NavigationManager
 
 <MudText Class="fc-heading" Style="font-size:1.75rem;">@_socioDetail.Nome (Detalhes)</MudText>
 
@@ -53,7 +54,8 @@
                 <label for="fimSubscricaoSocio" class="form-label fw-bold">FimSubscricao</label>
                 <MudTextField class="form-control-lg" id="fimSubscricaoSocio" @bind-Value="@_socioDetail.FimSubscricao" Disabled="true">@FormatDate(_socioDetail.FimSubscricao)</MudTextField>
             </div>
-        </EditForm> 
+        </EditForm>
+        <button class="btn btn-secondary" onclick="@(()=>GoBack())">Voltar</button>
     }
 }
 
@@ -89,4 +91,10 @@
     {
 
     }
+
+    private void GoBack()
+    {
+        NavigationManager.NavigateTo("/socios");
+    }
+
 }
