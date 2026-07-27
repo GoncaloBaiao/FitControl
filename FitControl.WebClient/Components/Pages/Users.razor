@@ -9,27 +9,10 @@
 
 <PageTitle>Users</PageTitle>
 
-@* <MudTable Items="@_users" Hover="true" Breakpoint="Breakpoint.Sm" Loading="@_loading" LoadingProgressColor="Color.Info"> *@
-@*     <HeaderContent> *@
-@*         <MudTh>Username</MudTh> *@
-@*         <MudTh>Password</MudTh> *@
-@*         <MudTh>Ações</MudTh> *@
-@*     </HeaderContent> *@
-@*     <RowTemplate> *@
-@*         <MudTd DataLabel="Username">@context.Username</MudTd> *@
-@*         <MudTd DataLabel="Password">@context.Password</MudTd> *@
-@*         <MudTd DataLabel="Actions"> *@
-@*             <MudIconButton Icon="@Icons.Material.Filled.RemoveRedEye" aria-label="detail" OnClick="() => OnEditNavigate(context.Id)"/> *@
-@*             <MudIconButton Icon="@Icons.Material.Filled.Delete" Color='Color.Error' aria-label="delete" OnClick="()=> OnUserDelete(context.Id)"/> *@
-@*         </MudTd> *@
-@*     </RowTemplate> *@
-@* </MudTable> *@
-@* <MudIconButton Icon="@Icons.Material.Filled.Add" aria-label="detail" OnClick="OnAddNavigate"/> *@
-
 <PaginaListar TItem="User"
               Title="Users"
               AddLabel="ADICIONAR UTILIZADOR"
-              AddHref="/user/add"
+              AddHref="/addUser"
               Items="_users">
 
     <HeaderContent>
@@ -57,6 +40,7 @@
         </MudTd>
     </RowTemplate>
 </PaginaListar>
+<button class="btn btn-secondary" onclick="@(()=>NavigationManager.NavigateTo("/"))">Voltar</button>
 
 @code {
 

@@ -33,6 +33,7 @@
             </MudSelect>
             <button class="btn btn-primary" type="submit">@(Id.HasValue ? "Gravar" : "Adicionar")</button>
         </EditForm>
+        <button class="btn btn-secondary" onclick="@(()=>NavigationManager.NavigateTo("/InstrutorModalidades"))">Voltar</button>
     }
 }
 
