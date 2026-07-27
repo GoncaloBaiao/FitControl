@@ -1,4 +1,6 @@
-﻿namespace FitControl.API.Entities;
+﻿using System;
+
+namespace FitControl.API.Entities;
 
 public class BaseEntity
 {
