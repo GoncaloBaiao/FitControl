@@ -38,7 +38,7 @@
 
             <button class="btn btn-primary mt-3" type="submit" disabled="@_saving">@(Id.HasValue ? "Gravar" : "Adicionar")</button>
         </EditForm>
-        <button class="btn btn-secondary" onclick="@(()=>GoBack())">Voltar</button>
+        <button class="btn btn-secondary" onclick="@(()=>NavigationManager.NavigateTo("/Modalidades"))">Voltar</button>
     }
 }
 
@@ -158,10 +158,4 @@
                 
         NavigationManager.NavigateTo("/Modalidades");
     }
-
-    private void GoBack()
-    {
-        NavigationManager.NavigateTo("/Modalidades");
-    }
-
 }

@@ -8,6 +8,7 @@
 @layout FitControl.WebClient.Components.Layout.MainLayout
 @inject ISnackbar Snackbar
 @inject IDialogService DialogService
+@inject NavigationManager NavigationManager
 
 <PageTitle>Salas</PageTitle>
 
@@ -49,6 +50,7 @@ else
             </MudTd>
         </RowTemplate>
     </PaginaListar>
+    <button class="btn btn-secondary" onclick="@(()=>NavigationManager.NavigateTo("/"))">Voltar</button>
 }
 
 @code {

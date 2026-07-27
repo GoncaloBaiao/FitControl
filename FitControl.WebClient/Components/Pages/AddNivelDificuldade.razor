@@ -24,7 +24,7 @@
 
     <button class="btn btn-primary" type="submit" disabled="@_saving">@(Id.HasValue ? "Gravar" : "Adicionar")</button>
 </EditForm>
-<button class="btn btn-secondary" onclick="@(()=>GoBack())">Voltar</button>
+<button class="btn btn-secondary" onclick="@(()=>NavigationManager.NavigateTo("/niveldificuldades"))">Voltar</button>
 
 @code {
     [Parameter]
@@ -123,10 +123,4 @@
                 
         NavigationManager.NavigateTo("/niveldificuldades");
     }
-
-    private void GoBack()
-    {
-        NavigationManager.NavigateTo("/niveldificuldades");
-    }
-
 }

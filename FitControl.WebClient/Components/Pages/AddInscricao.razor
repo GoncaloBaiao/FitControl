@@ -36,7 +36,7 @@
                            DateFormat="dd/MM/yyyy"/>
             <button class="btn btn-primary" type="submit">@(Id.HasValue ? "Gravar" : "Adicionar")</button>
         </EditForm>
-        <button class="btn btn-secondary" onclick="@(()=>GoBack())">Voltar</button>
+        <button class="btn btn-secondary" onclick="@(()=>NavigationManager.NavigateTo("/Inscricoes"))">Voltar</button>
     }
 }
 
@@ -156,10 +156,4 @@
         
         NavigationManager.NavigateTo("/Inscricoes");
     }
-
-    private void GoBack()
-    {
-        NavigationManager.NavigateTo("/Inscricoes");
-    }
-
 }

@@ -23,7 +23,7 @@
     </div>
     <button class="btn btn-primary" type="submit">@(Id.HasValue ? "Save" : "Add")</button>
 </EditForm>
-<button class="btn btn-secondary" onclick="@(()=>GoBack())">Voltar</button>
+<button class="btn btn-secondary" onclick="@(()=>NavigationManager.NavigateTo("/TipoPlanos"))">Voltar</button>
 
 @code {
     [Parameter]
@@ -123,10 +123,4 @@
         
         NavigationManager.NavigateTo("/TipoPlanos");
     }
-
-    private void GoBack()
-    {
-        NavigationManager.NavigateTo("/TipoPlanos");
-    }
-
 }

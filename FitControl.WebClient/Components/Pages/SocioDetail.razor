@@ -55,7 +55,7 @@
                 <MudTextField class="form-control-lg" id="fimSubscricaoSocio" @bind-Value="@_socioDetail.FimSubscricao" Disabled="true">@FormatDate(_socioDetail.FimSubscricao)</MudTextField>
             </div>
         </EditForm>
-        <button class="btn btn-secondary" onclick="@(()=>GoBack())">Voltar</button>
+        <button class="btn btn-secondary" onclick="@(()=>NavigationManager.NavigateTo("/socios"))">Voltar</button>
     }
 }
 
@@ -91,10 +91,4 @@
     {
 
     }
-
-    private void GoBack()
-    {
-        NavigationManager.NavigateTo("/socios");
-    }
-
 }
