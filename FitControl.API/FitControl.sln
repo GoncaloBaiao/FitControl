@@ -8,7 +8,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FitControl.Shared", "..\Fit
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FitControl.Maui", "..\FitControl.Maui\FitControl.Maui.csproj", "{B03ACE8C-2621-461B-906B-4BBBD1BD01C2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestFitControl", "TestFitControl\TestFitControl.csproj", "{BAB22F16-FFBE-43AD-BD25-5566F4135F52}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FitControl.UiComponents", "FitControl.UiComponents\FitControl.UiComponents.csproj", "{4D9A7C7B-71EE-437D-92FA-92E4F6946CEA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -32,9 +32,9 @@ Global
 		{B03ACE8C-2621-461B-906B-4BBBD1BD01C2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B03ACE8C-2621-461B-906B-4BBBD1BD01C2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B03ACE8C-2621-461B-906B-4BBBD1BD01C2}.Release|Any CPU.Build.0 = Release|Any CPU
-		{BAB22F16-FFBE-43AD-BD25-5566F4135F52}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{BAB22F16-FFBE-43AD-BD25-5566F4135F52}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{BAB22F16-FFBE-43AD-BD25-5566F4135F52}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{BAB22F16-FFBE-43AD-BD25-5566F4135F52}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4D9A7C7B-71EE-437D-92FA-92E4F6946CEA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4D9A7C7B-71EE-437D-92FA-92E4F6946CEA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4D9A7C7B-71EE-437D-92FA-92E4F6946CEA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4D9A7C7B-71EE-437D-92FA-92E4F6946CEA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

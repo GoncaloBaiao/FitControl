@@ -1,0 +1,77 @@
+@using FitControl.Shared.Services
+@using FitControl.Shared.Models
+@inject IFitControlApi FitControlApi
+@inject NavigationManager NavigationManager
+@inject ISnackbar Snackbar
+@inject IDialogService DialogService
+
+<PageTitle>Subscritos</PageTitle>
+
+@if (_loading)
+{
+    <MudProgressLinear Indeterminate="true" Class="mb-4"/>
+}
+else
+{
+
+    <PaginaListar TItem="Socio"
+                  Title="Subscritos"
+                  Items="_subscritos">
+
+        <HeaderContent>
+            <MudTh>Nome</MudTh>
+            <MudTh>Contacto Telefonico</MudTh>
+            <MudTh>Email</MudTh>
+            <MudTh>Início Subscrição</MudTh>
+            <MudTh>Fim Subscrição</MudTh>
+        </HeaderContent>
+
+        <RowTemplate>
+            <MudTd DataLabel="Nome" Class="fc-table-row" Style="color:#fff;font-weight:600;">
+                @context.Nome
+            </MudTd>
+            <MudTd DataLabel="Contacto Telefonico" Class="fc-table-row">
+                @context.ContactoTelefonico
+            </MudTd>
+            <MudTd DataLabel="Email" Class="fc-table-row">
+                @context.Email
+            </MudTd>
+            <MudTd DataLabel="Inicio Subscricao" Class="fc-table-row">
+                @context.InicioSubscricao
+            </MudTd>
+            <MudTd DataLabel="Fim Subscricao" Class="fc-table-row">
+                @context.FimSubscricao
+            </MudTd>
+        </RowTemplate>
+    </PaginaListar>
+    <button class="btn btn-secondary" onclick="@(()=>NavigationManager.NavigateTo("/dashboard"))">Voltar</button>
+}
+
+@code {
+    private List<Socio> _subscritos = new();
+    private List<Socio> _socios = new();
+    private bool _loading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _loading = true;
+        await base.OnInitializedAsync();
+        Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopRight;
+        
+        try
+        {
+            var socioTask = await FitControlApi.GetSocios();
+
+            _socios = socioTask.Content ?? new List<Socio>();
+            _subscritos = _socios.Where(s => s.FimSubscricao >= DateTime.Now).ToList();
+        }
+        catch
+        {
+            Snackbar.Add("Erro a carregar subscrições.", Severity.Error);
+        }
+        finally
+        {
+            _loading = false;
+        }
+    }
+}

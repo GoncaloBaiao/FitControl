@@ -1,0 +1,49 @@
+<Project Sdk="Microsoft.NET.Sdk.Razor">
+
+    <PropertyGroup>
+        <TargetFramework>net10.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+    </PropertyGroup>
+
+
+    <ItemGroup>
+        <SupportedPlatform Include="browser"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="10.0.2"/>
+        <PackageReference Include="MudBlazor" Version="9.5.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Include="Shared\Dialog.razor" />
+      <None Include="Shared\Pages\AddAulaPage.razor" />
+      <None Include="Shared\Pages\AddInscricaoPage.razor" />
+      <None Include="Shared\Pages\AddInstrutorModalidadePage.razor" />
+      <None Include="Shared\Pages\AddInstrutorPage.razor" />
+      <None Include="Shared\Pages\AddModalidadePage.razor" />
+      <None Include="Shared\Pages\AddNivelDificuldadePage.razor" />
+      <None Include="Shared\Pages\AddSalaPage.razor" />
+      <None Include="Shared\Pages\AddSocioPage.razor" />
+      <None Include="Shared\Pages\AddTipoPlanoPage.razor" />
+      <None Include="Shared\Pages\AddUserPage.razor" />
+      <None Include="Shared\Pages\AulaDetailPage.razor" />
+      <None Include="Shared\Pages\AulasPage.razor" />
+      <None Include="Shared\Pages\DashboardPage.razor" />
+      <None Include="Shared\Pages\HomePage.razor" />
+      <None Include="Shared\Pages\InscricoesPage.razor" />
+      <None Include="Shared\Pages\InstrutoresPage.razor" />
+      <None Include="Shared\Pages\LoginPage.razor" />
+      <None Include="Shared\Pages\ModalidadesPage.razor" />
+      <None Include="Shared\Pages\SalasPage.razor" />
+      <None Include="Shared\Pages\SocioDetailPage.razor" />
+      <None Include="Shared\Pages\SociosPage.razor" />
+      <None Include="Shared\Pages\UsersPage.razor" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\..\FitControl.Shared\FitControl.Shared.csproj" />
+    </ItemGroup>
+
+</Project>

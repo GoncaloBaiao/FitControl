@@ -1,0 +1,10 @@
+﻿@page "/addModalidade"
+@page "/addModalidade/{Id:int}"
+
+<AddModalidadePage Id="Id"/>
+
+@code{
+
+    [Parameter]
+    public int? Id { get; set; }
+}

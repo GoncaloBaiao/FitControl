@@ -1,5 +1,5 @@
-﻿@page "/modalidades/add"
-@page "/modalidades/edit/{Id:int}"
+﻿@page "/addModalidade"
+@page "/addModalidade/{Id:int}"
 @layout FitControl.WebClient.Components.Layout.MainLayout
 @using FitControl.Shared.Models
 @using FitControl.Shared.Services
@@ -38,7 +38,7 @@
 
             <button class="btn btn-primary mt-3" type="submit" disabled="@_saving">@(Id.HasValue ? "Gravar" : "Adicionar")</button>
         </EditForm>
-        <button class="btn btn-secondary" onclick="@(()=>NavigationManager.NavigateTo("/Modalidades"))">Voltar</button>
+        <button class="btn btn-secondary" onclick="@(()=>NavigationManager.NavigateTo("/modalidades"))">Voltar</button>
     }
 }
 
@@ -82,7 +82,7 @@
         }
         catch (Exception ex)
         {
-            Snackbar.Add("Não foi possível carregar os niveis de dificuldade.", Severity.Error);
+            Snackbar.Add("Não foi possível carregar os Niveis de Dificuldade.", Severity.Error);
         }
     }
 
@@ -113,16 +113,16 @@
             }
             else
             {
-                Snackbar.Add($"Não foi possível guardar a modalidade. API devolveu {response.StatusCode}.", Severity.Error);
+                Snackbar.Add($"Não foi possível guardar a Modalidade. API devolveu {response.StatusCode}.", Severity.Error);
             }
         }
         catch (ApiException ex)
         {
-            Snackbar.Add($"Não foi possível guardar a modalidade. API devolveu {(int)ex.StatusCode}: {ex.ReasonPhrase}", Severity.Error);
+            Snackbar.Add($"Não foi possível guardar a Modalidade. API devolveu {(int)ex.StatusCode}: {ex.ReasonPhrase}", Severity.Error);
         }
         catch (Exception ex)
         {
-            Snackbar.Add($"Não foi possível guardar a modalidade. {ex.Message}", Severity.Error);
+            Snackbar.Add($"Não foi possível guardar a Modalidade. {ex.Message}", Severity.Error);
         }
         finally
         {
@@ -156,6 +156,6 @@
             Snackbar.Add("Erro a criar popup de confirmação de saída", Severity.Error);
         }
                 
-        NavigationManager.NavigateTo("/Modalidades");
+        NavigationManager.NavigateTo("/modalidades");
     }
 }

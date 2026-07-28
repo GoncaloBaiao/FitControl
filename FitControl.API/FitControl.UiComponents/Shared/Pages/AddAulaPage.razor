@@ -1,0 +1,236 @@
+@using FitControl.Shared.Models
+@using FitControl.Shared.Services
+@using Microsoft.AspNetCore.Components.Forms
+@inject IFitControlApi FitControlApi
+@inject ISnackbar Snackbar
+@inject NavigationManager NavigationManager
+@inject IDialogService DialogService
+
+<h3>@( Id.HasValue ? "Editar Aula" : "Adicionar Aula")</h3>
+
+@if (_aulaModel != null)
+{
+    if (_aulaModel.Modalidade != null && _aulaModel.Sala != null && _aulaModel.Instrutor != null)
+    {
+        <EditForm FormName="AddAulaForm" Model="_aulaModel" OnValidSubmit="OnAddAula">
+            <DataAnnotationsValidator/>
+            <ValidationSummary/>
+            <div class="mb-3">
+                <label for="nomeAula" class="form-label fw-bold">Nome</label>
+                <InputText class="form-control" id="nomeAula" @bind-Value="@_aulaModel.Nome"/>
+                <ValidationMessage For=@(() => _aulaModel.Nome) />
+            </div>
+            <div class="mb-3">
+                <label for="descricaoAula" class="form-label fw-bold">Descricao</label>
+                <InputText class="form-control" id="descricaoAula" @bind-Value="@_aulaModel.Descricao"></InputText>
+                <ValidationMessage For=@(() => _aulaModel.Descricao)/>
+
+            </div>
+            <div class="mb-3">
+                <label for="capacidadeAula" class="form-label fw-bold">Capacidade</label>
+                <InputNumber class="form-control" id="capacidadeAula" @bind-Value="_aulaModel.Capacidade"/>
+                <ValidationMessage For=@(() => _aulaModel.Capacidade)/>
+
+            </div>
+            <MudDatePicker @bind-Date="_aulaModel.HoraInicio" Label="Data de Início" DateFormat="dd/MM/yyyy"/>
+            <MudTimePicker Label="Hora de Início" @bind-Time="_horaInicio"/>
+            <MudDatePicker @bind-Date="_aulaModel.HoraFim" Label="Data de Fim" DateFormat="dd/MM/yyyy"/>
+            <MudTimePicker Label="Hora de Fim" @bind-Time="_horaFim"/>
+            <MudSelect Label="Modalidade" @bind-Value="_aulaModel.Modalidade" Placeholder="Selecione a modalidade"
+                       ToStringFunc="@((Modalidade obj) => obj.Nome ?? null)">
+                @foreach (Modalidade modalidade in _modalidades)
+                {
+                    <MudSelectItem Value="modalidade">@modalidade.Nome</MudSelectItem>
+                }
+            </MudSelect>
+            <MudSelect Label="Instrutor" @bind-Value="_aulaModel.Instrutor" Placeholder="Selecione o instrutor"
+                       ToStringFunc="@((Instrutor obj) => obj.Nome ?? null)">
+                @foreach (Instrutor instrutor in _instrutores)
+                {
+                    <MudSelectItem Value="instrutor">@instrutor.Nome</MudSelectItem>
+                }
+            </MudSelect>
+            <MudSelect Label="Sala" @bind-Value="_aulaModel.Sala" Placeholder="Selecione a sala"
+                       ToStringFunc="@((Sala obj) => obj.Nome ?? null)">
+                @foreach (Sala sala in _salas)
+                {
+                    <MudSelectItem Value="sala">@sala.Nome</MudSelectItem>
+                }
+            </MudSelect>
+            <button class="btn btn-primary" type="submit">@(Id.HasValue ? "Gravar" : "Adicionar")</button>
+        </EditForm>
+        <button class="btn btn-secondary" onclick="@(()=>NavigationManager.NavigateTo("/aulas"))">Voltar</button>
+    }
+}
+
+@code {
+    [Parameter]
+    public int? Id { get; set; }
+    private MudForm _form;
+    private Aula _aulaModel = new();
+    private List<Modalidade> _modalidades = new ();
+    private List<Instrutor> _instrutores = new ();
+    private List<Sala> _salas = new ();
+    private TimeSpan? _horaInicio = new();
+    private TimeSpan? _horaFim = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+        Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopRight;
+        
+        try
+        {
+            if (Id.HasValue)
+            {
+                var aulaResponse = await FitControlApi.GetAula(Id.Value);
+                if (aulaResponse.Content != null) 
+                    _aulaModel = aulaResponse.Content;
+
+                ExtrairDatas();
+            }
+            else
+            {
+                _aulaModel.Instrutor = new();
+                _aulaModel.Modalidade = new();
+                _aulaModel.Sala = new();
+            }
+        
+            var modalidadesResponse = await FitControlApi.GetModalidades();
+            if (modalidadesResponse.Content != null)
+                _modalidades = modalidadesResponse.Content;
+
+            var salasResponse = await FitControlApi.GetSalas();
+            if (salasResponse.Content != null)
+                _salas = salasResponse.Content;
+
+            var instrutorsResponse = await FitControlApi.GetInstrutors();
+            if (instrutorsResponse.Content != null) 
+                _instrutores = instrutorsResponse.Content;
+        }
+        catch (Exception)
+        {
+            Snackbar.Add("Erro a extrair a lista de Aulas", Severity.Error);
+        }
+    }
+
+    private void ExtrairDatas()
+    {
+        var data = TimeSpan.ParseExact(_aulaModel.HoraInicio?.ToString("HH:mm"), @"hh\:mm", null);
+        _horaInicio = new TimeSpan(data.Ticks);
+        data = TimeSpan.ParseExact(_aulaModel.HoraFim?.ToString("HH:mm"), @"hh\:mm", null);
+        _horaFim = new TimeSpan(data.Ticks);
+    }
+
+    private async Task OnAddAula()
+    {
+        _aulaModel.ModalidadeId = _aulaModel.Modalidade.Id;
+        _aulaModel.InstrutorId = _aulaModel.Instrutor.Id;
+        _aulaModel.SalaId = _aulaModel.Sala.Id;
+
+        ValidarDatasModelo();
+        
+   
+        if (Id.HasValue)
+        {
+            try
+            {
+                var response = await FitControlApi.UpdateAula(_aulaModel);
+
+                if (response.IsSuccessStatusCode && response.Content != null)
+                {
+                    Snackbar.Add("Aula editada com sucesso", Severity.Success);
+                }
+                else
+                {
+                    Snackbar.Add("Não foi possível editar a Aula", Severity.Error);
+                }
+            }
+            catch (Exception)
+            {
+                Snackbar.Add("Erro a editar Aula", Severity.Error);
+            }
+        }
+        else
+        {
+            try
+            {
+                var response = await FitControlApi.AddAula(_aulaModel);
+            
+                if (response.IsSuccessStatusCode)
+                {
+                    Snackbar.Add("Aula adicionada com sucesso", Severity.Success);
+                }
+                else
+                {
+                    Snackbar.Add("Não foi possível adicionar a Aula", Severity.Error);
+                }
+            }
+            catch (Exception)
+            {
+                Snackbar.Add("Erro a adicionar Aula", Severity.Error);
+            }
+        }
+        
+        //POPUP
+        try
+        {
+            var parameters = new DialogParameters<Dialog>
+            {
+                { x => x.ContentText, "Deseja sair da página?" },
+                { x => x.ButtonOkText, "Sim" },
+                { x => x.ButtonCancelText, "Não" },
+                { x => x.Color, Color.Error }
+            };
+
+            var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall };
+
+            var result = await DialogService.ShowAsync<Dialog>("Sair da página", parameters, options);
+        
+            var res = await result.Result;
+
+            if (res != null && res.Canceled)
+            {
+                return;
+            }
+        }
+        catch (Exception)
+        {
+            Snackbar.Add("Erro a criar popup de confirmação de saída", Severity.Error);
+        }
+        
+        NavigationManager.NavigateTo("/aulas");
+    }
+
+    private void ValidarDatasModelo()
+    {
+        if (Id.HasValue)
+        {
+            if (_aulaModel.HoraInicio?.Hour != _horaInicio?.Hours ||
+                _aulaModel.HoraInicio?.Minute != _horaInicio?.Minutes ||
+                _aulaModel.HoraFim?.Hour != _horaFim?.Hours ||
+                _aulaModel.HoraFim?.Minute != _horaFim?.Minutes)
+            {
+                var data =  _aulaModel.HoraInicio?.ToString("dd/MM/yyyy") 
+                            + $" {_horaInicio?.ToString()}";
+                _aulaModel.HoraInicio = DateTime.ParseExact(data, "dd/MM/yyyy HH:mm:ss", null);
+                
+                data = _aulaModel.HoraFim?.ToString("dd/MM/yyyy")
+                       + $" {_horaFim?.ToString()}";
+                _aulaModel.HoraFim = DateTime.ParseExact(data, "dd/MM/yyyy HH:mm:ss", null);
+            }
+        }
+        else
+        {
+            _aulaModel.HoraInicio = _aulaModel.HoraInicio?
+                .AddHours(Convert.ToDouble(_horaInicio?.Hours));
+            _aulaModel.HoraInicio = _aulaModel.HoraInicio?
+                .AddMinutes(Convert.ToDouble(_horaInicio?.Minutes));
+
+            _aulaModel.HoraFim = _aulaModel.HoraFim?
+                .AddHours(Convert.ToDouble(_horaFim?.Hours));
+            _aulaModel.HoraFim = _aulaModel.HoraFim?
+                .AddMinutes(Convert.ToDouble(_horaFim?.Minutes));
+        }
+    }
+}

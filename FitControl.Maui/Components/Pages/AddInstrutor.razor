@@ -1,0 +1,10 @@
+@page "/addInstrutor"
+@page "/addInstrutor/{Id:int}"
+
+<AddInstrutorPage Id="Id"/>
+
+@code{
+
+    [Parameter]
+    public int? Id { get; set; }
+}

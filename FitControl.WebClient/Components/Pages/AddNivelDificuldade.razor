@@ -1,5 +1,5 @@
-﻿@page "/niveldificuldades/add"
-@page "/niveldificuldade/edit/{Id:int}"
+﻿@page "/addNivelDificuldade"
+@page "/addNivelDificuldade/{Id:int}"
 @layout FitControl.WebClient.Components.Layout.MainLayout
 @using FitControl.Shared.Models
 @using FitControl.Shared.Services
@@ -24,7 +24,7 @@
 
     <button class="btn btn-primary" type="submit" disabled="@_saving">@(Id.HasValue ? "Gravar" : "Adicionar")</button>
 </EditForm>
-<button class="btn btn-secondary" onclick="@(()=>NavigationManager.NavigateTo("/niveldificuldades"))">Voltar</button>
+<button class="btn btn-secondary" onclick="@(()=>NavigationManager.NavigateTo("/niveisDificuldade"))">Voltar</button>
 
 @code {
     [Parameter]
@@ -49,7 +49,7 @@
                 }
                 else
                 {
-                    Snackbar.Add("Nivel de dificuldade não encontrada.", Severity.Error);
+                    Snackbar.Add("Nivel de Dificuldade não encontrada.", Severity.Error);
                 }
             }
             catch (Exception ex)
@@ -73,21 +73,21 @@
             if (response.IsSuccessStatusCode)
             {
                 Snackbar.Add(Id.HasValue 
-                    ? "Nível de dificuldade editado com sucesso"
-                    : "Nível de dificuldade adicionado com sucesso", Severity.Success);
+                    ? "Nível de Dificuldade editado com sucesso"
+                    : "Nível de Dificuldade adicionado com sucesso", Severity.Success);
             }
             else
             {
-                Snackbar.Add($"Não foi possível guardar o nivel. API devolveu {response.StatusCode}.", Severity.Error);
+                Snackbar.Add($"Não foi possível guardar o Nivel. API devolveu {response.StatusCode}.", Severity.Error);
             }
         }
         catch (ApiException ex)
         {
-            Snackbar.Add($"Não foi possível guardar o nivel. API devolveu {(int)ex.StatusCode}: {ex.ReasonPhrase}", Severity.Error);
+            Snackbar.Add($"Não foi possível guardar o Nivel. API devolveu {(int)ex.StatusCode}: {ex.ReasonPhrase}", Severity.Error);
         }
         catch (Exception ex)
         {
-            Snackbar.Add($"Não foi possível guardar o nivel. {ex.Message}", Severity.Error);
+            Snackbar.Add($"Não foi possível guardar o Nivel. {ex.Message}", Severity.Error);
         }
         finally
         {
@@ -121,6 +121,6 @@
             Snackbar.Add("Erro a criar popup de confirmação de saída", Severity.Error);
         }
                 
-        NavigationManager.NavigateTo("/niveldificuldades");
+        NavigationManager.NavigateTo("/niveisDificuldade");
     }
 }

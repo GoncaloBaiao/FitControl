@@ -1,13 +1,11 @@
-@page "/instrutormodalidades"
 @using FitControl.Shared.Services
 @using FitControl.Shared.Models
 @inject IFitControlApi FitControlApi
-@rendermode InteractiveServer
 @inject NavigationManager NavigationManager
 @inject ISnackbar Snackbar
 @inject IDialogService DialogService
 
-<PageTitle>Modalidades dos Instrutores</PageTitle>
+<PageTitle>Inscrições</PageTitle>
 
 @if (_loading)
 {
@@ -16,20 +14,26 @@
 else
 {
 
-    <PaginaListar TItem="FitControl.Shared.Models.InstrutorModalidade"
-                  Title="Modalidades dos Instrutores"
-                  AddLabel="ADICIONAR MODALIDADE DO INSTRUTOR"
-                  AddHref="/addInstrutorModalidade"
-                  Items="_instrutorModalidades">
+    <PaginaListar TItem="Inscricao"
+                  Title="Inscrições"
+                  AddLabel="ADICIONAR INSCRIÇÃO"
+                  AddHref="/addInscricao"
+                  Items="_inscricoes">
         <HeaderContent>
-            <MudTh>Instrutor</MudTh>
-            <MudTh>Modalidade</MudTh>
+            <MudTh>Aula</MudTh>
+            <MudTh>Sócio</MudTh>
+            <MudTh>Data de Inscrição</MudTh>
+            <MudTh>Data de Cancelamento</MudTh>
             <MudTh Style="text-align:right;">Ações</MudTh>
         </HeaderContent>
 
         <RowTemplate>
-            <MudTd DataLabel="Instrutor">@(context.Instrutor?.Nome ?? "N/A")</MudTd>
-            <MudTd DataLabel="Modalidade">@(context.Modalidade?.Nome ?? "N/A")</MudTd>
+            <MudTd DataLabel="Aula">@(context.Aula?.Nome ?? "N/A")</MudTd>
+            <MudTd DataLabel="Sócio">@(context.Socio?.Nome ?? "N/A")</MudTd>
+            <MudTd DataLabel="Data de Inscrição">@context.DataInscricao</MudTd>
+            <MudTd DataLabel="Data de Cancelamento">
+                @(context.DataCancelamento.HasValue ? context.DataCancelamento.Value.ToString("dd/MM/yyyy HH:mm") : "-")
+            </MudTd>
             <MudTd DataLabel="Ações" Style="text-align:right;">
                 <MudIconButton Icon="@Icons.Material.Filled.Edit"
                                Size="Size.Small"
@@ -38,7 +42,7 @@ else
                 <MudIconButton Icon="@Icons.Material.Filled.Delete"
                                Size="Size.Small"
                                Style="color:#ef4444;"
-                               OnClick="@(() => OnInstrutorModalidadeDelete(context.Id))" />
+                               OnClick="@(() => OnInscricaoDelete(context.Id))" />
             </MudTd>
         </RowTemplate>
     </PaginaListar>
@@ -47,7 +51,7 @@ else
 
 @code {
 
-    private List<FitControl.Shared.Models.InstrutorModalidade> _instrutorModalidades = new ();
+    private List<Inscricao> _inscricoes = new ();
     
     private bool _loading;
 
@@ -60,13 +64,13 @@ else
         
         try
         {
-            var response = await FitControlApi.GetInstrutorModalidades();
-            if (response.Content != null) 
-                _instrutorModalidades = response.Content;
+            var response = await FitControlApi.GetInscricoes();
+            if (response.Content != null)
+                _inscricoes = response.Content;
         }
         catch (Exception)
         {
-            Snackbar.Add("Erro a extrair a lista de Modalidades dos Instrutores", Severity.Error);
+            Snackbar.Add("Erro a extrair a lista de Inscrições", Severity.Error);
         }
         
         StateHasChanged();
@@ -74,9 +78,8 @@ else
         _loading = false;
     }
     
-    private async Task OnInstrutorModalidadeDelete(int id)
+    private async Task OnInscricaoDelete(int id)
     {
-        //POPUP
         try
         {
             var parameters = new DialogParameters<Dialog>
@@ -104,31 +107,31 @@ else
         
         try
         {
-            var apiResponse = await FitControlApi.DeleteInstrutorModalidade(id);
+            var apiResponse = await FitControlApi.DeleteInscricao(id);
             
             if (apiResponse.IsSuccessStatusCode)
             {
-                Snackbar.Add("Modalidade do Instrutor apagada com sucesso", Severity.Success);
+                Snackbar.Add("Inscrição apagada com sucesso", Severity.Success);
                 
                 try
                 {
-                    var response = await FitControlApi.GetInstrutorModalidades();
+                    var response = await FitControlApi.GetInscricoes();
                     if (response.Content != null)
-                        _instrutorModalidades = response.Content;
+                        _inscricoes = response.Content;
                 }
                 catch (Exception )
                 {
-                    Snackbar.Add("Erro a atualizar a lista de Modalidades dos Instrutores", Severity.Error);
+                    Snackbar.Add("Erro a atualizar a lista de Inscrições", Severity.Error);
                 }
             }
             else
             {
-                Snackbar.Add("Não foi possível apagar a Modalidade do Instrutor", Severity.Error);
+                Snackbar.Add("Não foi possível apagar a Inscrição", Severity.Error);
             }
         }
         catch (Exception)
         {
-            Snackbar.Add("Erro a apagar a Modalidade do Instrutor", Severity.Error);
+            Snackbar.Add("Erro a apagar Inscrição", Severity.Error);
         }
 
         StateHasChanged();
@@ -136,6 +139,6 @@ else
     
     private void OnEditNavigate(int id)
     {
-        NavigationManager.NavigateTo($"/addInstrutorModalidade/{id}");
+        NavigationManager.NavigateTo($"/addInscricao/{id}");
     }
 }

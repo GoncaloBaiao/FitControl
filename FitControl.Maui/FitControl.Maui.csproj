@@ -75,6 +75,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\FitControl.API\FitControl.UiComponents\FitControl.UiComponents.csproj" />
       <ProjectReference Include="..\FitControl.Shared\FitControl.Shared.csproj" />
     </ItemGroup>
 
