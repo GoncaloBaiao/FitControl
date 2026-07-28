@@ -17,12 +17,14 @@
     @if (_modalidade.NivelDificuldade != null)
     {
         <EditForm FormName="AddModalidadeForm" Model="_modalidade" OnValidSubmit="SaveModalidade">
+            <DataAnnotationsValidator />
+            <ValidationSummary />
             <div class="mb-3">
-                <label class="form-label">Nome</label>
+                <label class="form-label fw-bold">Nome</label>
                 <InputText class="form-control" @bind-Value="_modalidade.Nome"/>
             </div>
             <div class="mb-3">
-                <label class="form-label">Descrição</label>
+                <label class="form-label fw-bold">Descrição</label>
                 <InputText class="form-control" @bind-Value="_modalidade.Descricao"/>
             </div>
 
@@ -36,6 +38,7 @@
 
             <button class="btn btn-primary mt-3" type="submit" disabled="@_saving">@(Id.HasValue ? "Gravar" : "Adicionar")</button>
         </EditForm>
+        <button class="btn btn-secondary" onclick="@(()=>NavigationManager.NavigateTo("/Modalidades"))">Voltar</button>
     }
 }
 

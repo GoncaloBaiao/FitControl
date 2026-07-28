@@ -15,17 +15,20 @@
 <h3>@(Id.HasValue ? "Editar Sala" : "Adicionar Sala")</h3>
 
 <EditForm FormName="AddSalaForm" Model="_sala" OnValidSubmit="SaveSala">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
     <div class="mb-3">
-        <label class="form-label">Nome</label>
+        <label class="form-label fw-bold">Nome</label>
         <InputText class="form-control" @bind-Value="_sala.Nome" />
     </div>
     <div class="mb-3">
-        <label class="form-label">Descrição</label>
+        <label class="form-label fw-bold">Descrição</label>
         <InputText class="form-control" @bind-Value="_sala.Descricao" />
     </div>
 
     <button class="btn btn-primary" type="submit" disabled="@_saving">@(Id.HasValue ? "Gravar" : "Adicionar")</button>
 </EditForm>
+<button class="btn btn-secondary" onclick="@(()=>NavigationManager.NavigateTo("/Salas"))">Voltar</button>
 
 @code {
     [Parameter]

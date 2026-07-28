@@ -7,6 +7,7 @@
 @layout MainLayout
 @inject ISnackbar Snackbar
 @inject IDialogService DialogService
+@inject  NavigationManager NavigationManager
 
 <PageTitle>Nível de Dificuldade</PageTitle>
 
@@ -46,6 +47,7 @@ else
             </MudTd>
         </RowTemplate>
     </PaginaListar>
+    <button class="btn btn-secondary" onclick="@(()=>NavigationManager.NavigateTo("/"))">Voltar</button>
 }
 
 @code {

@@ -1,4 +1,5 @@
-﻿using System.Text.Json.Serialization;
+﻿using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace FitControl.Shared.Models;
 
@@ -13,9 +14,11 @@ public class Modalidade
     [JsonPropertyName("nivelDificuldade")]
     public NivelDificuldade NivelDificuldade { get; set; }
     
+    [StringLength(20, ErrorMessage = "O nome da modalidade deve ter no máximo 20 caracteres.")]
     [JsonPropertyName("nome")]
     public string Nome { get; set; }
     
+    [StringLength(100, ErrorMessage = "A descrição deve ter no máximo 100 caracteres.")]
     [JsonPropertyName("descricao")]
     public string Descricao { get; set; }
     

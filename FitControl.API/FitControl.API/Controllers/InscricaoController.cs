@@ -19,19 +19,6 @@ public class InscricaoController : ControllerBase
         _mapper = mapper;
     }
 
-    // DTO de leitura para evitar ciclos/serialização de entidades EF
-    public class InscricaoReadDto
-    {
-        public int Id { get; set; }
-        public int AulaId { get; set; }
-        public string AulaNome { get; set; } = string.Empty;
-        public int SocioId { get; set; }
-        public string SocioNome { get; set; } = string.Empty;
-        public DateTime DataInscricao { get; set; }
-        public DateTime? DataCancelamento { get; set; }
-        public bool IsDeleted { get; set; }
-    }
-
     [HttpGet("/inscricoes")]
     public async Task<IResult> GetInscricoes()
     {
@@ -79,6 +66,23 @@ public class InscricaoController : ControllerBase
         mapper.UpdatedAt = DateTime.Now;
 
         if (_fitControlDbContext.Inscricaos is null) return Results.Empty;
+        
+        var aula = await _fitControlDbContext.Aulas
+            .FirstOrDefaultAsync(a => a.Id == inscricao.AulaId);
+
+        if (aula is null)
+            return Results.NotFound("Aula não encontrada.");
+        
+        var inscritos = await _fitControlDbContext.Inscricaos
+            .CountAsync(i =>
+                i.AulaId == inscricao.AulaId &&
+                !i.IsDeleted);
+        
+        if (inscritos >= aula.Capacidade)
+        {
+            return Results.BadRequest("A aula excedeu a capacidade máxima.");
+        }
+        
 
         _fitControlDbContext.Inscricaos.Add(mapper);
         await _fitControlDbContext.SaveChangesAsync();

@@ -11,16 +11,19 @@
 <h3>@( Id.HasValue ? "Edit Tipo de Plano" : "Add Tipo de Plano")</h3>
 
 <EditForm FormName="AddTipoPlanoForm" Model="_tipoPlanoModel" OnValidSubmit="OnAddTipoPlano">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
     <div class="mb-3">
-        <label for="nomeTipoPlano" class="form-label">Nome</label>
+        <label for="nomeTipoPlano" class="form-label fw-bold">Nome</label>
         <InputText class="form-control" id="nomeTipoPlano" @bind-Value="@_tipoPlanoModel.Designacao"/>
     </div>
     <div class="mb-3">
-        <label for="precoTipoPlano" class="form-label">Preço</label>
+        <label for="precoTipoPlano" class="form-label fw-bold">Preço</label>
         <InputNumber class="form-control" id="precoTipoPlano" @bind-Value="_tipoPlanoModel.Preco"/>
     </div>
     <button class="btn btn-primary" type="submit">@(Id.HasValue ? "Save" : "Add")</button>
 </EditForm>
+<button class="btn btn-secondary" onclick="@(()=>NavigationManager.NavigateTo("/TipoPlanos"))">Voltar</button>
 
 @code {
     [Parameter]

@@ -1,4 +1,6 @@
-﻿namespace FitControl.API.Models;
+﻿using System;
+
+namespace FitControl.API.Models;
 
 public class InstrutorDto
 {

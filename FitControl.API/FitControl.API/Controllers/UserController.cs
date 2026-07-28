@@ -36,20 +36,39 @@ public class UserController : ControllerBase
         return Results.Ok(new List<User>());
     }
     
-    [HttpGet("/user/{id}")]
-    public async Task<IResult> GetUser(int id)
+    [HttpGet("/user")]
+    public async Task<IResult> GetUser([FromBody] UserDto? user)
     {
         if (_fitControlDbContext != null)
         {
             var User = await _fitControlDbContext.Users
-                .FirstOrDefaultAsync(u => u.IsDeleted == false && u.Id == id);
+                .FirstOrDefaultAsync(u => u.IsDeleted == false 
+                                          && u.Username == user.Username
+                                          && u.Password == user.Password);
 
             if (User is not null)
             {
                 return Results.Ok(User);
             }
         }
-        return Results.Ok(new User());
+        return Results.Empty;
+    }
+    
+    [HttpGet("/user/{id}")]
+    public async Task<IResult> GetUser(int id)
+    {
+        if (_fitControlDbContext != null)
+        {
+            var User = await _fitControlDbContext.Users
+                .FirstOrDefaultAsync(u => u.IsDeleted == false 
+                                          && u.Id == id);
+
+            if (User is not null)
+            {
+                return Results.Ok(User);
+            }
+        }
+        return Results.Empty;
     }
     
     [HttpPost("user")]
