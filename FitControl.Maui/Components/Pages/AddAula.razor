@@ -1,4 +1,10 @@
 @page "/AddAula"
 @page "/AddAula/{Id:int}"
 
-<AddAulaPage />
+<AddAulaPage Id="Id"/>
+
+@code{
+
+    [Parameter]
+    public int? Id { get; set; }
+}

@@ -1,4 +1,10 @@
 ﻿@page "/niveldificuldades/add"
 @page "/niveldificuldade/edit/{Id:int}"
 
-<AddNivelDificuldadePage />
+<AddNivelDificuldadePage Id="Id"/>
+
+@code{
+
+    [Parameter]
+    public int? Id { get; set; }
+}

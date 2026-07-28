@@ -1,4 +1,10 @@
 @page "/AddInstrutorModalidade"
 @page "/AddInstrutorModalidade/{Id:int}"
 
-<AddInstrutorModalidadePage />
+<AddInstrutorModalidadePage Id="Id"/>
+
+@code{
+
+    [Parameter]
+    public int? Id { get; set; }
+}

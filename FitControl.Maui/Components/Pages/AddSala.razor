@@ -1,4 +1,10 @@
 ﻿@page "/salas/add"
 @page "/sala/edit/{Id:int}"
 
-<AddSalaPage />
+<AddSalaPage Id="Id"/>
+
+@code{
+
+    [Parameter]
+    public int? Id { get; set; }
+}

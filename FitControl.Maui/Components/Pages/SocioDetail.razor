@@ -1,4 +1,10 @@
 ﻿@page "/sociodetail"
 @page "/sociodetail/{Id:int}"
 
-<SocioDetailPage />
+<SocioDetailPage Id="Id"/>
+
+@code{
+
+    [Parameter]
+    public int? Id { get; set; }
+}

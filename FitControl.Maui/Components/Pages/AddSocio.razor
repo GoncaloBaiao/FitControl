@@ -1,4 +1,10 @@
 ﻿@page "/socios/add"
 @page "/socios/edit/{Id:int}"
 
-<AddSocioPage />
+<AddSocioPage Id="Id"/>
+
+@code{
+
+    [Parameter]
+    public int? Id { get; set; }
+}
