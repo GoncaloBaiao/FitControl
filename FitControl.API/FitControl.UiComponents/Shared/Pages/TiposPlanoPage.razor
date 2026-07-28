@@ -1,8 +1,6 @@
-@page "/tipoplanos"
 @using FitControl.Shared.Services
 @using FitControl.Shared.Models
 @inject IFitControlApi FitControlApi
-@rendermode InteractiveServer
 @inject NavigationManager NavigationManager
 @inject ISnackbar Snackbar
 @inject IDialogService DialogService
@@ -16,7 +14,7 @@
 else
 {
 
-    <PaginaListar TItem="FitControl.Shared.Models.TipoPlano"
+    <PaginaListar TItem="TipoPlano"
                   Title="Tipos de Plano"
                   AddLabel="ADICIONAR TIPO DE PLANO"
                   AddHref="/addTipoPlano"
@@ -47,7 +45,7 @@ else
 
 @code {
 
-    private List<Shared.Models.TipoPlano> _tipoPlanos = new ();
+    private List<TipoPlano> _tipoPlanos = new ();
     
     private bool _loading;
 

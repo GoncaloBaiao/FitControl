@@ -13,16 +13,18 @@
     if (_socio.TipoPlano != null && _socio.Genero != null)
     {
         <EditForm FormName="AddSocioForm" Model="_socio" OnValidSubmit="SaveSocio">
+            <DataAnnotationsValidator />
+            <ValidationSummary />
             <div class="mb-3">
-                <label class="form-label">Nome</label>
+                <label class="form-label fw-bold">Nome</label>
                 <InputText class="form-control" @bind-Value="_socio.Nome"/>
             </div>
             <div class="mb-3">
-                <label class="form-label">Email</label>
+                <label class="form-label fw-bold">Email</label>
                 <InputText class="form-control" @bind-Value="_socio.Email"/>
             </div>
             <div class="mb-3">
-                <label class="form-label">Contacto Telefónico</label>
+                <label class="form-label fw-bold">Contacto Telefónico</label>
                 <InputText class="form-control" @bind-Value="_socio.ContactoTelefonico"/>
             </div>
 
@@ -35,11 +37,11 @@
             </MudSelect>
 
             <div class="mb-3">
-                <label class="form-label">Altura</label>
+                <label class="form-label fw-bold">Altura</label>
                 <InputNumber class="form-control" @bind-Value="_socio.Altura"/>
             </div>
             <div class="mb-3">
-                <label class="form-label">Peso</label>
+                <label class="form-label fw-bold">Peso</label>
                 <InputNumber class="form-control" @bind-Value="_socio.Peso"/>
             </div>
 
@@ -58,6 +60,7 @@
             <button class="btn btn-primary mt-3" type="submit"
                     disabled="@_saving">@(Id.HasValue ? "Gravar" : "Adicionar")</button>
         </EditForm>
+        <button class="btn btn-secondary" onclick="@(()=>NavigationManager.NavigateTo("/socios"))">Voltar</button>
     }
 }
 
@@ -143,16 +146,16 @@
             }
             else
             {
-                Snackbar.Add($"Não foi possível guardar o sócio. API devolveu {response.StatusCode}.", Severity.Error);
+                Snackbar.Add($"Não foi possível guardar o Sócio. API devolveu {response.StatusCode}.", Severity.Error);
             }
         }
         catch (ApiException ex)
         {
-            Snackbar.Add($"Não foi possível guardar o sócio. API devolveu {(int)ex.StatusCode}: {ex.ReasonPhrase}", Severity.Error);
+            Snackbar.Add($"Não foi possível guardar o Sócio. API devolveu {(int)ex.StatusCode}: {ex.ReasonPhrase}", Severity.Error);
         }
         catch (Exception ex)
         {
-            Snackbar.Add($"Não foi possível guardar o sócio. {ex.Message}", Severity.Error);
+            Snackbar.Add($"Não foi possível guardar o Sócio. {ex.Message}", Severity.Error);
         }
         finally
         {

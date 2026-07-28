@@ -13,12 +13,14 @@
     @if (_modalidade.NivelDificuldade != null)
     {
         <EditForm FormName="AddModalidadeForm" Model="_modalidade" OnValidSubmit="SaveModalidade">
+            <DataAnnotationsValidator />
+            <ValidationSummary />
             <div class="mb-3">
-                <label class="form-label">Nome</label>
+                <label class="form-label fw-bold">Nome</label>
                 <InputText class="form-control" @bind-Value="_modalidade.Nome"/>
             </div>
             <div class="mb-3">
-                <label class="form-label">Descrição</label>
+                <label class="form-label fw-bold">Descrição</label>
                 <InputText class="form-control" @bind-Value="_modalidade.Descricao"/>
             </div>
 
@@ -32,6 +34,7 @@
 
             <button class="btn btn-primary mt-3" type="submit" disabled="@_saving">@(Id.HasValue ? "Gravar" : "Adicionar")</button>
         </EditForm>
+        <button class="btn btn-secondary" onclick="@(()=>NavigationManager.NavigateTo("/modalidades"))">Voltar</button>
     }
 }
 
@@ -75,7 +78,7 @@
         }
         catch (Exception ex)
         {
-            Snackbar.Add("Não foi possível carregar os niveis de dificuldade.", Severity.Error);
+            Snackbar.Add("Não foi possível carregar os Niveis de Dificuldade.", Severity.Error);
         }
     }
 
@@ -106,16 +109,16 @@
             }
             else
             {
-                Snackbar.Add($"Não foi possível guardar a modalidade. API devolveu {response.StatusCode}.", Severity.Error);
+                Snackbar.Add($"Não foi possível guardar a Modalidade. API devolveu {response.StatusCode}.", Severity.Error);
             }
         }
         catch (ApiException ex)
         {
-            Snackbar.Add($"Não foi possível guardar a modalidade. API devolveu {(int)ex.StatusCode}: {ex.ReasonPhrase}", Severity.Error);
+            Snackbar.Add($"Não foi possível guardar a Modalidade. API devolveu {(int)ex.StatusCode}: {ex.ReasonPhrase}", Severity.Error);
         }
         catch (Exception ex)
         {
-            Snackbar.Add($"Não foi possível guardar a modalidade. {ex.Message}", Severity.Error);
+            Snackbar.Add($"Não foi possível guardar a Modalidade. {ex.Message}", Severity.Error);
         }
         finally
         {
@@ -149,6 +152,6 @@
             Snackbar.Add("Erro a criar popup de confirmação de saída", Severity.Error);
         }
                 
-        NavigationManager.NavigateTo("/Modalidades");
+        NavigationManager.NavigateTo("/modalidades");
     }
 }

@@ -14,7 +14,7 @@
 else
 {
 
-    <PaginaListar TItem="InstrutorModalidade"
+    <PaginaListar TItem="FitControl.Shared.Models.InstrutorModalidade"
                   Title="Modalidades dos Instrutores"
                   AddLabel="ADICIONAR MODALIDADE DO INSTRUTOR"
                   AddHref="/addInstrutorModalidade"
@@ -40,6 +40,7 @@ else
             </MudTd>
         </RowTemplate>
     </PaginaListar>
+    <button class="btn btn-secondary" onclick="@(()=>NavigationManager.NavigateTo("/"))">Voltar</button>
 }
 
 @code {

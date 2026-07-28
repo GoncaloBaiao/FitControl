@@ -1,5 +1,5 @@
-@page "/AddTipoPlano"
-@page "/AddTipoPlano/{Id:int}"
+@page "/addTipoPlano"
+@page "/addTipoPlano/{Id:int}"
 @using FitControl.Shared.Models
 @using FitControl.Shared.Services
 @rendermode InteractiveServer
@@ -23,7 +23,7 @@
     </div>
     <button class="btn btn-primary" type="submit">@(Id.HasValue ? "Save" : "Add")</button>
 </EditForm>
-<button class="btn btn-secondary" onclick="@(()=>NavigationManager.NavigateTo("/TipoPlanos"))">Voltar</button>
+<button class="btn btn-secondary" onclick="@(()=>NavigationManager.NavigateTo("/tiposPlano"))">Voltar</button>
 
 @code {
     [Parameter]
@@ -121,6 +121,6 @@
             Snackbar.Add("Erro a criar popup de confirmação de saída", Severity.Error);
         }
         
-        NavigationManager.NavigateTo("/TipoPlanos");
+        NavigationManager.NavigateTo("/tiposPlano");
     }
 }

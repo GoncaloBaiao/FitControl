@@ -22,7 +22,7 @@ else
     <PaginaListar TItem="Sala"
                   Title="Salas"
                   AddLabel="ADICIONAR SALA"
-                  AddHref="/salas/add"
+                  AddHref="/addSala"
                   Items="_salas">
 
         <HeaderContent>
@@ -36,7 +36,7 @@ else
             <MudTd DataLabel="Descricao">@context.Descricao</MudTd>
             <MudTd DataLabel="Ações" Style="text-align:right;">
                 <MudStack Row="true" Spacing="1" Justify="Justify.FlexEnd">
-                    <MudIconButton Href="@($"/sala/edit/{context.Id}")"
+                    <MudIconButton Href="@($"/addSala/{context.Id}")"
                                    Icon="@Icons.Material.Filled.Edit"
                                    Size="Size.Small"
                                    Style="color:#1E90FF;"
@@ -130,5 +130,4 @@ else
             Snackbar.Add("Erro a apagar Sala", Severity.Error);
         }
     }
-
 }

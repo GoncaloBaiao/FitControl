@@ -11,27 +11,31 @@
 <h3>@(Id.HasValue ? "Editar Instrutor" : "Adicionar Instrutor")</h3>
 
 <EditForm FormName="AddInstrutorForm" Model="_instrutorModel" OnValidSubmit="OnAddInstrutor">
+    <DataAnnotationsValidator/>
+    <ValidationSummary/>
+
     <div class="mb-3">
-        <label class="form-label">Nome</label>
-        <InputText class="form-control" @bind-Value="_instrutorModel.Nome" />
+        <label class="form-label fw-bold">Nome</label>
+        <InputText class="form-control" @bind-Value="_instrutorModel.Nome"/>
     </div>
 
     <MudDatePicker @bind-Date="_instrutorModel.DataNascimento"
                    Label="Data de Nascimento"
-                   DateFormat="dd/MM/yyyy" />
+                   DateFormat="dd/MM/yyyy"/>
 
     <div class="mb-3">
-        <label class="form-label">Email</label>
-        <InputText class="form-control" @bind-Value="_instrutorModel.Email" />
+        <label class="form-label fw-bold">Email</label>
+        <InputText class="form-control" @bind-Value="_instrutorModel.Email"/>
     </div>
 
     <div class="mb-3">
-        <label class="form-label">Contacto</label>
-        <InputText class="form-control" @bind-Value="_instrutorModel.ContactoTelefonico" />
+        <label class="form-label fw-bold">Contacto</label>
+        <InputText class="form-control" @bind-Value="_instrutorModel.ContactoTelefonico"/>
     </div>
 
     <button class="btn btn-primary" type="submit">@(Id.HasValue ? "Gravar" : "Adicionar")</button>
 </EditForm>
+<button class="btn btn-secondary" onclick="@(()=>NavigationManager.NavigateTo("/instrutores"))">Voltar</button>
 
 @code {
     [Parameter] public int? Id { get; set; }
@@ -54,7 +58,7 @@
         }
         catch
         {
-            Snackbar.Add("Erro a carregar instrutor.", Severity.Error);
+            Snackbar.Add("Erro a carregar Instrutor.", Severity.Error);
         }
     }
 
@@ -67,7 +71,7 @@
                 var response = await FitControlApi.UpdateInstrutor(_instrutorModel);
                 Snackbar.Add(response.IsSuccessStatusCode
                     ? "Instrutor editado com sucesso"
-                    : "Não foi possível editar o instrutor",
+                    : "Não foi possível editar o Instrutor",
                     response.IsSuccessStatusCode ? Severity.Success : Severity.Error);
             }
             else
@@ -75,7 +79,7 @@
                 var response = await FitControlApi.AddInstrutor(_instrutorModel);
                 Snackbar.Add(response.IsSuccessStatusCode
                     ? "Instrutor adicionado com sucesso"
-                    : "Não foi possível adicionar o instrutor",
+                    : "Não foi possível adicionar o Instrutor",
                     response.IsSuccessStatusCode ? Severity.Success : Severity.Error);
             }
             //POPUP
@@ -107,7 +111,7 @@
         }
         catch
         {
-            Snackbar.Add("Erro ao guardar instrutor.", Severity.Error);
+            Snackbar.Add("Erro ao guardar Instrutor.", Severity.Error);
             return;
         }
 

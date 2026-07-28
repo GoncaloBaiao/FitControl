@@ -12,6 +12,8 @@
     if (_instrutorModalidadeModel.Instrutor != null && _instrutorModalidadeModel.Modalidade != null)
     {
         <EditForm FormName="AddInstrutorModalidadeForm" Model="_instrutorModalidadeModel" OnValidSubmit="OnAddInstrutorModalidade">
+            <DataAnnotationsValidator />
+            <ValidationSummary />
             <MudSelect Label="Instrutor" @bind-Value="_instrutorModalidadeModel.Instrutor" Placeholder="Selecione o instrutor"
                        ToStringFunc="@((Instrutor obj) => obj.Nome ?? null)">
                 @foreach (Instrutor instrutor in _instrutores)
@@ -28,6 +30,7 @@
             </MudSelect>
             <button class="btn btn-primary" type="submit">@(Id.HasValue ? "Gravar" : "Adicionar")</button>
         </EditForm>
+        <button class="btn btn-secondary" onclick="@(()=>NavigationManager.NavigateTo("/instrutorModalidades"))">Voltar</button>
     }
 }
 
@@ -35,7 +38,7 @@
     [Parameter]
     public int? Id { get; set; }
     
-    private InstrutorModalidade _instrutorModalidadeModel = new();
+    private FitControl.Shared.Models.InstrutorModalidade _instrutorModalidadeModel = new();
     private List<Modalidade> _modalidades = new ();
     private List<Instrutor> _instrutores = new ();
 
@@ -145,6 +148,6 @@
             Snackbar.Add("Erro a criar popup de confirmação de saída", Severity.Error);
         }
         
-        NavigationManager.NavigateTo("/InstrutorModalidades");
+        NavigationManager.NavigateTo("/instrutorModalidades");
     }
 }

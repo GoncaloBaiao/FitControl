@@ -11,17 +11,20 @@
 <h3>@(Id.HasValue ? "Editar Sala" : "Adicionar Sala")</h3>
 
 <EditForm FormName="AddSalaForm" Model="_sala" OnValidSubmit="SaveSala">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
     <div class="mb-3">
-        <label class="form-label">Nome</label>
+        <label class="form-label fw-bold">Nome</label>
         <InputText class="form-control" @bind-Value="_sala.Nome" />
     </div>
     <div class="mb-3">
-        <label class="form-label">Descrição</label>
+        <label class="form-label fw-bold">Descrição</label>
         <InputText class="form-control" @bind-Value="_sala.Descricao" />
     </div>
 
     <button class="btn btn-primary" type="submit" disabled="@_saving">@(Id.HasValue ? "Gravar" : "Adicionar")</button>
 </EditForm>
+<button class="btn btn-secondary" onclick="@(()=>NavigationManager.NavigateTo("/salas"))">Voltar</button>
 
 @code {
     [Parameter]
@@ -75,16 +78,16 @@
             }
             else
             {
-                Snackbar.Add($"Não foi possível guardar a sala. API devolveu {response.StatusCode}.", Severity.Error);
+                Snackbar.Add($"Não foi possível guardar a Sala. API devolveu {response.StatusCode}.", Severity.Error);
             }
         }
         catch (ApiException ex)
         {
-            Snackbar.Add($"Não foi possível guardar a sala. API devolveu {(int)ex.StatusCode}: {ex.ReasonPhrase}", Severity.Error);
+            Snackbar.Add($"Não foi possível guardar a Sala. API devolveu {(int)ex.StatusCode}: {ex.ReasonPhrase}", Severity.Error);
         }
         catch (Exception ex)
         {
-            Snackbar.Add($"Não foi possível guardar a sala. {ex.Message}", Severity.Error);
+            Snackbar.Add($"Não foi possível guardar a Sala. {ex.Message}", Severity.Error);
         }
         finally
         {
@@ -118,6 +121,6 @@
             Snackbar.Add("Erro a criar popup de confirmação de saída", Severity.Error);
         }
                 
-        NavigationManager.NavigateTo("/Salas");
+        NavigationManager.NavigateTo("/salas");
     }
 }

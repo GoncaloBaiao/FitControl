@@ -19,7 +19,7 @@ else
     <PaginaListar TItem="Modalidade"
                   Title="Modalidades"
                   AddLabel="ADICIONAR MODALIDADE"
-                  AddHref="/modalidades/add"
+                  AddHref="/addModalidade"
                   Items="_modalidades">
 
         <HeaderContent>
@@ -74,7 +74,7 @@ else
         }
     }
 
-    private void OnEditNavigate(int id) => NavigationManager.NavigateTo($"/modalidades/edit/{id}");
+    private void OnEditNavigate(int id) => NavigationManager.NavigateTo($"/addModalidade/{id}");
 
     private async Task OnModalidadeDelete(int id)
     {

@@ -1,4 +1,4 @@
-@page "/instrutormodalidades"
+@page "/tiposPlano"
 @using FitControl.Shared.Services
 @using FitControl.Shared.Models
 @inject IFitControlApi FitControlApi
@@ -7,7 +7,7 @@
 @inject ISnackbar Snackbar
 @inject IDialogService DialogService
 
-<PageTitle>Modalidades dos Instrutores</PageTitle>
+<PageTitle>Tipos de Plano</PageTitle>
 
 @if (_loading)
 {
@@ -16,20 +16,20 @@
 else
 {
 
-    <PaginaListar TItem="FitControl.Shared.Models.InstrutorModalidade"
-                  Title="Modalidades dos Instrutores"
-                  AddLabel="ADICIONAR MODALIDADE DO INSTRUTOR"
-                  AddHref="/addInstrutorModalidade"
-                  Items="_instrutorModalidades">
+    <PaginaListar TItem="FitControl.Shared.Models.TipoPlano"
+                  Title="Tipos de Plano"
+                  AddLabel="ADICIONAR TIPO DE PLANO"
+                  AddHref="/addTipoPlano"
+                  Items="_tipoPlanos">
         <HeaderContent>
-            <MudTh>Instrutor</MudTh>
-            <MudTh>Modalidade</MudTh>
+            <MudTh>Designação</MudTh>
+            <MudTh>Preço</MudTh>
             <MudTh Style="text-align:right;">Ações</MudTh>
         </HeaderContent>
 
         <RowTemplate>
-            <MudTd DataLabel="Instrutor">@(context.Instrutor?.Nome ?? "N/A")</MudTd>
-            <MudTd DataLabel="Modalidade">@(context.Modalidade?.Nome ?? "N/A")</MudTd>
+            <MudTd DataLabel="Designação">@context.Designacao</MudTd>
+            <MudTd DataLabel="Preço">@context.Preco</MudTd>
             <MudTd DataLabel="Ações" Style="text-align:right;">
                 <MudIconButton Icon="@Icons.Material.Filled.Edit"
                                Size="Size.Small"
@@ -38,7 +38,7 @@ else
                 <MudIconButton Icon="@Icons.Material.Filled.Delete"
                                Size="Size.Small"
                                Style="color:#ef4444;"
-                               OnClick="@(() => OnInstrutorModalidadeDelete(context.Id))" />
+                               OnClick="@(() => OnTipoPlanoDelete(context.Id))" />
             </MudTd>
         </RowTemplate>
     </PaginaListar>
@@ -47,7 +47,7 @@ else
 
 @code {
 
-    private List<FitControl.Shared.Models.InstrutorModalidade> _instrutorModalidades = new ();
+    private List<Shared.Models.TipoPlano> _tipoPlanos = new ();
     
     private bool _loading;
 
@@ -60,13 +60,13 @@ else
         
         try
         {
-            var response = await FitControlApi.GetInstrutorModalidades();
-            if (response.Content != null) 
-                _instrutorModalidades = response.Content;
+            var response = await FitControlApi.GetTipoPlanos();
+            if (response.Content != null)
+                _tipoPlanos = response.Content;
         }
         catch (Exception)
         {
-            Snackbar.Add("Erro a extrair a lista de Modalidades dos Instrutores", Severity.Error);
+            Snackbar.Add("Erro a extrair a lista de Tipos de Plano", Severity.Error);
         }
         
         StateHasChanged();
@@ -74,7 +74,7 @@ else
         _loading = false;
     }
     
-    private async Task OnInstrutorModalidadeDelete(int id)
+    private async Task OnTipoPlanoDelete(int id)
     {
         //POPUP
         try
@@ -82,13 +82,13 @@ else
             var parameters = new DialogParameters<Dialog>
             {
                 { x => x.ContentText, "Tem a certeza que quer apagar este registo? Este processo não pode ser desfeito." },
-                { x => x.ButtonOkText, "Apagar" },
+                { x => x.ButtonOkText, "Delete" },
                 { x => x.Color, Color.Error }
             };
 
             var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall };
 
-            var result = await DialogService.ShowAsync<Dialog>("Apagar", parameters, options);
+            var result = await DialogService.ShowAsync<Dialog>("Delete", parameters, options);
 
             var res = await result.Result;
 
@@ -104,31 +104,31 @@ else
         
         try
         {
-            var apiResponse = await FitControlApi.DeleteInstrutorModalidade(id);
+            var apiResponse = await FitControlApi.DeleteTipoPlano(id);
             
             if (apiResponse.IsSuccessStatusCode)
             {
-                Snackbar.Add("Modalidade do Instrutor apagada com sucesso", Severity.Success);
+                Snackbar.Add("Tipo de Plano apagado com sucesso", Severity.Success);
                 
                 try
                 {
-                    var response = await FitControlApi.GetInstrutorModalidades();
+                    var response = await FitControlApi.GetTipoPlanos();
                     if (response.Content != null)
-                        _instrutorModalidades = response.Content;
+                        _tipoPlanos = response.Content;
                 }
                 catch (Exception )
                 {
-                    Snackbar.Add("Erro a atualizar a lista de Modalidades dos Instrutores", Severity.Error);
+                    Snackbar.Add("Erro a atualizar a lista de Tipos de Plano", Severity.Error);
                 }
             }
             else
             {
-                Snackbar.Add("Não foi possível apagar a Modalidade do Instrutor", Severity.Error);
+                Snackbar.Add("Não foi possível apagar o Tipo de Plano", Severity.Error);
             }
         }
         catch (Exception)
         {
-            Snackbar.Add("Erro a apagar a Modalidade do Instrutor", Severity.Error);
+            Snackbar.Add("Erro a apagar Tipo de Plano", Severity.Error);
         }
 
         StateHasChanged();
@@ -136,6 +136,6 @@ else
     
     private void OnEditNavigate(int id)
     {
-        NavigationManager.NavigateTo($"/addInstrutorModalidade/{id}");
+        NavigationManager.NavigateTo($"/addTipoPlano/{id}");
     }
 }

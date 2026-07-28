@@ -21,7 +21,7 @@ else
     <PaginaListar TItem="Shared.Models.Socio"
                   Title="Sócios"
                   AddLabel="ADICIONAR SÓCIO"
-                  AddHref="/socios/add"
+                  AddHref="/addSocio"
                   Items="_socios">
 
         <HeaderContent>
@@ -51,7 +51,7 @@ else
             <MudTd DataLabel="Tipo Plano">@(context.TipoPlano?.Designacao ?? "N/A")</MudTd>
             <MudTd DataLabel="Ações" Style="text-align:right;">
                 <MudStack Row="true" Spacing="1" Justify="Justify.FlexEnd">
-                    <MudIconButton Href="@($"/socios/edit/{context.Id}")"
+                    <MudIconButton Href="@($"/addSocio/{context.Id}")"
                                    Icon="@Icons.Material.Filled.Edit"
                                    Size="Size.Small"
                                    Style="color:#1E90FF;"
@@ -61,7 +61,7 @@ else
                                    Size="Size.Small"
                                    Style="color:#ef4444;"
                                    Title="Eliminar" />
-                    <MudIconButton Href="@($"/sociodetail/{context.Id}")"
+                    <MudIconButton Href="@($"/socioDetail/{context.Id}")"
                                    Icon="@Icons.Material.Filled.Info"
                                    Size="Size.Small"
                                    Style="color:#14C3F1;"
@@ -150,6 +150,5 @@ else
             Snackbar.Add("Erro a apagar Sócio", Severity.Error);
         }
     }
-
     private string FormatDate(DateTime? date) => date?.ToString("dd/MM/yyyy") ?? "";
 }

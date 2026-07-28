@@ -16,7 +16,8 @@
         </MudText>
 
         <MudSpacer />
-
+        <MudIconButton Icon="@Icons.Material.Filled.Login" Href="/login"/>
+        <MudIconButton Icon="@Icons.Material.Filled.Person" Href="/users"/>
         <MudIconButton Icon="@Icons.Material.Filled.NotificationsNone" Color="Color.Inherit" />
     </MudAppBar>
 
@@ -63,7 +64,7 @@
                 @if (_drawerOpen) { <span>Sócios</span> }
             </NavLink>
 
-            <NavLink href="/tipoplanos" class="fc-sidebar-item">
+            <NavLink href="/tiposPlano" class="fc-sidebar-item">
                 <MudIcon Icon="@Icons.Material.Filled.CreditCard" Size="Size.Small" Class="mr-3" />
                 @if (_drawerOpen) { <span>Tipos de Plano</span> }
             </NavLink>
@@ -73,7 +74,7 @@
                 @if (_drawerOpen) { <span>Salas</span> }
             </NavLink>
 
-            <NavLink href="/niveldificuldades" class="fc-sidebar-item">
+            <NavLink href="/niveisDificuldade" class="fc-sidebar-item">
                 <MudIcon Icon="@Icons.Material.Filled.LocalFireDepartment" Size="Size.Small" Class="mr-3" />
                 @if (_drawerOpen) { <span>Nível de Dificuldade</span> }
             </NavLink>
@@ -83,7 +84,7 @@
                 @if (_drawerOpen) { <span>Inscrições</span> }
             </NavLink>
 
-            <NavLink href="/instrutormodalidades" class="fc-sidebar-item">
+            <NavLink href="/instrutorModalidades" class="fc-sidebar-item">
                 <MudIcon Icon="@Icons.Material.Filled.Link" Size="Size.Small" Class="mr-3" />
                 @if (_drawerOpen) { <span>Modalidades Instrutores</span> }
             </NavLink>
@@ -100,7 +101,7 @@
 @code {
     private bool _drawerOpen = true;
     private string _currentTitle = "FITCONTROL";
-
+    
     private void ToggleDrawer()
     {
         _drawerOpen = !_drawerOpen;

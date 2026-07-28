@@ -1,10 +1,6 @@
-﻿@page "/niveldificuldades"
-@using NivelDificuldade = FitControl.Shared.Models.NivelDificuldade
+﻿@using FitControl.Shared.Models
 @using FitControl.Shared.Services
-@using MudBlazor
-@using Refit
 @inject IFitControlApi FitControlApi
-@layout MainLayout
 @inject ISnackbar Snackbar
 @inject IDialogService DialogService
 @inject  NavigationManager NavigationManager
@@ -18,10 +14,10 @@
 else
 {
 
-    <PaginaListar TItem="Shared.Models.NivelDificuldade"
+    <PaginaListar TItem="NivelDificuldade"
                   Title="Níveis de Dificuldade"
                   AddLabel="ADICIONAR NÍVEL DE DIFICULDADE"
-                  AddHref="/niveldificuldades/add"
+                  AddHref="/addNivelDificuldade"
                   Items="_nivelDificuldade">
 
         <HeaderContent>
@@ -33,7 +29,7 @@ else
             <MudTd DataLabel="Nível">@context.Nivel</MudTd>
             <MudTd DataLabel="Ações" Style="text-align:right;">
                 <MudStack Row="true" Spacing="1" Justify="Justify.FlexEnd">
-                    <MudIconButton Href="@($"/nivelDificuldade/edit/{context.Id}")"
+                    <MudIconButton Href="@($"/addNivelDificuldade/{context.Id}")"
                                    Icon="@Icons.Material.Filled.Edit"
                                    Size="Size.Small"
                                    Style="color:#1E90FF;"
@@ -53,7 +49,7 @@ else
 @code {
     private bool _loading = true;
     private bool _hasLoaded;
-    private List<Shared.Models.NivelDificuldade> _nivelDificuldade = new();
+    private List<NivelDificuldade> _nivelDificuldade = new();
 
     protected override async Task OnInitializedAsync()
     {
@@ -73,14 +69,14 @@ else
             }
             else
             {
-                _nivelDificuldade = new List<Shared.Models.NivelDificuldade>();
+                _nivelDificuldade = new List<NivelDificuldade>();
                 Snackbar.Add($"API devolveu {response.StatusCode}.", Severity.Error);
             }
         }
         catch (Exception ex)
         {
             Snackbar.Add($"Não foi possível carregar níveis de dificuldade. Verifica se a API está a correr. Erro: {ex.Message}", Severity.Error);
-            _nivelDificuldade = new List<Shared.Models.NivelDificuldade>();
+            _nivelDificuldade = new List<NivelDificuldade>();
         }
         finally
         {
@@ -118,16 +114,16 @@ else
             if (res.IsSuccessStatusCode)
             {
                 _nivelDificuldade = _nivelDificuldade.Where(a => a.Id != id).ToList();
-                Snackbar.Add("Nível de dificuldade apagado com sucesso", Severity.Success);
+                Snackbar.Add("Nível de Dificuldade apagado com sucesso", Severity.Success);
             }
             else
             {
-                Snackbar.Add("Não foi possível apagar o Nível de dificuldade", Severity.Error);
+                Snackbar.Add("Não foi possível apagar o Nível de Dificuldade", Severity.Error);
             }
         }
         catch
         {
-            Snackbar.Add("Erro a apagar Nível de dificuldade", Severity.Error);
+            Snackbar.Add("Erro a apagar Nível de Dificuldade", Severity.Error);
         }
     }
 }

@@ -11,6 +11,8 @@
     if (_inscricaoModel.Aula != null && _inscricaoModel.Socio != null)
     {
         <EditForm FormName="AddInscricaoForm" Model="_inscricaoModel.Aula" OnValidSubmit="OnAddInscricao">
+            <DataAnnotationsValidator />
+            <ValidationSummary />
             <MudSelect Label="Aula" @bind-Value="_inscricaoModel.Aula" Placeholder="Selecione a aula"
                        ToStringFunc="@((Aula obj) => obj.Nome ?? null)">
                 @foreach (var aula in _aulas)
@@ -19,7 +21,7 @@
                 }
             </MudSelect>
             <MudSelect Label="Socio" @bind-Value="_inscricaoModel.Socio" Placeholder="Selecione o sócio"
-                       ToStringFunc="@((Socio obj) => obj.Nome ?? null)">
+                       ToStringFunc="@((FitControl.Shared.Models.Socio obj) => obj.Nome ?? null)">
                 @foreach (var socio in _socios)
                 {
                     <MudSelectItem Value="socio">@socio.Nome</MudSelectItem>
@@ -31,6 +33,7 @@
                            DateFormat="dd/MM/yyyy"/>
             <button class="btn btn-primary" type="submit">@(Id.HasValue ? "Gravar" : "Adicionar")</button>
         </EditForm>
+        <button class="btn btn-secondary" onclick="@(()=>NavigationManager.NavigateTo("/inscricoes"))">Voltar</button>
     }
 }
 
@@ -148,6 +151,6 @@
             Snackbar.Add("Erro a criar popup de confirmação de saída", Severity.Error);
         }
         
-        NavigationManager.NavigateTo("/Inscricoes");
+        NavigationManager.NavigateTo("/inscricoes");
     }
 }

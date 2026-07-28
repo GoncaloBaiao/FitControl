@@ -7,22 +7,38 @@
 
 <PageTitle>Users</PageTitle>
 
-<MudTable Items="@_users" Hover="true" Breakpoint="Breakpoint.Sm" Loading="@_loading" LoadingProgressColor="Color.Info">
+<PaginaListar TItem="User"
+              Title="Users"
+              AddLabel="ADICIONAR UTILIZADOR"
+              AddHref="/addUser"
+              Items="_users">
+
     <HeaderContent>
-        <MudTh>Username</MudTh>
+        <MudTh>Nome</MudTh>
         <MudTh>Password</MudTh>
-        <MudTh>Ações</MudTh>
+        <MudTh Style="text-align:right;">Ações</MudTh>
     </HeaderContent>
+
     <RowTemplate>
-        <MudTd DataLabel="Username">@context.Username</MudTd>
-        <MudTd DataLabel="Password">@context.Password</MudTd>
-        <MudTd DataLabel="Actions">
-            <MudIconButton Icon="@Icons.Material.Filled.RemoveRedEye" aria-label="detail" OnClick="() => OnEditNavigate(context.Id)"/>
-            <MudIconButton Icon="@Icons.Material.Filled.Delete" Color='Color.Error' aria-label="delete" OnClick="()=> OnUserDelete(context.Id)"/>
+        <MudTd DataLabel="Nome">@context.Username</MudTd>
+        <MudTd DataLabel="Descricao">@context.Password</MudTd>
+        <MudTd DataLabel="Ações" Style="text-align:right;">
+            <MudStack Row="true" Spacing="1" Justify="Justify.FlexEnd">
+                <MudIconButton Href="@($"/addUser/{context.Id}")"
+                               Icon="@Icons.Material.Filled.Edit"
+                               Size="Size.Small"
+                               Style="color:#1E90FF;"
+                               Title="Editar" />
+                <MudIconButton OnClick="@(() => OnUserDelete(context.Id))"
+                               Icon="@Icons.Material.Filled.Delete"
+                               Size="Size.Small"
+                               Style="color:#ef4444;"
+                               Title="Eliminar" />
+            </MudStack>
         </MudTd>
     </RowTemplate>
-</MudTable>
-<MudIconButton Icon="@Icons.Material.Filled.Add" aria-label="detail" OnClick="OnAddNavigate"/>
+</PaginaListar>
+<button class="btn btn-secondary" onclick="@(()=>NavigationManager.NavigateTo("/"))">Voltar</button>
 
 @code {
 
@@ -35,6 +51,7 @@
         _loading = true;
         
         await base.OnInitializedAsync();
+        Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopRight;
         
         try
         {
@@ -44,8 +61,6 @@
         }
         catch (Exception)
         {
-            Snackbar.Clear();
-            Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopRight;
             Snackbar.Add("Erro a extrair a lista de Users", Severity.Error);
         }
         
@@ -79,8 +94,6 @@
         }
         catch (Exception)
         {
-            Snackbar.Clear();
-            Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopRight;
             Snackbar.Add("Erro a criar popup de confirmação da ação de apagar", Severity.Error);
         }
         
@@ -90,8 +103,6 @@
             
             if (apiResponse.IsSuccessStatusCode)
             {
-                Snackbar.Clear();
-                Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopRight;
                 Snackbar.Add("User apagado com sucesso", Severity.Success);
                 
                 try
@@ -102,35 +113,19 @@
                 }
                 catch (Exception )
                 {
-                    Snackbar.Clear();
-                    Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopRight;
                     Snackbar.Add("Erro a atualizar a lista de Users", Severity.Error);
                 }
             }
             else
             {
-                Snackbar.Clear();
-                Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopRight;
                 Snackbar.Add("Não foi possível apagar o User", Severity.Error);
             }
         }
         catch (Exception)
         {
-            Snackbar.Clear();
-            Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopRight;
-                Snackbar.Add("Erro a apagar User", Severity.Error);
+            Snackbar.Add("Erro a apagar User", Severity.Error);
         }
 
         StateHasChanged();
-    }
-    
-    private void OnEditNavigate(int id)
-    {
-        NavigationManager.NavigateTo($"/addUser/{id}");
-    }
-    
-    private void OnAddNavigate()
-    {
-        NavigationManager.NavigateTo($"/addUser");
     }
 }

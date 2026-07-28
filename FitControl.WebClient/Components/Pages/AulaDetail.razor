@@ -1,5 +1,5 @@
-﻿@page "/auladetail"
-@page "/auladetail/{Id:int}"
+﻿@page "/aulaDetail"
+@page "/aulaDetail/{Id:int}"
 @using FitControl.Shared.Models
 @using FitControl.Shared.Services
 @inject IFitControlApi FitControlApi
@@ -47,7 +47,7 @@
         <PaginaListar TItem="Shared.Models.Socio"
                       Title="Inscritos"
                       AddLabel="INSCREVER"
-                      AddHref="/AddInscricao"
+                      AddHref="/addInscricao"
                       Items="_inscritos"
                       OnRowClick="@OnClickSocio">
 
@@ -77,7 +77,7 @@
                     <MudTd DataLabel="Tipo Plano">@(context.TipoPlano?.Designacao ?? "N/A")</MudTd>*@
             </RowTemplate>
         </PaginaListar>
-        <button class="btn btn-secondary" onclick="@(()=>NavigationManager.NavigateTo("/Aulas"))">Voltar</button>
+        <button class="btn btn-secondary" onclick="@(()=>NavigationManager.NavigateTo("/aulas"))">Voltar</button>
     }
 }
 
@@ -137,6 +137,6 @@
 
     private void OnClickSocio(TableRowClickEventArgs<Socio> args)
     {
-        NavigationManager.NavigateTo($"/sociodetail/{args.Item.Id}");
+        NavigationManager.NavigateTo($"/socioDetail/{args.Item.Id}");
     }
 }

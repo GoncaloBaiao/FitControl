@@ -1,4 +1,4 @@
-@using Modalidade = FitControl.Shared.Models.Modalidade
+@using FitControl.Shared.Models
 @using FitControl.Shared.Services
 @inject IFitControlApi FitControlApi
 @inject NavigationManager NavigationManager
@@ -16,7 +16,7 @@ else
     <PaginaListar TItem="Modalidade"
                   Title="Modalidades"
                   AddLabel="ADICIONAR MODALIDADE"
-                  AddHref="/modalidades/add"
+                  AddHref="/addModalidade"
                   Items="_modalidades">
 
         <HeaderContent>
@@ -42,6 +42,7 @@ else
             </MudTd>
         </RowTemplate>
     </PaginaListar>
+    <button class="btn btn-secondary" onclick="@(()=>NavigationManager.NavigateTo("/"))">Voltar</button>
 }
 
 @code {
@@ -70,7 +71,7 @@ else
         }
     }
 
-    private void OnEditNavigate(int id) => NavigationManager.NavigateTo($"/modalidades/edit/{id}");
+    private void OnEditNavigate(int id) => NavigationManager.NavigateTo($"/addModalidade/{id}");
 
     private async Task OnModalidadeDelete(int id)
     {

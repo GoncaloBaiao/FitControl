@@ -1,5 +1,5 @@
-@page "/AddAula"
-@page "/AddAula/{Id:int}"
+@page "/addAula"
+@page "/addAula/{Id:int}"
 @using FitControl.Shared.Models
 @using FitControl.Shared.Services
 @rendermode InteractiveServer
@@ -61,7 +61,7 @@
             </MudSelect>
             <button class="btn btn-primary" type="submit">@(Id.HasValue ? "Gravar" : "Adicionar")</button>
         </EditForm>
-        <button class="btn btn-secondary" onclick="@(()=>NavigationManager.NavigateTo("/Aulas"))">Voltar</button>
+        <button class="btn btn-secondary" onclick="@(()=>NavigationManager.NavigateTo("/aulas"))">Voltar</button>
     }
 }
 
@@ -201,7 +201,7 @@
             Snackbar.Add("Erro a criar popup de confirmação de saída", Severity.Error);
         }
         
-        NavigationManager.NavigateTo("/Aulas");
+        NavigationManager.NavigateTo("/aulas");
     }
 
     private void ValidarDatasModelo()

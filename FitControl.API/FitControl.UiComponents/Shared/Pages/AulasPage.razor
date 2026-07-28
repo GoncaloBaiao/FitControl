@@ -56,13 +56,15 @@ else
                                Size="Size.Small"
                                Style="color:#ef4444;"
                                OnClick="@(() => OnAulaDelete(context.Id))"/>
-                <MudIconButton Icon="@Icons.Material.Filled.Info"
+                <MudIconButton Href="@($"/aulaDetail/{context.Id}")"
+                               Icon="@Icons.Material.Filled.Info"
                                Size="Size.Small"
                                Style="color:#14C3F1;"
-                               OnClick="@(() => OnDetailNavigate(context.Id))"/>
+                               Title="Details" />
             </MudTd>
         </RowTemplate>
     </PaginaListar>
+    <button class="btn btn-secondary" onclick="@(()=>NavigationManager.NavigateTo("/"))">Voltar</button>
 }
 
 @code {
@@ -133,12 +135,12 @@ else
             }
             else
             {
-                Snackbar.Add("Não foi possível apagar a aula", Severity.Error);
+                Snackbar.Add("Não foi possível apagar a Aula", Severity.Error);
             }
         }
         catch
         {
-            Snackbar.Add("Erro a apagar aula", Severity.Error);
+            Snackbar.Add("Erro a apagar Aula", Severity.Error);
         }
     }
 
@@ -168,10 +170,5 @@ else
         if (ratio <= 1.0 / 3.0) return "#4ADE80"; // verde
         if (ratio <= 2.0 / 3.0) return "#FFD60A"; // amarelo
         return "#FF6B35"; // vermelho
-    }
-
-    private void OnDetailNavigate(int id)
-    {
-        NavigationManager.NavigateTo($"/auladetail/{id}");
     }
 }

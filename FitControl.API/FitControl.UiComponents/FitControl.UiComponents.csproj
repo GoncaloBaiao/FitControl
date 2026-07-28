@@ -34,14 +34,11 @@
       <None Include="Shared\Pages\HomePage.razor" />
       <None Include="Shared\Pages\InscricoesPage.razor" />
       <None Include="Shared\Pages\InstrutoresPage.razor" />
-      <None Include="Shared\Pages\InstrutorModalidadePage.razor" />
       <None Include="Shared\Pages\LoginPage.razor" />
       <None Include="Shared\Pages\ModalidadesPage.razor" />
-      <None Include="Shared\Pages\NivelDificuldadePage.razor" />
       <None Include="Shared\Pages\SalasPage.razor" />
       <None Include="Shared\Pages\SocioDetailPage.razor" />
       <None Include="Shared\Pages\SociosPage.razor" />
-      <None Include="Shared\Pages\TipoPlanoPage.razor" />
       <None Include="Shared\Pages\UsersPage.razor" />
     </ItemGroup>
 
