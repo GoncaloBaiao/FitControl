@@ -1,0 +1,37 @@
+﻿@using FitControl.Shared.Models
+@using FitControl.Shared.Services
+@inject IAuthApi AuthApi
+@inject NavigationManager NavigationManager
+@inject ISnackbar Snackbar
+
+<h3>Login</h3>
+
+<EditForm Model=@_userModel OnValidSubmit="OnLogin">
+    <MudTextField T="string" Label="Username" Required="true" RequiredError="Username is required!"
+                  @bind-Value=@_userModel.Username/>
+    <MudTextField T="string"
+                  @bind-Value="@_userModel.Password"
+                  Label="Password"
+                  HelperText="Choose a strong password"
+                  InputType="InputType.Password"
+                  Required="true"
+                  RequiredError="Password is required!"/>
+    <button class="btn btn-primary" type="submit">Login</button>
+</EditForm>
+
+@code {
+    private User _userModel { get; set; } = new();
+
+    private async Task OnLogin()
+    {
+        var response = await AuthApi.GetUserAsync(_userModel);
+        if (response.IsSuccessful)
+        {
+            NavigationManager.NavigateTo("/");
+        }
+        else
+        {
+            Snackbar.Add("Username ou password errados!", Severity.Error);
+        }
+    }
+}

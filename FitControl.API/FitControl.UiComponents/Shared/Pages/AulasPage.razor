@@ -1,0 +1,177 @@
+@using FitControl.Shared.Services
+@using FitControl.Shared.Models
+@inject IFitControlApi FitControlApi
+@inject NavigationManager NavigationManager
+@inject ISnackbar Snackbar
+@inject IDialogService DialogService
+
+<PageTitle>Aulas</PageTitle>
+
+@if (_loading)
+{
+    <MudProgressLinear Indeterminate="true" Class="mb-4"/>
+}
+else
+{
+
+    <PaginaListar TItem="Aula"
+                  Title="Aulas"
+                  AddLabel="ADICIONAR AULA"
+                  AddHref="/addAula"
+                  Items="_aulas">
+
+        <HeaderContent>
+            <MudTh>Aula</MudTh>
+            <MudTh>Instrutor</MudTh>
+            <MudTh>Horário</MudTh>
+            <MudTh>Vagas</MudTh>
+            <MudTh Style="text-align:right;">Ações</MudTh>
+        </HeaderContent>
+
+        <RowTemplate>
+            <MudTd DataLabel="Aula" Class="fc-table-row" Style="color:#fff;font-weight:600;">
+                @context.Nome
+            </MudTd>
+
+            <MudTd DataLabel="Instrutor" Class="fc-table-row">
+                @(context.Instrutor?.Nome ?? "N/A")
+            </MudTd>
+
+            <MudTd DataLabel="Horário" Class="fc-table-row">
+                @context.HoraInicio
+            </MudTd>
+
+            <MudTd DataLabel="Vagas" Class="fc-table-row">
+                <span style="color:@GetVagasColor(context); font-weight:700;">
+                    @GetInscritos(context.Id)/@context.Capacidade
+                </span>
+            </MudTd>
+
+            <MudTd DataLabel="Ações" Class="fc-table-row" Style="text-align:right;">
+                <MudIconButton Icon="@Icons.Material.Filled.Edit"
+                               Size="Size.Small"
+                               Style="color:#1E90FF;"
+                               OnClick="@(() => OnEditNavigate(context.Id))"/>
+                <MudIconButton Icon="@Icons.Material.Filled.Delete"
+                               Size="Size.Small"
+                               Style="color:#ef4444;"
+                               OnClick="@(() => OnAulaDelete(context.Id))"/>
+                <MudIconButton Icon="@Icons.Material.Filled.Info"
+                               Size="Size.Small"
+                               Style="color:#14C3F1;"
+                               OnClick="@(() => OnDetailNavigate(context.Id))"/>
+            </MudTd>
+        </RowTemplate>
+    </PaginaListar>
+}
+
+@code {
+    private List<Aula> _aulas = new();
+    private List<Inscricao> _inscricoes = new();
+    private bool _loading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _loading = true;
+        await base.OnInitializedAsync();
+        Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopRight;
+        
+        try
+        {
+            var aulasTask = FitControlApi.GetAulas();
+            var inscricoesTask = FitControlApi.GetInscricoes();
+
+            await Task.WhenAll(aulasTask, inscricoesTask);
+
+            _aulas = aulasTask.Result.Content ?? new List<Aula>();
+            _inscricoes = inscricoesTask.Result.Content ?? new List<Inscricao>();
+        }
+        catch
+        {
+            Snackbar.Add("Erro a carregar aulas/inscrições.", Severity.Error);
+
+            _aulas = new List<Aula>();
+            _inscricoes = new List<Inscricao>();
+        }
+        finally
+        {
+            _loading = false;
+        }
+    }
+
+    private async Task OnAulaDelete(int id)
+    {
+        try
+        {
+            var parameters = new DialogParameters<Dialog>
+            {
+                { x => x.ContentText, "Tem a certeza que quer apagar este registo? Este processo não pode ser desfeito." },
+                { x => x.ButtonOkText, "Apagar" },
+                { x => x.Color, Color.Error }
+            };
+
+            var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall };
+            var dialog = await DialogService.ShowAsync<Dialog>("Apagar", parameters, options);
+            var result = await dialog.Result;
+
+            if (result.Canceled) return;
+        }
+        catch
+        {
+            Snackbar.Add("Erro a criar popup de confirmação de apagar.", Severity.Error);
+            return;
+        }
+
+        try
+        {
+            var res = await FitControlApi.DeleteAula(id);
+
+            if (res.IsSuccessStatusCode)
+            {
+                _aulas = _aulas.Where(a => a.Id != id).ToList();
+                Snackbar.Add("Aula apagada com sucesso", Severity.Success);
+            }
+            else
+            {
+                Snackbar.Add("Não foi possível apagar a aula", Severity.Error);
+            }
+        }
+        catch
+        {
+            Snackbar.Add("Erro a apagar aula", Severity.Error);
+        }
+    }
+
+    private void OnEditNavigate(int id)
+    {
+        NavigationManager.NavigateTo($"/addAula/{id}");
+    }
+
+    private int GetInscritos(int aulaId)
+    {
+        return _inscricoes.Count(i =>
+            (
+                i.AulaId == aulaId ||
+                (i.Aula is not null && i.Aula.Id == aulaId)
+            )
+            && (!i.DataCancelamento.HasValue || i.DataCancelamento.Value.Date >= DateTime.Today)
+        );
+    }
+
+    private string GetVagasColor(Aula aula)
+    {
+        if (aula.Capacidade <= 0) return "#4ADE80";
+
+        var inscritos = GetInscritos(aula.Id);
+        var ratio = (double)inscritos / aula.Capacidade;
+
+        if (ratio <= 1.0 / 3.0) return "#4ADE80"; // verde
+        if (ratio <= 2.0 / 3.0) return "#FFD60A"; // amarelo
+        return "#FF6B35"; // vermelho
+    }
+
+    private void OnDetailNavigate(int id)
+    {
+        NavigationManager.NavigateTo($"/auladetail/{id}");
+    }
+}

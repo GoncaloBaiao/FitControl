@@ -1,0 +1,140 @@
+@page "/tipoplanos"
+@using FitControl.Shared.Services
+@using FitControl.Shared.Models
+@inject IFitControlApi FitControlApi
+@rendermode InteractiveServer
+@inject NavigationManager NavigationManager
+@inject ISnackbar Snackbar
+@inject IDialogService DialogService
+
+<PageTitle>Tipos de Plano</PageTitle>
+
+@if (_loading)
+{
+    <MudProgressLinear Indeterminate="true" Class="mb-4" />
+}
+else
+{
+
+    <PaginaListar TItem="FitControl.Shared.Models.TipoPlano"
+                  Title="Tipos de Plano"
+                  AddLabel="ADICIONAR TIPO DE PLANO"
+                  AddHref="/addTipoPlano"
+                  Items="_tipoPlanos">
+        <HeaderContent>
+            <MudTh>Designação</MudTh>
+            <MudTh>Preço</MudTh>
+            <MudTh Style="text-align:right;">Ações</MudTh>
+        </HeaderContent>
+
+        <RowTemplate>
+            <MudTd DataLabel="Designação">@context.Designacao</MudTd>
+            <MudTd DataLabel="Preço">@context.Preco</MudTd>
+            <MudTd DataLabel="Ações" Style="text-align:right;">
+                <MudIconButton Icon="@Icons.Material.Filled.Edit"
+                               Size="Size.Small"
+                               Style="color:#1E90FF;"
+                               OnClick="@(() => OnEditNavigate(context.Id))" />
+                <MudIconButton Icon="@Icons.Material.Filled.Delete"
+                               Size="Size.Small"
+                               Style="color:#ef4444;"
+                               OnClick="@(() => OnTipoPlanoDelete(context.Id))" />
+            </MudTd>
+        </RowTemplate>
+    </PaginaListar>
+}
+
+@code {
+
+    private List<Shared.Models.TipoPlano> _tipoPlanos = new ();
+    
+    private bool _loading;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _loading = true;
+        
+        await base.OnInitializedAsync();
+        Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopRight;
+        
+        try
+        {
+            var response = await FitControlApi.GetTipoPlanos();
+            if (response.Content != null)
+                _tipoPlanos = response.Content;
+        }
+        catch (Exception)
+        {
+            Snackbar.Add("Erro a extrair a lista de Tipos de Plano", Severity.Error);
+        }
+        
+        StateHasChanged();
+        
+        _loading = false;
+    }
+    
+    private async Task OnTipoPlanoDelete(int id)
+    {
+        //POPUP
+        try
+        {
+            var parameters = new DialogParameters<Dialog>
+            {
+                { x => x.ContentText, "Tem a certeza que quer apagar este registo? Este processo não pode ser desfeito." },
+                { x => x.ButtonOkText, "Delete" },
+                { x => x.Color, Color.Error }
+            };
+
+            var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall };
+
+            var result = await DialogService.ShowAsync<Dialog>("Delete", parameters, options);
+
+            var res = await result.Result;
+
+            if (res != null && res.Canceled)
+            {
+                return;
+            }
+        }
+        catch (Exception)
+        {
+            Snackbar.Add("Erro a criar popup de confirmação da ação de apagar", Severity.Error);
+        }
+        
+        try
+        {
+            var apiResponse = await FitControlApi.DeleteTipoPlano(id);
+            
+            if (apiResponse.IsSuccessStatusCode)
+            {
+                Snackbar.Add("Tipo de Plano apagado com sucesso", Severity.Success);
+                
+                try
+                {
+                    var response = await FitControlApi.GetTipoPlanos();
+                    if (response.Content != null)
+                        _tipoPlanos = response.Content;
+                }
+                catch (Exception )
+                {
+                    Snackbar.Add("Erro a atualizar a lista de Tipos de Plano", Severity.Error);
+                }
+            }
+            else
+            {
+                Snackbar.Add("Não foi possível apagar o Tipo de Plano", Severity.Error);
+            }
+        }
+        catch (Exception)
+        {
+            Snackbar.Add("Erro a apagar Tipo de Plano", Severity.Error);
+        }
+
+        StateHasChanged();
+    }
+    
+    private void OnEditNavigate(int id)
+    {
+        NavigationManager.NavigateTo($"/addTipoPlano/{id}");
+    }
+}

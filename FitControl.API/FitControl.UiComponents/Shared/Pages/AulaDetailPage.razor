@@ -1,0 +1,61 @@
+﻿@using FitControl.Shared.Models
+@using FitControl.Shared.Services
+@inject IFitControlApi FitControlApi
+@inject ISnackbar Snackbar
+
+
+<h3>Detalhes da Aula</h3>
+<h3>@_aulaDetail.Nome</h3>
+
+@if (_aulaDetail != null)
+{
+    if (_aulaDetail.Modalidade != null && _aulaDetail.Sala != null)
+    {
+        <EditForm FormName="ShowAulaDetailForm" Model="_aulaDetail" OnValidSubmit="ShowAulaDetail">
+            <div class="mb-3">
+                <label for="descricaoAula" class="form-label">Descricao</label>
+                <MudTextField class="form-control-lg" id="descricaoAula" @bind-Value="@_aulaDetail.Descricao"></MudTextField>
+            </div>
+            <div class="mb-3">
+                <label for="modalidadeAula" class="form-label">Modalidade</label>
+                <MudTextField class="form-control-lg" id="modalidadeAula" @bind-Value="@_aulaDetail.Modalidade.Nome" />
+            </div>
+            <div class="mb-3">
+                <label for="salaAula" class="form-label">Sala</label>
+                <MudTextField class="form-control-lg" id="salaAula" @bind-Value="@_aulaDetail.Sala.Nome" />
+            </div>
+        </EditForm> 
+    }
+}
+
+@code {
+    [Parameter]
+    public int? Id { get; set; }
+
+    private Aula _aulaDetail = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+        Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopRight;
+        
+        try
+        {
+            if (Id.HasValue)
+            {
+                var detailResponse = await FitControlApi.GetAula(Id.Value);
+                if (detailResponse.Content != null) 
+                    _aulaDetail = detailResponse.Content;
+            }
+        }
+        catch (Exception)
+        {
+            Snackbar.Add("Erro a extrair detalhes", Severity.Error);
+        }
+    }
+    
+    private void ShowAulaDetail()
+    {
+        
+    }
+}

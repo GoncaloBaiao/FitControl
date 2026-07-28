@@ -1,0 +1,91 @@
+﻿@using FitControl.Shared.Models
+@using FitControl.Shared.Services
+@inject IFitControlApi FitControlApi
+@inject ISnackbar Snackbar
+
+<h3>Detalhes do Socio</h3>
+<h3>@_socioDetail.Nome</h3>
+
+@if (_socioDetail != null)
+{
+    if (_socioDetail.TipoPlano != null && _socioDetail.Genero != null)
+    {
+        <EditForm FormName="ShowSocioDetailForm" Model="_socioDetail" OnValidSubmit="ShowSocioDetail">
+            <div class="mb-3">
+                <label for="nomeSocio" class="form-label">Nome</label>
+                <MudTextField class="form-control-lg" id="nomeSocio" @bind-Value="@_socioDetail.Nome"></MudTextField>
+            </div>
+            <div class="mb-3">
+                <label for="generoSocio" class="form-label">Genero</label>
+                <MudTextField class="form-control-lg" id="generoSocio" @bind-Value="@_socioDetail.Genero.Designacao" />
+            </div>
+            <div class="mb-3">
+                <label for="dataNascimentoSocio" class="form-label">DataNascimento</label>
+                <MudTextField class="form-control-lg" id="dataNascimentoSocio" @bind-Value="@_socioDetail.DataNascimento">@FormatDate(_socioDetail.DataNascimento)</MudTextField>
+            </div>
+            <div class="mb-3">
+                <label for="alturaSocio" class="form-label">Altura</label>
+                <MudTextField class="form-control-lg" id="alturaSocio" @bind-Value="@_socioDetail.Altura"></MudTextField>
+            </div>
+            <div class="mb-3">
+                <label for="pesoSocio" class="form-label">Peso</label>
+                <MudTextField class="form-control-lg" id="pesoSocio" @bind-Value="@_socioDetail.Peso"></MudTextField>
+            </div>
+            <div class="mb-3">
+                <label for="tipoPlanoSocio" class="form-label">TipoPlano</label>
+                <MudTextField class="form-control-lg" id="tipoPlanoSocio" @bind-Value="@_socioDetail.TipoPlano.Designacao" />
+            </div>
+            <div class="mb-3">
+                <label for="emailSocio" class="form-label">Email</label>
+                <MudTextField class="form-control-lg" id="emailSocio" @bind-Value="@_socioDetail.Email"></MudTextField>
+            </div>
+            <div class="mb-3">
+                <label for="contactoTelefonicoSocio" class="form-label">ContactoTelefonico</label>
+                <MudTextField class="form-control-lg" id="contactoTelefonicoSocio" @bind-Value="@_socioDetail.ContactoTelefonico"></MudTextField>
+            </div>
+            <div class="mb-3">
+                <label for="inicioSubscricaoSocio" class="form-label">InicioSubscricao</label>
+                <MudTextField class="form-control-lg" id="inicioSubscricaoSocio" @bind-Value="@_socioDetail.InicioSubscricao">@FormatDate(_socioDetail.InicioSubscricao)</MudTextField>
+            </div>
+            <div class="mb-3">
+                <label for="fimSubscricaoSocio" class="form-label">FimSubscricao</label>
+                <MudTextField class="form-control-lg" id="fimSubscricaoSocio" @bind-Value="@_socioDetail.FimSubscricao">@FormatDate(_socioDetail.FimSubscricao)</MudTextField>
+            </div>
+        </EditForm> 
+    }
+}
+
+@code {
+    [Parameter]
+    public int? Id { get; set; }
+    
+    private string FormatDate(DateTime? date) => date?.ToString("dd/MM/yyyy"); 
+
+    private Socio _socioDetail = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+        
+        try
+        {
+            if (Id.HasValue)
+            {
+                var detailResponse = await FitControlApi.GetSocio(Id.Value);
+                if (detailResponse.Content != null) 
+                    _socioDetail = detailResponse.Content;
+            }
+        }
+        catch (Exception)
+        {
+            Snackbar.Clear();
+            Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopRight;
+            Snackbar.Add("Erro a extrair detalhes", Severity.Error);
+        }
+    }
+    
+    private void ShowSocioDetail()
+    {
+        
+    }
+}

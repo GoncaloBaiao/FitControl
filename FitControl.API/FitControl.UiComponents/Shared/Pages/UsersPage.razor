@@ -1,0 +1,136 @@
+@using FitControl.Shared.Services
+@using FitControl.Shared.Models
+@inject IFitControlApi FitControlApi
+@inject NavigationManager NavigationManager
+@inject ISnackbar Snackbar
+@inject IDialogService DialogService
+
+<PageTitle>Users</PageTitle>
+
+<MudTable Items="@_users" Hover="true" Breakpoint="Breakpoint.Sm" Loading="@_loading" LoadingProgressColor="Color.Info">
+    <HeaderContent>
+        <MudTh>Username</MudTh>
+        <MudTh>Password</MudTh>
+        <MudTh>Ações</MudTh>
+    </HeaderContent>
+    <RowTemplate>
+        <MudTd DataLabel="Username">@context.Username</MudTd>
+        <MudTd DataLabel="Password">@context.Password</MudTd>
+        <MudTd DataLabel="Actions">
+            <MudIconButton Icon="@Icons.Material.Filled.RemoveRedEye" aria-label="detail" OnClick="() => OnEditNavigate(context.Id)"/>
+            <MudIconButton Icon="@Icons.Material.Filled.Delete" Color='Color.Error' aria-label="delete" OnClick="()=> OnUserDelete(context.Id)"/>
+        </MudTd>
+    </RowTemplate>
+</MudTable>
+<MudIconButton Icon="@Icons.Material.Filled.Add" aria-label="detail" OnClick="OnAddNavigate"/>
+
+@code {
+
+    private List<User> _users = new ();
+    
+    private bool _loading;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _loading = true;
+        
+        await base.OnInitializedAsync();
+        
+        try
+        {
+            var response = await FitControlApi.GetUsers();
+            if (response.Content != null)
+                _users = response.Content;
+        }
+        catch (Exception)
+        {
+            Snackbar.Clear();
+            Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopRight;
+            Snackbar.Add("Erro a extrair a lista de Users", Severity.Error);
+        }
+        
+        StateHasChanged();
+        
+        _loading = false;
+    }
+    
+    private async Task OnUserDelete(int id)
+    {
+        //POPUP
+        try
+        {
+            var parameters = new DialogParameters<Dialog>
+            {
+                { x => x.ContentText, "Tem a certeza que quer apagar este registo? Este processo não pode ser desfeito." },
+                { x => x.ButtonOkText, "Delete" },
+                { x => x.Color, Color.Error }
+            };
+
+            var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall };
+
+            var result = await DialogService.ShowAsync<Dialog>("Delete", parameters, options);
+
+            var res = await result.Result;
+
+            if (res != null && res.Canceled)
+            {
+                return;
+            }
+        }
+        catch (Exception)
+        {
+            Snackbar.Clear();
+            Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopRight;
+            Snackbar.Add("Erro a criar popup de confirmação da ação de apagar", Severity.Error);
+        }
+        
+        try
+        {
+            var apiResponse = await FitControlApi.DeleteUser(id);
+            
+            if (apiResponse.IsSuccessStatusCode)
+            {
+                Snackbar.Clear();
+                Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopRight;
+                Snackbar.Add("User apagado com sucesso", Severity.Success);
+                
+                try
+                {
+                    var response = await FitControlApi.GetUsers();
+                    if (response.Content != null)
+                        _users = response.Content;
+                }
+                catch (Exception )
+                {
+                    Snackbar.Clear();
+                    Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopRight;
+                    Snackbar.Add("Erro a atualizar a lista de Users", Severity.Error);
+                }
+            }
+            else
+            {
+                Snackbar.Clear();
+                Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopRight;
+                Snackbar.Add("Não foi possível apagar o User", Severity.Error);
+            }
+        }
+        catch (Exception)
+        {
+            Snackbar.Clear();
+            Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopRight;
+                Snackbar.Add("Erro a apagar User", Severity.Error);
+        }
+
+        StateHasChanged();
+    }
+    
+    private void OnEditNavigate(int id)
+    {
+        NavigationManager.NavigateTo($"/addUser/{id}");
+    }
+    
+    private void OnAddNavigate()
+    {
+        NavigationManager.NavigateTo($"/addUser");
+    }
+}

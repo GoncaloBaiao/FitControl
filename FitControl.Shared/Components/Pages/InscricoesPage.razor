@@ -1,0 +1,145 @@
+@page "/inscricoes"
+@using FitControl.Shared.Services
+@using FitControl.Shared.Models
+@inject IFitControlApi FitControlApi
+@rendermode InteractiveServer
+@inject NavigationManager NavigationManager
+@inject ISnackbar Snackbar
+@inject IDialogService DialogService
+
+<PageTitle>Inscrições</PageTitle>
+
+@if (_loading)
+{
+    <MudProgressLinear Indeterminate="true" Class="mb-4" />
+}
+else
+{
+
+    <PaginaListar TItem="Inscricao"
+                  Title="Inscrições"
+                  AddLabel="ADICIONAR INSCRIÇÃO"
+                  AddHref="/addInscricao"
+                  Items="_inscricoes">
+        <HeaderContent>
+            <MudTh>Aula</MudTh>
+            <MudTh>Sócio</MudTh>
+            <MudTh>Data de Inscrição</MudTh>
+            <MudTh>Data de Cancelamento</MudTh>
+            <MudTh Style="text-align:right;">Ações</MudTh>
+        </HeaderContent>
+
+        <RowTemplate>
+            <MudTd DataLabel="Aula">@(context.Aula?.Nome ?? "N/A")</MudTd>
+            <MudTd DataLabel="Sócio">@(context.Socio?.Nome ?? "N/A")</MudTd>
+            <MudTd DataLabel="Data de Inscrição">@context.DataInscricao</MudTd>
+            <MudTd DataLabel="Data de Cancelamento">
+                @(context.DataCancelamento.HasValue ? context.DataCancelamento.Value.ToString("dd/MM/yyyy HH:mm") : "-")
+            </MudTd>
+            <MudTd DataLabel="Ações" Style="text-align:right;">
+                <MudIconButton Icon="@Icons.Material.Filled.Edit"
+                               Size="Size.Small"
+                               Style="color:#1E90FF;"
+                               OnClick="@(() => OnEditNavigate(context.Id))" />
+                <MudIconButton Icon="@Icons.Material.Filled.Delete"
+                               Size="Size.Small"
+                               Style="color:#ef4444;"
+                               OnClick="@(() => OnInscricaoDelete(context.Id))" />
+            </MudTd>
+        </RowTemplate>
+    </PaginaListar>
+}
+
+@code {
+
+    private List<Inscricao> _inscricoes = new ();
+    
+    private bool _loading;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _loading = true;
+        
+        await base.OnInitializedAsync();
+        Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopRight;
+        
+        try
+        {
+            var response = await FitControlApi.GetInscricoes();
+            if (response.Content != null)
+                _inscricoes = response.Content;
+        }
+        catch (Exception)
+        {
+            Snackbar.Add("Erro a extrair a lista de Inscrições", Severity.Error);
+        }
+        
+        StateHasChanged();
+        
+        _loading = false;
+    }
+    
+    private async Task OnInscricaoDelete(int id)
+    {
+        try
+        {
+            var parameters = new DialogParameters<Dialog>
+            {
+                { x => x.ContentText, "Tem a certeza que quer apagar este registo? Este processo não pode ser desfeito." },
+                { x => x.ButtonOkText, "Apagar" },
+                { x => x.Color, Color.Error }
+            };
+
+            var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall };
+
+            var result = await DialogService.ShowAsync<Dialog>("Apagar", parameters, options);
+
+            var res = await result.Result;
+
+            if (res != null && res.Canceled)
+            {
+                return;
+            }
+        }
+        catch (Exception)
+        {
+            Snackbar.Add("Erro a criar popup de confirmação da ação de apagar", Severity.Error);
+        }
+        
+        try
+        {
+            var apiResponse = await FitControlApi.DeleteInscricao(id);
+            
+            if (apiResponse.IsSuccessStatusCode)
+            {
+                Snackbar.Add("Inscrição apagada com sucesso", Severity.Success);
+                
+                try
+                {
+                    var response = await FitControlApi.GetInscricoes();
+                    if (response.Content != null)
+                        _inscricoes = response.Content;
+                }
+                catch (Exception )
+                {
+                    Snackbar.Add("Erro a atualizar a lista de Inscrições", Severity.Error);
+                }
+            }
+            else
+            {
+                Snackbar.Add("Não foi possível apagar a Inscrição", Severity.Error);
+            }
+        }
+        catch (Exception)
+        {
+            Snackbar.Add("Erro a apagar Inscrição", Severity.Error);
+        }
+
+        StateHasChanged();
+    }
+    
+    private void OnEditNavigate(int id)
+    {
+        NavigationManager.NavigateTo($"/addInscricao/{id}");
+    }
+}

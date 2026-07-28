@@ -1,0 +1,127 @@
+﻿@page "/salas/add"
+@page "/sala/edit/{Id:int}"
+@layout FitControl.WebClient.Components.Layout.MainLayout
+@using FitControl.Shared.Models
+@using FitControl.Shared.Services
+@using Sala = FitControl.Shared.Models.Sala
+@using Refit
+@inject IFitControlApi FitControlApi
+@inject NavigationManager NavigationManager
+@inject ISnackbar Snackbar
+@inject IDialogService DialogService
+
+<div class="mt-15"></div>
+
+<h3>@(Id.HasValue ? "Editar Sala" : "Adicionar Sala")</h3>
+
+<EditForm FormName="AddSalaForm" Model="_sala" OnValidSubmit="SaveSala">
+    <div class="mb-3">
+        <label class="form-label">Nome</label>
+        <InputText class="form-control" @bind-Value="_sala.Nome" />
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Descrição</label>
+        <InputText class="form-control" @bind-Value="_sala.Descricao" />
+    </div>
+
+    <button class="btn btn-primary" type="submit" disabled="@_saving">@(Id.HasValue ? "Gravar" : "Adicionar")</button>
+</EditForm>
+
+@code {
+    [Parameter]
+    public int? Id { get; set; }
+
+    private bool _saving;
+    private Shared.Models.Sala _sala = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+        Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopRight;
+        
+        if (Id.HasValue)
+        {
+            try
+            {
+                var response = await FitControlApi.GetSala(Id.Value);
+                if (response.IsSuccessStatusCode && response.Content is not null)
+                {
+                    _sala = response.Content;
+                }
+                else
+                {
+                    Snackbar.Add("Sala não encontrada.", Severity.Error);
+                }
+            }
+            catch (Exception ex)
+            {
+                Snackbar.Add($"Não foi possível carregar a Sala. Verifica se a API está a correr. Erro: {ex.Message}", Severity.Error);
+            }
+        }
+    }
+
+    private async Task SaveSala()
+    {
+
+        _saving = true;
+
+        try
+        {
+            var response = Id.HasValue
+                ? await FitControlApi.UpdateSala(_sala)
+                : await FitControlApi.AddSala(_sala);
+
+            if (response.IsSuccessStatusCode)
+            {
+                Snackbar.Add(Id.HasValue
+                ? "Sala editada com sucesso"
+                : "Sala adicionada com sucesso", Severity.Success);
+            }
+            else
+            {
+                Snackbar.Add($"Não foi possível guardar a sala. API devolveu {response.StatusCode}.", Severity.Error);
+            }
+        }
+        catch (ApiException ex)
+        {
+            Snackbar.Add($"Não foi possível guardar a sala. API devolveu {(int)ex.StatusCode}: {ex.ReasonPhrase}", Severity.Error);
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Não foi possível guardar a sala. {ex.Message}", Severity.Error);
+        }
+        finally
+        {
+            _saving = false;
+        }
+        
+        //POPUP
+        try
+        {
+            var parameters = new DialogParameters<Dialog>
+            {
+                { x => x.ContentText, "Deseja sair da página?" },
+                { x => x.ButtonOkText, "Sim" },
+                { x => x.ButtonCancelText, "Não" },
+                { x => x.Color, Color.Error }
+            };
+
+            var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall };
+
+            var result = await DialogService.ShowAsync<Dialog>("Sair da página", parameters, options);
+        
+            var res = await result.Result;
+
+            if (res != null && res.Canceled)
+            {
+                return;
+            }
+        }
+        catch (Exception)
+        {
+            Snackbar.Add("Erro a criar popup de confirmação de saída", Severity.Error);
+        }
+                
+        NavigationManager.NavigateTo("/Salas");
+    }
+}
