@@ -14,7 +14,7 @@ public sealed class ModalidadeValidationTests
         {
             Descricao = "DescricaoComMaisDeCemCaracteresDescricaoComMaisDeCemCaracteresDescricaoComMaisDeCemCaracteresDescricaoComMaisDeCemCaracteres"
         };
-
+ 
         var context = new ValidationContext(modalidade);
         var results = new List<ValidationResult>();
 

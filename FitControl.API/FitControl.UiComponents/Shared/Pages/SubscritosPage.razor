@@ -63,7 +63,7 @@ else
             var socioTask = await FitControlApi.GetSocios();
 
             _socios = socioTask.Content ?? new List<Socio>();
-            _subscritos = _socios.Where(s => s.FimSubscricao >= DateTime.Now).ToList();
+            _subscritos = _socios/*.Where(s => s.FimSubscricao >= DateTime.Now).*/.ToList();
         }
         catch
         {

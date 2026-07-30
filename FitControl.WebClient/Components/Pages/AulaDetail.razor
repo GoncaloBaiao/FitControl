@@ -127,9 +127,9 @@
             (ins, socs) => new {ins, socs}
             )
             .Where(w => 
-                w.ins.AulaId == aulaId &&
-                (!w.ins.DataCancelamento.HasValue || 
-                 w.ins.DataCancelamento.Value.Date >= DateTime.Today)
+                w.ins.AulaId == aulaId 
+                // && (!w.ins.DataCancelamento.HasValue || 
+                //  w.ins.DataCancelamento.Value.Date >= DateTime.Today)
             )
             .Select(s => s.socs)
             .ToList();
