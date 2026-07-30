@@ -1,5 +1,5 @@
-@page "/AddInstrutorModalidade"
-@page "/AddInstrutorModalidade/{Id:int}"
+@page "/addInstrutorModalidade"
+@page "/addInstrutorModalidade/{Id:int}"
 @using FitControl.Shared.Models
 @using FitControl.Shared.Services
 @rendermode InteractiveServer
@@ -33,7 +33,7 @@
             </MudSelect>
             <button class="btn btn-primary" type="submit">@(Id.HasValue ? "Gravar" : "Adicionar")</button>
         </EditForm>
-        <button class="btn btn-secondary" onclick="@(()=>NavigationManager.NavigateTo("/InstrutorModalidades"))">Voltar</button>
+        <button class="btn btn-secondary" onclick="@(()=>NavigationManager.NavigateTo("/instrutorModalidades"))">Voltar</button>
     }
 }
 
@@ -151,6 +151,6 @@
             Snackbar.Add("Erro a criar popup de confirmação de saída", Severity.Error);
         }
         
-        NavigationManager.NavigateTo("/InstrutorModalidades");
+        NavigationManager.NavigateTo("/instrutorModalidades");
     }
 }

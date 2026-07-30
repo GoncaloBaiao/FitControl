@@ -1,5 +1,5 @@
-@page "/addinstrutor"
-@page "/addinstrutor/{Id:int}"
+@page "/addInstrutor"
+@page "/addInstrutor/{Id:int}"
 @using FitControl.Shared.Models
 @using FitControl.Shared.Services
 @layout FitControl.WebClient.Components.Layout.MainLayout
@@ -60,7 +60,7 @@
         }
         catch
         {
-            Snackbar.Add("Erro a carregar instrutor.", Severity.Error);
+            Snackbar.Add("Erro a carregar Instrutor.", Severity.Error);
         }
     }
 
@@ -73,7 +73,7 @@
                 var response = await FitControlApi.UpdateInstrutor(_instrutorModel);
                 Snackbar.Add(response.IsSuccessStatusCode
                     ? "Instrutor editado com sucesso"
-                    : "Não foi possível editar o instrutor",
+                    : "Não foi possível editar o Instrutor",
                     response.IsSuccessStatusCode ? Severity.Success : Severity.Error);
             }
             else
@@ -81,7 +81,7 @@
                 var response = await FitControlApi.AddInstrutor(_instrutorModel);
                 Snackbar.Add(response.IsSuccessStatusCode
                     ? "Instrutor adicionado com sucesso"
-                    : "Não foi possível adicionar o instrutor",
+                    : "Não foi possível adicionar o Instrutor",
                     response.IsSuccessStatusCode ? Severity.Success : Severity.Error);
             }
             //POPUP
@@ -113,7 +113,7 @@
         }
         catch
         {
-            Snackbar.Add("Erro ao guardar instrutor.", Severity.Error);
+            Snackbar.Add("Erro ao guardar Instrutor.", Severity.Error);
             return;
         }
 

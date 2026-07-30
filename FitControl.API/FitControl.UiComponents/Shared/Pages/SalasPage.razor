@@ -1,0 +1,128 @@
+﻿@using FitControl.Shared.Models
+@using FitControl.Shared.Services
+@inject IFitControlApi FitControlApi
+@inject ISnackbar Snackbar
+@inject IDialogService DialogService
+@inject NavigationManager NavigationManager
+
+<PageTitle>Salas</PageTitle>
+
+@if (_loading)
+{
+    <MudProgressLinear Indeterminate="true" Class="mb-4" />
+}
+else
+{
+
+    <PaginaListar TItem="Sala"
+                  Title="Salas"
+                  AddLabel="ADICIONAR SALA"
+                  AddHref="/addSala"
+                  Items="_salas">
+
+        <HeaderContent>
+            <MudTh>Nome</MudTh>
+            <MudTh>Descricao</MudTh>
+            <MudTh Style="text-align:right;">Ações</MudTh>
+        </HeaderContent>
+
+        <RowTemplate>
+            <MudTd DataLabel="Nome">@context.Nome</MudTd>
+            <MudTd DataLabel="Descricao">@context.Descricao</MudTd>
+            <MudTd DataLabel="Ações" Style="text-align:right;">
+                <MudStack Row="true" Spacing="1" Justify="Justify.FlexEnd">
+                    <MudIconButton Href="@($"/addSala/{context.Id}")"
+                                   Icon="@Icons.Material.Filled.Edit"
+                                   Size="Size.Small"
+                                   Style="color:#1E90FF;"
+                                   Title="Editar" />
+                    <MudIconButton OnClick="@(() => OnSalaDelete(context.Id))"
+                                   Icon="@Icons.Material.Filled.Delete"
+                                   Size="Size.Small"
+                                   Style="color:#ef4444;"
+                                   Title="Eliminar" />
+                </MudStack>
+            </MudTd>
+        </RowTemplate>
+    </PaginaListar>
+    <button class="btn btn-secondary" onclick="@(()=>NavigationManager.NavigateTo("/"))">Voltar</button>
+}
+
+@code {
+    private bool _loading = true;
+    private bool _hasLoaded;
+    private List<Sala> _salas = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (_hasLoaded) return;
+        _hasLoaded = true;
+
+        try
+        {
+            var response = await FitControlApi.GetSalas();
+
+            if (response.IsSuccessStatusCode && response.Content is not null)
+            {
+                _salas = response.Content;
+            }
+            else
+            {
+                _salas = new List<Sala>();
+                Snackbar.Add($"API devolveu {response.StatusCode}.", Severity.Error);
+            }
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Não foi possível carregar salas. Verifica se a API está a correr. Erro: {ex.Message}", Severity.Error);
+            _salas = new List<Sala>();
+        }
+        finally
+        {
+            _loading = false;
+        }
+    }
+
+    private async Task OnSalaDelete(int id)
+    {
+        try
+        {
+            var parameters = new DialogParameters<Dialog>
+            {
+                { x => x.ContentText, "Tem a certeza que quer apagar este registo? Este processo não pode ser desfeito." },
+                { x => x.ButtonOkText, "Apagar" },
+                { x => x.Color, Color.Error }
+            };
+
+            var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall };
+            var dialog = await DialogService.ShowAsync<Dialog>("Apagar", parameters, options);
+            var result = await dialog.Result;
+
+            if (result.Canceled) return;
+        }
+        catch
+        {
+            Snackbar.Add("Erro a criar popup de confirmação de apagar.", Severity.Error);
+            return;
+        }
+
+        try
+        {
+            var res = await FitControlApi.DeleteSala(id);
+
+            if (res.IsSuccessStatusCode)
+            {
+                _salas = _salas.Where(a => a.Id != id).ToList();
+                Snackbar.Add("Sala apagada com sucesso", Severity.Success);
+            }
+            else
+            {
+                Snackbar.Add("Não foi possível apagar a Sala", Severity.Error);
+            }
+        }
+        catch
+        {
+            Snackbar.Add("Erro a apagar Sala", Severity.Error);
+        }
+    }
+}

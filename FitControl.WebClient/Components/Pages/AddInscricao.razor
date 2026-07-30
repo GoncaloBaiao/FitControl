@@ -1,5 +1,5 @@
-@page "/AddInscricao"
-@page "/AddInscricao/{Id:int}"
+@page "/addInscricao"
+@page "/addInscricao/{Id:int}"
 @using FitControl.Shared.Models
 @using FitControl.Shared.Services
 @layout FitControl.WebClient.Components.Layout.MainLayout
@@ -36,7 +36,7 @@
                            DateFormat="dd/MM/yyyy"/>
             <button class="btn btn-primary" type="submit">@(Id.HasValue ? "Gravar" : "Adicionar")</button>
         </EditForm>
-        <button class="btn btn-secondary" onclick="@(()=>NavigationManager.NavigateTo("/Inscricoes"))">Voltar</button>
+        <button class="btn btn-secondary" onclick="@(()=>NavigationManager.NavigateTo("/inscricoes"))">Voltar</button>
     }
 }
 
@@ -46,7 +46,7 @@
     
     private Inscricao _inscricaoModel = new();
     private List<Aula> _aulas = new ();
-    private List<FitControl.Shared.Models.Socio> _socios = new ();
+    private List<Socio> _socios = new ();
 
     protected override async Task OnInitializedAsync()
     {
@@ -154,6 +154,6 @@
             Snackbar.Add("Erro a criar popup de confirmação de saída", Severity.Error);
         }
         
-        NavigationManager.NavigateTo("/Inscricoes");
+        NavigationManager.NavigateTo("/inscricoes");
     }
 }

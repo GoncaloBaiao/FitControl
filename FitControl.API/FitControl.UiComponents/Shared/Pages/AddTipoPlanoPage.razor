@@ -1,0 +1,123 @@
+@using FitControl.Shared.Models
+@using FitControl.Shared.Services
+@inject IFitControlApi FitControlApi
+@inject ISnackbar Snackbar
+@inject NavigationManager NavigationManager
+@inject IDialogService DialogService
+
+<h3>@( Id.HasValue ? "Edit Tipo de Plano" : "Add Tipo de Plano")</h3>
+
+<EditForm FormName="AddTipoPlanoForm" Model="_tipoPlanoModel" OnValidSubmit="OnAddTipoPlano">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    <div class="mb-3">
+        <label for="nomeTipoPlano" class="form-label fw-bold">Nome</label>
+        <InputText class="form-control" id="nomeTipoPlano" @bind-Value="@_tipoPlanoModel.Designacao"/>
+    </div>
+    <div class="mb-3">
+        <label for="precoTipoPlano" class="form-label fw-bold">Preço</label>
+        <InputNumber class="form-control" id="precoTipoPlano" @bind-Value="_tipoPlanoModel.Preco"/>
+    </div>
+    <button class="btn btn-primary" type="submit">@(Id.HasValue ? "Save" : "Add")</button>
+</EditForm>
+<button class="btn btn-secondary" onclick="@(()=>NavigationManager.NavigateTo("/tiposPlano"))">Voltar</button>
+
+@code {
+    [Parameter]
+    public int? Id { get; set; }
+    
+    private TipoPlano _tipoPlanoModel = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+        Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopRight;
+        
+        try
+        {
+            if (Id.HasValue)
+            {
+                var response = await FitControlApi.GetTipoPlano(Id.Value);
+                if (response.Content != null)
+                    _tipoPlanoModel = response.Content;
+            }
+        }
+        catch (Exception)
+        {
+            Snackbar.Add("Erro a extrair a lista de Tipos de Plano", Severity.Error);
+        }
+    }
+
+    private async Task OnAddTipoPlano()
+    {
+        if (Id.HasValue)
+        {
+            try
+            {
+                var response = await FitControlApi.UpdateTipoPlano(_tipoPlanoModel);
+
+                if (response.IsSuccessStatusCode && response.Content != null)
+                {
+                    Snackbar.Add("Tipo de Plano editado com sucesso", Severity.Success);
+                }
+                else
+                {
+                    Snackbar.Add("Não foi possível editar o Tipo de Plano", Severity.Error);
+                }
+            }
+            catch (Exception)
+            {
+                Snackbar.Add("Erro a editar Tipo de Plano", Severity.Error);
+            }
+        }
+        else
+        {
+            try
+            {
+                var response = await FitControlApi.AddTipoPlano(_tipoPlanoModel);
+            
+                if (response.IsSuccessStatusCode)
+                {
+                    Snackbar.Add("Tipo de Plano adicionado com sucesso", Severity.Success);
+                }
+                else
+                {
+                    Snackbar.Add("Não foi possível adicionar o Tipo de Plano", Severity.Error);
+                }
+            }
+            catch (Exception)
+            {
+                Snackbar.Add("Erro a adicionar Tipo de Plano", Severity.Error);
+            }
+        }
+        
+        //POPUP
+        try
+        {
+            var parameters = new DialogParameters<Dialog>
+            {
+                { x => x.ContentText, "Deseja sair da página?" },
+                { x => x.ButtonOkText, "Yes" },
+                { x => x.ButtonCancelText, "No" },
+                { x => x.Color, Color.Error }
+            };
+
+            var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall };
+
+            var result = await DialogService.ShowAsync<Dialog>("Leave page", parameters, options);
+        
+            var res = await result.Result;
+
+            if (res != null && res.Canceled)
+            {
+                return;
+            }
+        }
+        catch (Exception)
+        {
+            Snackbar.Add("Erro a criar popup de confirmação de saída", Severity.Error);
+        }
+        
+        NavigationManager.NavigateTo("/tiposPlano");
+    }
+}
