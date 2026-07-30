@@ -4,6 +4,8 @@ namespace FitControl.API.Models;
 
 public class InscricaoDto
 {
+    public int Id { get; set; }
+    
     public int AulaId { get; set; }
     
     public Aula Aula { get; set; }

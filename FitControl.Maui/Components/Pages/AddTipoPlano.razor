@@ -1,0 +1,10 @@
+@page "/addTipoPlano"
+@page "/addTipoPlano/{Id:int}"
+
+<AddTipoPlanoPage Id="Id"/>
+
+@code{
+
+    [Parameter]
+    public int? Id { get; set; }
+}

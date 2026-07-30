@@ -1,12 +1,8 @@
 ﻿@page "/"
-@using FitControl.WebClient.Components.Layout
-
-<link href="home.css" rel="stylesheet" />
-
-<NavBar/>
+@layout FitControl.WebClient.Components.Layout.MainLayout
     
     <!-- HERO SECTION -->
-    <section class="hero">
+    <section class="hero mt-15">
         <div class="hero-bg" style="background-image: url('https://images.unsplash.com/photo-1685633224688-6a77675eb119?w=1800&h=1000&fit=crop&auto=format');"></div>
         <div class="hero-overlay"></div>
         <div class="hero-accent"></div>
@@ -120,9 +116,7 @@
             <a href="#" class="btn-cta">COMEÇAR AGORA →</a>
         </div>
     </section>
-
-    <Footer />
-
+    
 @code {
     protected override void OnInitialized()
     {

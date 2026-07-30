@@ -1,0 +1,156 @@
+@page "/addInstrutorModalidade"
+@page "/addInstrutorModalidade/{Id:int}"
+@using FitControl.Shared.Models
+@using FitControl.Shared.Services
+@rendermode InteractiveServer
+@inject IFitControlApi FitControlApi
+@inject ISnackbar Snackbar
+@inject NavigationManager NavigationManager
+@inject IDialogService DialogService
+
+<h3>@( Id.HasValue ? "Editar a Modalidade do Instrutor" : "Adicionar Modalidade ao Instrutor")</h3>
+
+@if (_instrutorModalidadeModel != null)
+{
+    if (_instrutorModalidadeModel.Instrutor != null && _instrutorModalidadeModel.Modalidade != null)
+    {
+        <EditForm FormName="AddInstrutorModalidadeForm" Model="_instrutorModalidadeModel" OnValidSubmit="OnAddInstrutorModalidade">
+            <DataAnnotationsValidator />
+            <ValidationSummary />
+            <MudSelect Label="Instrutor" @bind-Value="_instrutorModalidadeModel.Instrutor" Placeholder="Selecione o instrutor"
+                       ToStringFunc="@((Instrutor obj) => obj.Nome ?? null)">
+                @foreach (Instrutor instrutor in _instrutores)
+                {
+                    <MudSelectItem Value="instrutor">@instrutor.Nome</MudSelectItem>
+                }
+            </MudSelect>
+            <MudSelect Label="Modalidade" @bind-Value="_instrutorModalidadeModel.Modalidade" Placeholder="Selecione a modalidade"
+                       ToStringFunc="@((Modalidade obj) => obj.Nome ?? null)">
+                @foreach (Modalidade modalidade in _modalidades)
+                {
+                    <MudSelectItem Value="modalidade">@modalidade.Nome</MudSelectItem>
+                }
+            </MudSelect>
+            <button class="btn btn-primary" type="submit">@(Id.HasValue ? "Gravar" : "Adicionar")</button>
+        </EditForm>
+        <button class="btn btn-secondary" onclick="@(()=>NavigationManager.NavigateTo("/instrutorModalidades"))">Voltar</button>
+    }
+}
+
+@code {
+    [Parameter]
+    public int? Id { get; set; }
+    
+    private FitControl.Shared.Models.InstrutorModalidade _instrutorModalidadeModel = new();
+    private List<Modalidade> _modalidades = new ();
+    private List<Instrutor> _instrutores = new ();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+        Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopRight;
+        
+        try
+        {
+            if (Id.HasValue)
+            {
+                var instrutorModalidadeResponse = await FitControlApi.GetInstrutorModalidade(Id.Value);
+                if (instrutorModalidadeResponse.Content != null) 
+                    _instrutorModalidadeModel = instrutorModalidadeResponse.Content;
+            }
+            else
+            {
+                _instrutorModalidadeModel.Modalidade = new();
+                _instrutorModalidadeModel.Instrutor = new();
+            }
+        
+            var modalidadesResponse = await FitControlApi.GetModalidades();
+            if (modalidadesResponse.Content != null)
+                _modalidades = modalidadesResponse.Content;
+
+            var instrutorsResponse = await FitControlApi.GetInstrutors();
+            if (instrutorsResponse.Content != null) 
+                _instrutores = instrutorsResponse.Content;
+        }
+        catch (Exception)
+        {
+            Snackbar.Add("Erro a extrair a lista de Modalidades do Instrutor", Severity.Error);
+        }
+    }
+
+    private async Task OnAddInstrutorModalidade()
+    {
+        _instrutorModalidadeModel.ModalidadeId = _instrutorModalidadeModel.Modalidade.Id;
+        _instrutorModalidadeModel.InstrutorId = _instrutorModalidadeModel.Instrutor.Id;;
+        
+        if (Id.HasValue)
+        {
+            try
+            {
+                var response = await FitControlApi.UpdateInstrutorModalidade(_instrutorModalidadeModel);
+
+                if (response.IsSuccessStatusCode && response.Content != null)
+                {
+                    Snackbar.Add("Modalidade do Instrutor editada com sucesso", Severity.Success);
+                }
+                else
+                {
+                    Snackbar.Add("Não foi possível editar a Modalidade do Instrutor", Severity.Error);
+                }
+            }
+            catch (Exception)
+            {
+                Snackbar.Add("Erro a editar Modalidade do Instrutor", Severity.Error);
+            }
+        }
+        else
+        {
+            try
+            {
+                var response = await FitControlApi.AddInstrutorModalidade(_instrutorModalidadeModel);
+            
+                if (response.IsSuccessStatusCode)
+                {
+                    Snackbar.Add("Modalidade do Instrutor adicionada com sucesso", Severity.Success);
+                }
+                else
+                {
+                    Snackbar.Add("Não foi possível adicionar a Modalidade do Instrutor", Severity.Error);
+                }
+            }
+            catch (Exception)
+            {
+                Snackbar.Add("Erro a adicionar a Modalidade do Instrutor", Severity.Error);
+            }
+        }
+        
+        //POPUP
+        try
+        {
+            var parameters = new DialogParameters<Dialog>
+            {
+                { x => x.ContentText, "Deseja sair da página?" },
+                { x => x.ButtonOkText, "Sim" },
+                { x => x.ButtonCancelText, "Não" },
+                { x => x.Color, Color.Error }
+            };
+
+            var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall };
+
+            var result = await DialogService.ShowAsync<Dialog>("Sair da página", parameters, options);
+        
+            var res = await result.Result;
+
+            if (res != null && res.Canceled)
+            {
+                return;
+            }
+        }
+        catch (Exception)
+        {
+            Snackbar.Add("Erro a criar popup de confirmação de saída", Severity.Error);
+        }
+        
+        NavigationManager.NavigateTo("/instrutorModalidades");
+    }
+}

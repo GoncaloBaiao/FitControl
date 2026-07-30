@@ -1,4 +1,6 @@
-﻿namespace FitControl.API.Models;
+﻿using System;
+
+namespace FitControl.API.Models;
 
 public class InstrutorDto
 {
@@ -6,7 +8,7 @@ public class InstrutorDto
     
     public string Nome { get; set; }
     
-    public DateOnly DataNascimento { get; set; }
+    public DateTime DataNascimento { get; set; }
     
     public string Email { get; set; }
     

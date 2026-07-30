@@ -11,27 +11,42 @@ public interface IFitControlApi
     Task<ApiResponse<Aula>> AddAula([Body] Aula aula);
 
     [Get("/aula/{id}")]
-    Task<Aula> GetAula(int id);
+    Task<ApiResponse<Aula>> GetAula(int id);
 
     [Put("/aula")]
-    Task<ApiResponse<Aula>> UpdateAula([Body] Aula aula);
+    Task<ApiResponse<Aula>> UpdateAula([Body] Aula? aula);
 
-    [Delete("/aula/{id}")]
+    [Delete("/aula/softdelete/{id}")]
     Task<ApiResponse<string>> DeleteAula(int id);
+    
+    [Get("/generos")]
+    Task<ApiResponse<List<Genero>>> GetGeneros();
+    
+    [Post("/genero")]
+    Task<ApiResponse<Genero>> AddGenero([Body] Genero genero);
+    
+    [Get("/genero/{id}")]
+    Task<ApiResponse<Genero>> GetGenero(int id);
+    
+    [Put("/genero")]
+    Task<ApiResponse<Genero>> UpdateGenero([Body] Genero? genero);
+    
+    [Delete("/genero/softdelete/{id}")]
+    Task<ApiResponse<string>> DeleteGenero(int id);
 
-    [Get("/inscricaos")]
-    Task<ApiResponse<List<Inscricao>>> GetInscricaos();
+    [Get("/inscricoes")]
+    Task<ApiResponse<List<Inscricao>>> GetInscricoes();
 
     [Post("/inscricao")]
     Task<ApiResponse<Inscricao>> AddInscricao([Body] Inscricao inscricao);
 
     [Get("/inscricao/{id}")]
-    Task<Inscricao> GetInscricao(int id);
+    Task<ApiResponse<Inscricao>> GetInscricao(int id);
 
     [Put("/inscricao")]
     Task<ApiResponse<Inscricao>> UpdateInscricao([Body] Inscricao inscricao);
 
-    [Delete("/inscricao/{id}")]
+    [Delete("/inscricao/softdelete/{id}")]
     Task<ApiResponse<string>> DeleteInscricao(int id);
 
     [Get("/instrutors")]
@@ -41,12 +56,12 @@ public interface IFitControlApi
     Task<ApiResponse<Instrutor>> AddInstrutor([Body] Instrutor instrutor);
 
     [Get("/instrutor/{id}")]
-    Task<Instrutor> GetInstrutor(int id);
+    Task<ApiResponse<Instrutor>> GetInstrutor(int id);
 
     [Put("/instrutor")]
     Task<ApiResponse<Instrutor>> UpdateInstrutor([Body] Instrutor instrutor);
 
-    [Delete("/instrutor/{id}")]
+    [Delete("/instrutor/softdelete/{id}")]
     Task<ApiResponse<string>> DeleteInstrutor(int id);
 
     [Get("/instrutormodalidades")]
@@ -56,12 +71,12 @@ public interface IFitControlApi
     Task<ApiResponse<InstrutorModalidade>> AddInstrutorModalidade([Body] InstrutorModalidade instrutormodalidade);
 
     [Get("/instrutormodalidade/{id}")]
-    Task<InstrutorModalidade> GetInstrutorModalidade(int id);
+    Task<ApiResponse<InstrutorModalidade>> GetInstrutorModalidade(int id);
 
     [Put("/instrutormodalidade")]
     Task<ApiResponse<InstrutorModalidade>> UpdateInstrutorModalidade([Body] InstrutorModalidade instrutormodalidade);
 
-    [Delete("/instrutormodalidade/{id}")]
+    [Delete("/instrutormodalidade/softdelete/{id}")]
     Task<ApiResponse<string>> DeleteInstrutorModalidade(int id);
 
     [Get("/modalidades")]
@@ -71,12 +86,12 @@ public interface IFitControlApi
     Task<ApiResponse<Modalidade>> AddModalidade([Body] Modalidade modalidade);
 
     [Get("/modalidade/{id}")]
-    Task<Modalidade> GetModalidade(int id);
+    Task<ApiResponse<Modalidade>> GetModalidade(int id);
 
     [Put("/modalidade")]
     Task<ApiResponse<Modalidade>> UpdateModalidade([Body] Modalidade modalidade);
 
-    [Delete("/modalidade/{id}")]
+    [Delete("/modalidade/softdelete/{id}")]
     Task<ApiResponse<string>> DeleteModalidade(int id);
 
     [Get("/niveldificuldades")]
@@ -86,12 +101,12 @@ public interface IFitControlApi
     Task<ApiResponse<NivelDificuldade>> AddNivelDificuldade([Body] NivelDificuldade niveldificuldade);
 
     [Get("/niveldificuldade/{id}")]
-    Task<NivelDificuldade> GetNivelDificuldade(int id);
+    Task<ApiResponse<NivelDificuldade>> GetNivelDificuldade(int id);
 
     [Put("/niveldificuldade")]
     Task<ApiResponse<NivelDificuldade>> UpdateNivelDificuldade([Body] NivelDificuldade niveldificuldade);
 
-    [Delete("/niveldificuldade/{id}")]
+    [Delete("/niveldificuldade/softdelete/{id}")]
     Task<ApiResponse<string>> DeleteNivelDificuldade(int id);
 
     [Get("/salas")]
@@ -101,12 +116,12 @@ public interface IFitControlApi
     Task<ApiResponse<Sala>> AddSala([Body] Sala sala);
 
     [Get("/sala/{id}")]
-    Task<Sala> GetSala(int id);
+    Task<ApiResponse<Sala>> GetSala(int id);
 
     [Put("/sala")]
     Task<ApiResponse<Sala>> UpdateSala([Body] Sala sala);
 
-    [Delete("/sala/{id}")]
+    [Delete("/sala/softdelete/{id}")]
     Task<ApiResponse<string>> DeleteSala(int id);
 
     [Get("/socios")]
@@ -116,12 +131,12 @@ public interface IFitControlApi
     Task<ApiResponse<Socio>> AddSocio([Body] Socio socio);
 
     [Get("/socio/{id}")]
-    Task<Socio> GetSocio(int id);
+    Task<ApiResponse<Socio>> GetSocio(int id);
 
     [Put("/socio")]
     Task<ApiResponse<Socio>> UpdateSocio([Body] Socio socio);
 
-    [Delete("/socio/{id}")]
+    [Delete("/socio/softdelete/{id}")]
     Task<ApiResponse<string>> DeleteSocio(int id);
 
     [Get("/tipoplanos")]
@@ -131,11 +146,26 @@ public interface IFitControlApi
     Task<ApiResponse<TipoPlano>> AddTipoPlano([Body] TipoPlano tipoplano);
 
     [Get("/tipoplano/{id}")]
-    Task<TipoPlano> GetTipoPlano(int id);
+    Task<ApiResponse<TipoPlano>> GetTipoPlano(int id);
 
     [Put("/tipoplano")]
     Task<ApiResponse<TipoPlano>> UpdateTipoPlano([Body] TipoPlano tipoplano);
 
-    [Delete("/tipoplano/{id}")]
+    [Delete("/tipoplano/softdelete/{id}")]
     Task<ApiResponse<string>> DeleteTipoPlano(int id);
+    
+    [Get("/users")]
+    Task<ApiResponse<List<User>>> GetUsers();
+
+    [Post("/user")]
+    Task<ApiResponse<User>> AddUser([Body] User user);
+
+    [Get("/user/{id}")]
+    Task<ApiResponse<User>> GetUser(int id);
+
+    [Put("/user")]
+    Task<ApiResponse<User>> UpdateUser([Body] User user);
+
+    [Delete("/user/softdelete/{id}")]
+    Task<ApiResponse<string>> DeleteUser(int id);
 }

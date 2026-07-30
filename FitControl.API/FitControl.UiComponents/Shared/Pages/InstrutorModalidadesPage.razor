@@ -1,0 +1,139 @@
+@using FitControl.Shared.Services
+@using FitControl.Shared.Models
+@inject IFitControlApi FitControlApi
+@inject NavigationManager NavigationManager
+@inject ISnackbar Snackbar
+@inject IDialogService DialogService
+
+<PageTitle>Modalidades dos Instrutores</PageTitle>
+
+@if (_loading)
+{
+    <MudProgressLinear Indeterminate="true" Class="mb-4" />
+}
+else
+{
+
+    <PaginaListar TItem="FitControl.Shared.Models.InstrutorModalidade"
+                  Title="Modalidades dos Instrutores"
+                  AddLabel="ADICIONAR MODALIDADE DO INSTRUTOR"
+                  AddHref="/addInstrutorModalidade"
+                  Items="_instrutorModalidades">
+        <HeaderContent>
+            <MudTh>Instrutor</MudTh>
+            <MudTh>Modalidade</MudTh>
+            <MudTh Style="text-align:right;">Ações</MudTh>
+        </HeaderContent>
+
+        <RowTemplate>
+            <MudTd DataLabel="Instrutor">@(context.Instrutor?.Nome ?? "N/A")</MudTd>
+            <MudTd DataLabel="Modalidade">@(context.Modalidade?.Nome ?? "N/A")</MudTd>
+            <MudTd DataLabel="Ações" Style="text-align:right;">
+                <MudIconButton Icon="@Icons.Material.Filled.Edit"
+                               Size="Size.Small"
+                               Style="color:#1E90FF;"
+                               OnClick="@(() => OnEditNavigate(context.Id))" />
+                <MudIconButton Icon="@Icons.Material.Filled.Delete"
+                               Size="Size.Small"
+                               Style="color:#ef4444;"
+                               OnClick="@(() => OnInstrutorModalidadeDelete(context.Id))" />
+            </MudTd>
+        </RowTemplate>
+    </PaginaListar>
+    <button class="btn btn-secondary" onclick="@(()=>NavigationManager.NavigateTo("/"))">Voltar</button>
+}
+
+@code {
+
+    private List<FitControl.Shared.Models.InstrutorModalidade> _instrutorModalidades = new ();
+    
+    private bool _loading;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _loading = true;
+        
+        await base.OnInitializedAsync();
+        Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopRight;
+        
+        try
+        {
+            var response = await FitControlApi.GetInstrutorModalidades();
+            if (response.Content != null) 
+                _instrutorModalidades = response.Content;
+        }
+        catch (Exception)
+        {
+            Snackbar.Add("Erro a extrair a lista de Modalidades dos Instrutores", Severity.Error);
+        }
+        
+        StateHasChanged();
+        
+        _loading = false;
+    }
+    
+    private async Task OnInstrutorModalidadeDelete(int id)
+    {
+        //POPUP
+        try
+        {
+            var parameters = new DialogParameters<Dialog>
+            {
+                { x => x.ContentText, "Tem a certeza que quer apagar este registo? Este processo não pode ser desfeito." },
+                { x => x.ButtonOkText, "Apagar" },
+                { x => x.Color, Color.Error }
+            };
+
+            var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall };
+
+            var result = await DialogService.ShowAsync<Dialog>("Apagar", parameters, options);
+
+            var res = await result.Result;
+
+            if (res != null && res.Canceled)
+            {
+                return;
+            }
+        }
+        catch (Exception)
+        {
+            Snackbar.Add("Erro a criar popup de confirmação da ação de apagar", Severity.Error);
+        }
+        
+        try
+        {
+            var apiResponse = await FitControlApi.DeleteInstrutorModalidade(id);
+            
+            if (apiResponse.IsSuccessStatusCode)
+            {
+                Snackbar.Add("Modalidade do Instrutor apagada com sucesso", Severity.Success);
+                
+                try
+                {
+                    var response = await FitControlApi.GetInstrutorModalidades();
+                    if (response.Content != null)
+                        _instrutorModalidades = response.Content;
+                }
+                catch (Exception )
+                {
+                    Snackbar.Add("Erro a atualizar a lista de Modalidades dos Instrutores", Severity.Error);
+                }
+            }
+            else
+            {
+                Snackbar.Add("Não foi possível apagar a Modalidade do Instrutor", Severity.Error);
+            }
+        }
+        catch (Exception)
+        {
+            Snackbar.Add("Erro a apagar a Modalidade do Instrutor", Severity.Error);
+        }
+
+        StateHasChanged();
+    }
+    
+    private void OnEditNavigate(int id)
+    {
+        NavigationManager.NavigateTo($"/addInstrutorModalidade/{id}");
+    }
+}

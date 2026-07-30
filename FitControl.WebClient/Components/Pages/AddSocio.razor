@@ -1,0 +1,199 @@
+﻿@page "/addSocio"
+@page "/addSocio/{Id:int}"
+@layout FitControl.WebClient.Components.Layout.MainLayout
+@using FitControl.Shared.Models
+@using FitControl.Shared.Services
+@using Socio = FitControl.Shared.Models.Socio
+@using TipoPlano = FitControl.Shared.Models.TipoPlano
+@using Refit
+@inject IFitControlApi FitControlApi
+@inject NavigationManager NavigationManager
+@inject ISnackbar Snackbar
+@inject IDialogService DialogService
+
+<h3>@(Id.HasValue ? "Editar Sócio" : "Adicionar Sócio")</h3>
+
+@if (_socio != null)
+{
+    if (_socio.TipoPlano != null && _socio.Genero != null)
+    {
+        <EditForm FormName="AddSocioForm" Model="_socio" OnValidSubmit="SaveSocio">
+            <DataAnnotationsValidator />
+            <ValidationSummary />
+            <div class="mb-3">
+                <label class="form-label fw-bold">Nome</label>
+                <InputText class="form-control" @bind-Value="_socio.Nome"/>
+            </div>
+            <div class="mb-3">
+                <label class="form-label fw-bold">Email</label>
+                <InputText class="form-control" @bind-Value="_socio.Email"/>
+            </div>
+            <div class="mb-3">
+                <label class="form-label fw-bold">Contacto Telefónico</label>
+                <InputText class="form-control" @bind-Value="_socio.ContactoTelefonico"/>
+            </div>
+
+            <MudSelect Label="Género" @bind-Value="_socio.Genero" Placeholder="Selecione o género"
+                       ToStringFunc="@((Genero obj) => obj.Designacao ?? null)">
+                @foreach (var genero in _generos)
+                {
+                    <MudSelectItem Value="@genero">@genero.Designacao</MudSelectItem>
+                }
+            </MudSelect>
+
+            <div class="mb-3">
+                <label class="form-label fw-bold">Altura</label>
+                <InputNumber class="form-control" @bind-Value="_socio.Altura"/>
+            </div>
+            <div class="mb-3">
+                <label class="form-label fw-bold">Peso</label>
+                <InputNumber class="form-control" @bind-Value="_socio.Peso"/>
+            </div>
+
+            <MudDatePicker @bind-Date="_socio.DataNascimento" Label="Data de Nascimento" DateFormat="dd/MM/yyyy"/>
+            <MudDatePicker @bind-Date="_socio.InicioSubscricao" Label="Início Subscrição" DateFormat="dd/MM/yyyy"/>
+            <MudDatePicker @bind-Date="_socio.FimSubscricao" Label="Fim Subscrição" DateFormat="dd/MM/yyyy"/>
+
+            <MudSelect Label="Tipo de Plano" @bind-Value="_socio.TipoPlano" Placeholder="Selecione o tipo de plano"
+                       ToStringFunc="@((Shared.Models.TipoPlano obj) => obj.Designacao ?? null)">
+                @foreach (var plano in _tiposPlano)
+                {
+                    <MudSelectItem Value="@plano">@plano.Designacao</MudSelectItem>
+                }
+            </MudSelect>
+
+            <button class="btn btn-primary mt-3" type="submit"
+                    disabled="@_saving">@(Id.HasValue ? "Gravar" : "Adicionar")</button>
+        </EditForm>
+        <button class="btn btn-secondary" onclick="@(()=>NavigationManager.NavigateTo("/socios"))">Voltar</button>
+    }
+}
+
+@code {
+        [Parameter]
+    public int? Id { get; set; }
+
+    private bool _saving;
+    private Shared.Models.Socio _socio = new();
+    private List<Shared.Models.TipoPlano> _tiposPlano = new();
+    private int _tipoPlanoId;
+    private List<Shared.Models.Genero> _generos = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+        Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopRight;
+        
+        try
+        {
+            var response = await FitControlApi.GetTipoPlanos();
+            if (response.IsSuccessStatusCode && response.Content is not null)
+            {
+                _tiposPlano = response.Content;
+            }
+            
+            var generosResponse = await FitControlApi.GetGeneros();
+            if (generosResponse.IsSuccessStatusCode && generosResponse.Content is not null)
+            {
+                _generos = generosResponse.Content;
+            }
+
+            if (Id.HasValue)
+            {
+                var socioResponse = await FitControlApi.GetSocio(Id.Value);
+                if (socioResponse.Content != null)
+                    _socio = socioResponse.Content;
+
+                if (_socio is null || _socio.Id == 0)
+                {
+                    Snackbar.Add("Sócio não encontrado.", Severity.Error);
+                }
+            }
+            else
+            {
+                _socio.TipoPlano = new();
+                _socio.Genero = new();
+            }
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Não foi possível carregar os tipos de plano. {ex.Message}", Severity.Error);
+        }
+    }
+
+    private async Task SaveSocio()
+    {
+
+        if (_socio.DataNascimento is null || _socio.InicioSubscricao is null || _socio.FimSubscricao is null)
+        {
+            Snackbar.Add("Todas as datas são obrigatórias.", Severity.Error);
+            return;
+        }
+
+        _saving = true;
+
+        try
+        {
+            _socio.TipoPlanoId = _socio.TipoPlano.Id;
+            _socio.GeneroId = _socio.Genero.Id;
+            /*_socio.CreatedAt = DateTime.Now;
+            _socio.UpdatedAt = DateTime.Now;*/
+
+            var response = Id.HasValue
+                ? await FitControlApi.UpdateSocio(_socio)
+                : await FitControlApi.AddSocio(_socio);
+
+            if (response.IsSuccessStatusCode)
+            {
+                Snackbar.Add(Id.HasValue
+                    ? "Sócio editado com sucesso" 
+                    : "Sócio adicionado com sucesso", Severity.Success);
+            }
+            else
+            {
+                Snackbar.Add($"Não foi possível guardar o Sócio. API devolveu {response.StatusCode}.", Severity.Error);
+            }
+        }
+        catch (ApiException ex)
+        {
+            Snackbar.Add($"Não foi possível guardar o Sócio. API devolveu {(int)ex.StatusCode}: {ex.ReasonPhrase}", Severity.Error);
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Não foi possível guardar o Sócio. {ex.Message}", Severity.Error);
+        }
+        finally
+        {
+            _saving = false;
+        }
+        
+        //POPUP
+        try
+        {
+            var parameters = new DialogParameters<Dialog>
+            {
+                { x => x.ContentText, "Deseja sair da página?" },
+                { x => x.ButtonOkText, "Sim" },
+                { x => x.ButtonCancelText, "Não" },
+                { x => x.Color, Color.Error }
+            };
+
+            var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall };
+
+            var result = await DialogService.ShowAsync<Dialog>("Sair da página", parameters, options);
+        
+            var res = await result.Result;
+
+            if (res != null && res.Canceled)
+            {
+                return;
+            }
+        }
+        catch (Exception)
+        {
+            Snackbar.Add("Erro a criar popup de confirmação de saída", Severity.Error);
+        }
+        
+        NavigationManager.NavigateTo("/socios");
+    }
+}

@@ -12,15 +12,23 @@ public class SocioDto
     
     public string Nome { get; set; }
     
-    public DateOnly DataNascimento { get; set; }
+    public DateTime DataNascimento { get; set; }
+    
+    public int GeneroId { get; set; }
+    
+    public Genero Genero { get; set; }
+   
+    public float Altura { get; set; }
+    
+    public float Peso { get; set; }
     
     public string Email { get; set; }
     
     public string ContactoTelefonico { get; set; }
     
-    public DateOnly InicioSubscricao { get; set; }
+    public DateTime InicioSubscricao { get; set; }
     
-    public DateOnly FimSubscricao { get; set; }
+    public DateTime FimSubscricao { get; set; }
     
     public bool IsDeleted { get; set; }
 }

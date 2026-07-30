@@ -8,6 +8,7 @@
 
     <ItemGroup>
         <PackageReference Include="Mapster" Version="10.0.9" />
+        <PackageReference Include="Mapster.DependencyInjection" Version="10.0.9" />
         <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.8"/>
         <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.9" />
         <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.9">
@@ -19,6 +20,10 @@
           <PrivateAssets>all</PrivateAssets>
           <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\..\FitControl.Shared\FitControl.Shared.csproj" />
     </ItemGroup>
 
 </Project>

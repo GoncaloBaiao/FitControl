@@ -6,6 +6,12 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FitControl.WebClient", "..\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FitControl.Shared", "..\FitControl.Shared\FitControl.Shared.csproj", "{7492425C-7B7D-46A8-B31B-19F04F721F40}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FitControl.Maui", "..\FitControl.Maui\FitControl.Maui.csproj", "{B03ACE8C-2621-461B-906B-4BBBD1BD01C2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FitControl.UiComponents", "FitControl.UiComponents\FitControl.UiComponents.csproj", "{4D9A7C7B-71EE-437D-92FA-92E4F6946CEA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestFitControl", "TestFitControl\TestFitControl.csproj", "{22A4950B-3757-4C91-92D1-0AD21C12E0A2}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -24,5 +30,17 @@ Global
 		{7492425C-7B7D-46A8-B31B-19F04F721F40}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7492425C-7B7D-46A8-B31B-19F04F721F40}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7492425C-7B7D-46A8-B31B-19F04F721F40}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B03ACE8C-2621-461B-906B-4BBBD1BD01C2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B03ACE8C-2621-461B-906B-4BBBD1BD01C2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B03ACE8C-2621-461B-906B-4BBBD1BD01C2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B03ACE8C-2621-461B-906B-4BBBD1BD01C2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4D9A7C7B-71EE-437D-92FA-92E4F6946CEA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4D9A7C7B-71EE-437D-92FA-92E4F6946CEA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4D9A7C7B-71EE-437D-92FA-92E4F6946CEA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4D9A7C7B-71EE-437D-92FA-92E4F6946CEA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{22A4950B-3757-4C91-92D1-0AD21C12E0A2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{22A4950B-3757-4C91-92D1-0AD21C12E0A2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{22A4950B-3757-4C91-92D1-0AD21C12E0A2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{22A4950B-3757-4C91-92D1-0AD21C12E0A2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

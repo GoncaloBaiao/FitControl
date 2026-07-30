@@ -1,0 +1,154 @@
+﻿@page "/socios"
+@using Socio = FitControl.Shared.Models.Socio
+@using FitControl.Shared.Services
+@using MudBlazor
+@using Refit
+@inject IFitControlApi FitControlApi
+@layout FitControl.WebClient.Components.Layout.MainLayout
+@inject ISnackbar Snackbar
+@inject IDialogService DialogService
+@inject NavigationManager NavigationManager
+
+<PageTitle>Sócios</PageTitle>
+
+@if (_loading)
+{
+    <MudProgressLinear Indeterminate="true" Class="mb-4" />
+}
+else
+{
+
+    <PaginaListar TItem="Shared.Models.Socio"
+                  Title="Sócios"
+                  AddLabel="ADICIONAR SÓCIO"
+                  AddHref="/addSocio"
+                  Items="_socios">
+
+        <HeaderContent>
+            <MudTh>Nome</MudTh>
+            @*<MudTh>Email</MudTh>
+            <MudTh>Contacto</MudTh>
+            <MudTh>Data Nascimento</MudTh>*@
+            <MudTh>Genero</MudTh>
+            <MudTh>Altura</MudTh>
+            <MudTh>Peso</MudTh>
+            <MudTh>Início Subscrição</MudTh>
+            <MudTh>Fim Subscrição</MudTh>
+            <MudTh>Tipo Plano</MudTh>
+            <MudTh Style="text-align:right;">Ações</MudTh>
+        </HeaderContent>
+
+        <RowTemplate>
+            <MudTd DataLabel="Nome">@context.Nome</MudTd>
+            @*<MudTd DataLabel="Email">@context.Email</MudTd>
+            <MudTd DataLabel="Contacto">@context.ContactoTelefonico</MudTd>
+            <MudTd DataLabel="Data Nascimento">@FormatDate(context.DataNascimento)</MudTd>*@
+            <MudTd DataLabel="Genero">@context.Genero?.Designacao</MudTd>
+            <MudTd>@context.Altura</MudTd>
+            <MudTd>@context.Peso</MudTd>
+            <MudTd DataLabel="Início Subscrição">@FormatDate(context.InicioSubscricao)</MudTd>
+            <MudTd DataLabel="Fim Subscrição">@FormatDate(context.FimSubscricao)</MudTd>
+            <MudTd DataLabel="Tipo Plano">@(context.TipoPlano?.Designacao ?? "N/A")</MudTd>
+            <MudTd DataLabel="Ações" Style="text-align:right;">
+                <MudStack Row="true" Spacing="1" Justify="Justify.FlexEnd">
+                    <MudIconButton Href="@($"/addSocio/{context.Id}")"
+                                   Icon="@Icons.Material.Filled.Edit"
+                                   Size="Size.Small"
+                                   Style="color:#1E90FF;"
+                                   Title="Editar" />
+                    <MudIconButton OnClick="@(() => OnSocioDelete(context.Id))"
+                                   Icon="@Icons.Material.Filled.Delete"
+                                   Size="Size.Small"
+                                   Style="color:#ef4444;"
+                                   Title="Eliminar" />
+                    <MudIconButton Href="@($"/socioDetail/{context.Id}")"
+                                   Icon="@Icons.Material.Filled.Info"
+                                   Size="Size.Small"
+                                   Style="color:#14C3F1;"
+                                   Title="Details" />
+                </MudStack>
+            </MudTd>
+        </RowTemplate>
+    </PaginaListar>
+    <button class="btn btn-secondary" onclick="@(()=>NavigationManager.NavigateTo("/"))">Voltar</button>
+}
+
+@code {
+    private bool _loading = true;
+    private bool _hasLoaded;
+    private List<Shared.Models.Socio> _socios = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (_hasLoaded) return;
+        _hasLoaded = true;
+
+        try
+        {
+            var response = await FitControlApi.GetSocios();
+
+            if (response.IsSuccessStatusCode && response.Content is not null)
+            {
+                _socios = response.Content;
+            }
+            else
+            {
+                _socios = new List<Shared.Models.Socio>();
+                Snackbar.Add($"API devolveu {response.StatusCode}.", Severity.Error);
+            }
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Não foi possível carregar sócios. Verifica se a API está a correr. Erro: {ex.Message}", Severity.Error);
+            _socios = new List<Shared.Models.Socio>();
+        }
+        finally
+        {
+            _loading = false;
+        }
+    }
+    
+    private async Task OnSocioDelete(int id)
+    {
+        try
+        {
+            var parameters = new DialogParameters<Dialog>
+            {
+                { x => x.ContentText, "Tem a certeza que quer apagar este registo? Este processo não pode ser desfeito." },
+                { x => x.ButtonOkText, "Apagar" },
+                { x => x.Color, Color.Error }
+            };
+
+            var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall };
+            var dialog = await DialogService.ShowAsync<Dialog>("Apagar", parameters, options);
+            var result = await dialog.Result;
+
+            if (result.Canceled) return;
+        }
+        catch
+        {
+            Snackbar.Add("Erro a criar popup de confirmação de apagar.", Severity.Error);
+            return;
+        }
+
+        try
+        {
+            var res = await FitControlApi.DeleteSocio(id);
+
+            if (res.IsSuccessStatusCode)
+            {
+                _socios = _socios.Where(a => a.Id != id).ToList();
+                Snackbar.Add("Sócio apagado com sucesso", Severity.Success);
+            }
+            else
+            {
+                Snackbar.Add("Não foi possível apagar o Sócio", Severity.Error);
+            }
+        }
+        catch
+        {
+            Snackbar.Add("Erro a apagar Sócio", Severity.Error);
+        }
+    }
+    private string FormatDate(DateTime? date) => date?.ToString("dd/MM/yyyy") ?? "";
+}

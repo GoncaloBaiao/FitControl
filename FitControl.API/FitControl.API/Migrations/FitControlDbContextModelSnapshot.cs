@@ -36,6 +36,10 @@ namespace FitControl.API.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
+                    b.Property<string>("Descricao")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<DateTime>("HoraFim")
                         .HasColumnType("datetime2");
 
@@ -70,6 +74,32 @@ namespace FitControl.API.Migrations
                     b.HasIndex("SalaId");
 
                     b.ToTable("Aulas");
+                });
+
+            modelBuilder.Entity("FitControl.API.Entities.Genero", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Designacao")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Generos");
                 });
 
             modelBuilder.Entity("FitControl.API.Entities.Inscricao", b =>
@@ -125,8 +155,8 @@ namespace FitControl.API.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<DateOnly>("DataNascimento")
-                        .HasColumnType("date");
+                    b.Property<DateTime>("DataNascimento")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("Email")
                         .IsRequired()
@@ -251,6 +281,10 @@ namespace FitControl.API.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
+                    b.Property<string>("Descricao")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
@@ -274,6 +308,9 @@ namespace FitControl.API.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<float>("Altura")
+                        .HasColumnType("real");
+
                     b.Property<string>("ContactoTelefonico")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -281,18 +318,21 @@ namespace FitControl.API.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<DateOnly>("DataNascimento")
-                        .HasColumnType("date");
+                    b.Property<DateTime>("DataNascimento")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("Email")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateOnly>("FimSubscricao")
-                        .HasColumnType("date");
+                    b.Property<DateTime>("FimSubscricao")
+                        .HasColumnType("datetime2");
 
-                    b.Property<DateOnly>("InicioSubscricao")
-                        .HasColumnType("date");
+                    b.Property<int>("GeneroId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("InicioSubscricao")
+                        .HasColumnType("datetime2");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
@@ -301,6 +341,9 @@ namespace FitControl.API.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<float>("Peso")
+                        .HasColumnType("real");
+
                     b.Property<int>("TipoPlanoId")
                         .HasColumnType("int");
 
@@ -308,6 +351,8 @@ namespace FitControl.API.Migrations
                         .HasColumnType("datetime2");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("GeneroId");
 
                     b.HasIndex("TipoPlanoId");
 
@@ -376,19 +421,19 @@ namespace FitControl.API.Migrations
             modelBuilder.Entity("FitControl.API.Entities.Aula", b =>
                 {
                     b.HasOne("FitControl.API.Entities.Instrutor", "Instrutor")
-                        .WithMany("Aulas")
+                        .WithMany()
                         .HasForeignKey("InstrutorId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("FitControl.API.Entities.Modalidade", "Modalidade")
-                        .WithMany("Aulas")
+                        .WithMany()
                         .HasForeignKey("ModalidadeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("FitControl.API.Entities.Sala", "Sala")
-                        .WithMany("Aulas")
+                        .WithMany()
                         .HasForeignKey("SalaId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -403,13 +448,13 @@ namespace FitControl.API.Migrations
             modelBuilder.Entity("FitControl.API.Entities.Inscricao", b =>
                 {
                     b.HasOne("FitControl.API.Entities.Aula", "Aula")
-                        .WithMany("Inscricaos")
+                        .WithMany()
                         .HasForeignKey("AulaId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("FitControl.API.Entities.Socio", "Socio")
-                        .WithMany("Inscricaos")
+                        .WithMany()
                         .HasForeignKey("SocioId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -422,13 +467,13 @@ namespace FitControl.API.Migrations
             modelBuilder.Entity("FitControl.API.Entities.InstrutorModalidade", b =>
                 {
                     b.HasOne("FitControl.API.Entities.Instrutor", "Instrutor")
-                        .WithMany("IntrutorModalidades")
+                        .WithMany()
                         .HasForeignKey("InstrutorId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("FitControl.API.Entities.Modalidade", "Modalidade")
-                        .WithMany("IntrutorModalidades")
+                        .WithMany()
                         .HasForeignKey("ModalidadeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -441,7 +486,7 @@ namespace FitControl.API.Migrations
             modelBuilder.Entity("FitControl.API.Entities.Modalidade", b =>
                 {
                     b.HasOne("FitControl.API.Entities.NivelDificuldade", "NivelDificuldade")
-                        .WithMany("Modalidades")
+                        .WithMany()
                         .HasForeignKey("NivelDificuldadeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -451,52 +496,21 @@ namespace FitControl.API.Migrations
 
             modelBuilder.Entity("FitControl.API.Entities.Socio", b =>
                 {
+                    b.HasOne("FitControl.API.Entities.Genero", "Genero")
+                        .WithMany()
+                        .HasForeignKey("GeneroId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("FitControl.API.Entities.TipoPlano", "TipoPlano")
-                        .WithMany("Socios")
+                        .WithMany()
                         .HasForeignKey("TipoPlanoId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.Navigation("Genero");
+
                     b.Navigation("TipoPlano");
-                });
-
-            modelBuilder.Entity("FitControl.API.Entities.Aula", b =>
-                {
-                    b.Navigation("Inscricaos");
-                });
-
-            modelBuilder.Entity("FitControl.API.Entities.Instrutor", b =>
-                {
-                    b.Navigation("Aulas");
-
-                    b.Navigation("IntrutorModalidades");
-                });
-
-            modelBuilder.Entity("FitControl.API.Entities.Modalidade", b =>
-                {
-                    b.Navigation("Aulas");
-
-                    b.Navigation("IntrutorModalidades");
-                });
-
-            modelBuilder.Entity("FitControl.API.Entities.NivelDificuldade", b =>
-                {
-                    b.Navigation("Modalidades");
-                });
-
-            modelBuilder.Entity("FitControl.API.Entities.Sala", b =>
-                {
-                    b.Navigation("Aulas");
-                });
-
-            modelBuilder.Entity("FitControl.API.Entities.Socio", b =>
-                {
-                    b.Navigation("Inscricaos");
-                });
-
-            modelBuilder.Entity("FitControl.API.Entities.TipoPlano", b =>
-                {
-                    b.Navigation("Socios");
                 });
 #pragma warning restore 612, 618
         }
