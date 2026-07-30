@@ -7,7 +7,7 @@ namespace TestFitControl.InstrutorTests;
 [TestClass]
 public class InstrutorValidationTests
 {
-    [TestMethod]
+    [TestMethod] 
     public void ContactoTelefonico_DeveSerPortuguesValido()
     {
         // ARRANGE
