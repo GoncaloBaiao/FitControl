@@ -156,7 +156,7 @@ else
                 i.AulaId == aulaId ||
                 (i.Aula is not null && i.Aula.Id == aulaId)
             )
-            && (!i.DataCancelamento.HasValue || i.DataCancelamento.Value.Date >= DateTime.Today)
+            //&& (!i.DataCancelamento.HasValue || i.DataCancelamento.Value.Date >= DateTime.Today)
         );
     }
 
